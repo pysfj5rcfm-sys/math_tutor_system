@@ -1,0 +1,11 @@
+defaults:
+  tenant_id: "personal"
+  student_id: "daughter_grade5"
+  created_by_user_id: "parent"
+database:
+  path: "data/math_tutor.db"
+outputs:
+  worksheets: "outputs/worksheets"
+  answer_sheets: "outputs/answer_sheets"
+  prompts: "outputs/prompts"
+  reviews: "outputs/reviews"

@@ -1,0 +1,50 @@
+student_id: "daughter_grade5"
+display_name: "女儿"
+grade: "小学五年级"
+
+goals:
+  primary:
+    - "提升数学成绩"
+    - "准备小升初分班考试"
+  secondary:
+    - "兼顾语文阅读理解"
+
+baseline:
+  math_score_range: "70-80"
+  current_level: "校内基础不够稳定，部分题型需要专项训练"
+
+teaching_style:
+  tone: "温柔、鼓励、具体"
+  avoid:
+    - "不要突然拔高"
+    - "不要直接给答案"
+    - "不要打击孩子"
+  prefer:
+    - "分步骤引导"
+    - "先问问题再讲解"
+    - "用孩子能懂的话解释"
+
+worksheet_preferences:
+  page_size: "A4"
+  font: "黑体或系统无衬线中文字体"
+  no_question_border: true
+  calculation_equation_layout: "two_columns"
+  word_problem_layout: "single_column"
+  geometry_layout: "single_column"
+  use_blank_space_not_underline: true
+  separate_answer_sheet: true
+
+difficulty_policy:
+  calculation: "基础到中等"
+  equation: "基础到中等"
+  geometry: "中等，少量提高"
+  word_problem: "中等，少量浅奥"
+  competition_style: "暂不大量使用"
+
+default_training_constraints:
+  max_questions_per_day: 14
+  max_time_minutes: 35
+  avoid_too_many_hard_questions: true
+
+profile_update_policy:
+  profile_update_requires_parent_confirmation: true

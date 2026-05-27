@@ -1,0 +1,25 @@
+worksheet:
+  title: "五年级数学专项训练"
+  date: "2026-05-27"
+  student_id: "daughter_grade5"
+  sections:
+    - name: "一、递等式计算"
+      layout: "two_columns"
+      questions:
+        - question_type: "递等式计算"
+          knowledge_point: "小数计算"
+          target_mistake_tag: "C3"
+          difficulty: "基础"
+          question: "3.6 ÷ 0.9 + 2.4 × 1.5"
+          answer: "7.6"
+          explanation: "先算除法和乘法，再相加，注意小数点位置。"
+    - name: "二、应用题"
+      layout: "single_column"
+      questions:
+        - question_type: "应用题"
+          knowledge_point: "倍数关系"
+          target_mistake_tag: "M3"
+          difficulty: "中等"
+          question: "果园里苹果树是梨树的 3 倍，苹果树比梨树多 48 棵。梨树有多少棵？"
+          answer: "24 棵"
+          explanation: "苹果树比梨树多 2 倍梨树，48 ÷ 2 = 24。"

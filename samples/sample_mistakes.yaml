@@ -1,0 +1,23 @@
+mistakes:
+  - date: "2026-05-27"
+    question_type: "递等式计算"
+    knowledge_point: "小数计算"
+    mistake_tag: "C3"
+    difficulty: "基础"
+    question_summary: "小数四则混合运算"
+    wrong_answer_summary: "小数点位置错误"
+    correct_answer_summary: "正确结果为 7.6"
+    training_needed: true
+    source: "GPT批改"
+    note: "前面步骤正确，最后小数点错位"
+  - date: "2026-05-26"
+    question_type: "应用题"
+    knowledge_point: "倍数关系"
+    mistake_tag: "M3"
+    difficulty: "中等"
+    question_summary: "倍数关系应用题"
+    wrong_answer_summary: "对应量找错"
+    correct_answer_summary: "应先找一倍量"
+    training_needed: true
+    source: "GPT批改"
+    note: "需要练习线段图"

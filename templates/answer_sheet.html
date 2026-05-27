@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{{ worksheet.title }} - 答案页</title>
+  <style>
+    @page { size: A4; margin: 18mm; }
+    body { font-family: SimHei, "Microsoft YaHei", Arial, sans-serif; color: #111; }
+    h1 { text-align: center; font-size: 22px; margin: 0 0 8mm; letter-spacing: 0; }
+    h2 { font-size: 17px; margin: 8mm 0 4mm; }
+    .item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 6mm; font-size: 14px; line-height: 1.7; }
+    .answer { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>{{ worksheet.title }} - 答案页</h1>
+  {% for section in sections %}
+    <h2>{{ section.name }}</h2>
+    {% for item in section.questions %}
+      <div class="item">
+        <div>{{ loop.index }}. {{ item.question }}</div>
+        <div class="answer">答案：{{ item.answer }}</div>
+        <div>解析：{{ item.explanation }}</div>
+      </div>
+    {% endfor %}
+  {% endfor %}
+</body>
+</html>

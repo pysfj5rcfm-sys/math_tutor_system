@@ -1,0 +1,51 @@
+# {{ profile.display_name }} 本周数学复盘
+
+时间：{{ week_start }} 至 {{ week_end }}
+
+## 1. 本周高频错因
+
+{% for row in top_tags %}
+- {{ row.mistake_tag }}：{{ row.count }} 次
+{% else %}
+- 本周暂无 confirmed 错题记录。
+{% endfor %}
+
+## 2. 本周错因 × 题型
+
+{% for row in tag_by_type %}
+- {{ row.mistake_tag }} × {{ row.question_type }}：{{ row.count }} 次
+{% else %}
+- 暂无数据。
+{% endfor %}
+
+## 3. 本周错因 × 知识点
+
+{% for row in tag_by_knowledge %}
+- {{ row.mistake_tag }} × {{ row.knowledge_point }}：{{ row.count }} 次
+{% else %}
+- 暂无数据。
+{% endfor %}
+
+## 4. 本周训练覆盖情况
+
+{% for item in coverage %}
+- {{ item }}
+{% else %}
+- 暂无覆盖提醒。
+{% endfor %}
+
+## 5. 数据缺失提醒
+
+{% for item in missing_alerts %}
+- {{ item }}
+{% else %}
+- 暂无明显数据缺失。
+{% endfor %}
+
+## 6. 下周建议交给 GPT 进一步分析的 Prompt
+
+{{ gpt_prompt }}
+
+## 7. 画像更新建议字段预留
+
+profile_update_suggestions: []

@@ -1,0 +1,18 @@
+worksheet:
+  title: "五年级几何专项训练"
+  date: "2026-05-27"
+  student_id: "daughter_grade5"
+  sections:
+    - name: "一、几何计算"
+      layout: "single_column"
+      questions:
+        - question_type: "几何计算"
+          knowledge_point: "组合图形面积"
+          target_mistake_tag: "G1"
+          difficulty: "中等"
+          question: "一个组合图形可以分成一个长方形和一个三角形，请根据题目条件求面积。"
+          answer: "按分割后的面积相加"
+          explanation: "v0.1 只保留几何题文本，不渲染复杂图形。"
+          requires_diagram: true
+          diagram_json:
+            type: "reserved"
