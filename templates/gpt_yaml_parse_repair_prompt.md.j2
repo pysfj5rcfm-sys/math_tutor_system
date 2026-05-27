@@ -1,0 +1,44 @@
+当前 YAML 在解析阶段失败，尚未进入 MVP 字段校验。
+
+source_type: {{ source_type }}
+error_type: {{ report.error_type }}
+line: {{ report.line }}
+column: {{ report.column }}
+problem: {{ report.problem }}
+
+中文解释：
+{{ report.human_message }}
+
+建议修复：
+{{ report.suggestion }}
+
+错误行附近文本：
+```text
+{% for row in report.nearby_lines -%}
+{{ ">" if row.is_error_line else " " }} {{ "%4d"|format(row.line) }}: {{ row.text }}
+{% endfor -%}
+```
+
+请你只修复 YAML 语法和缩进、列表层级、冒号、代码块标记问题。
+
+严格要求：
+- 不重新批改。
+- 不重新出题。
+- 不改变题目主体。
+- 不改变答案主体。
+- 不输出解释。
+- 不输出 Markdown。
+- 不输出 ```yaml。
+- 不输出 ```。
+- 只输出修复后的完整 YAML。
+- 必须直接从 {{ source_type_root }}: 开始。
+
+对应的正确骨架：
+```yaml
+{{ skeleton }}
+```
+
+原始 YAML：
+```text
+{{ original_text }}
+```

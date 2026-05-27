@@ -1,0 +1,25 @@
+worksheet:
+  title: "UAT 五年级数学专项训练"
+  date: "2026-05-27"
+  student_id: "daughter_grade5"
+  sections:
+    - name: "一、递等式计算"
+      layout: "two_columns"
+      questions:
+        - question_type: "递等式计算"
+          knowledge_point: "小数计算"
+          target_mistake_tag: "C3"
+          difficulty: "基础"
+          question: "4.8 ÷ 1.2 + 0.75 × 8"
+          answer: "10"
+          explanation: "先算除法和乘法，再相加。"
+    - name: "二、应用题"
+      layout: "single_column"
+      questions:
+        - question_type: "应用题"
+          knowledge_point: "阅读理解型应用题"
+          target_mistake_tag: "R4"
+          difficulty: "中等"
+          question: "一本书看了 36 页，剩下的是已看的 2 倍。这本书一共有多少页？"
+          answer: "108 页"
+          explanation: "剩下的是 36 × 2 = 72 页，总页数是 36 + 72 = 108 页。"

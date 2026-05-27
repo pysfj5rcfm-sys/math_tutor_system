@@ -1,0 +1,12 @@
+mistakes:
+  - date: "2026-05-27"
+    question_type: "解方程"
+    knowledge_point: "小数混合运算"
+    mistake_tag: "R4 关键词理解弱"
+    difficulty: "简单"
+    question_summary: ""
+    wrong_answer_summary: "UAT 错误"
+    correct_answer_summary: "UAT 正确"
+    training_needed: true
+    source: "UAT测试夹具"
+    note: "测试数据，不是真实学生记录"

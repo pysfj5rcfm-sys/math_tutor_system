@@ -1,0 +1,86 @@
+YAML 已能解析，但未通过 MVP 业务字段校验。
+
+source_type: {{ source_type }}
+
+人类可读 validation report：
+```yaml
+{{ readable_report_yaml }}
+```
+
+原始 validation JSON：
+```yaml
+{{ raw_validation_yaml }}
+```
+
+合法 question_type 枚举：
+```yaml
+{{ question_types_yaml }}
+```
+
+合法 knowledge_point 枚举：
+```yaml
+{{ knowledge_points_yaml }}
+```
+
+合法 mistake_tag / target_mistake_tag 枚举：
+```yaml
+{{ mistake_tags_yaml }}
+```
+
+合法 difficulty 枚举：
+```yaml
+{{ difficulties_yaml }}
+```
+
+修复要求：
+- 不重新出题，只修复字段和枚举、缺失必填项和不支持字段。
+- 不重新批改。
+- 不大幅改写题目主体。
+- 不改变原题含义。
+- 不输出解释。
+- 不输出 Markdown。
+- 不输出 ```yaml。
+- 不输出 ```。
+- 只输出修复后的完整 YAML。
+- mistakes 必须从 mistakes: 开始。
+- worksheet 必须从 worksheet: 开始。
+
+当前 v0.1.x mistakes.yaml 标准结构：
+```yaml
+mistakes:
+  - date: "2026-05-27"
+    question_type: "应用题"
+    knowledge_point: "阅读理解型应用题"
+    mistake_tag: "R4"
+    difficulty: "中等"
+    question_summary: "..."
+    wrong_answer_summary: "..."
+    correct_answer_summary: "..."
+    training_needed: true
+    source: "GPT批改"
+    note: "..."
+```
+
+当前 v0.1.x worksheet.yaml 标准结构：
+```yaml
+worksheet:
+  title: "五年级数学专项训练"
+  date: "2026-05-27"
+  student_id: "daughter_grade5"
+  sections:
+    - name: "一、递等式计算"
+      layout: "two_columns"
+      questions:
+        - question_type: "递等式计算"
+          knowledge_point: "小数计算"
+          target_mistake_tag: "C3"
+          difficulty: "基础"
+          question: "..."
+          answer: "..."
+          explanation: "..."
+```
+
+原始 YAML：
+```text
+{{ original_text }}
+```

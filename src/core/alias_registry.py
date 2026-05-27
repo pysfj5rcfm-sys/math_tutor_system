@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import yaml
+
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_ALIAS_PATH = ROOT / "config" / "alias_mappings.yaml"
+
+EMPTY_ALIASES = {
+    "question_type_aliases": {},
+    "knowledge_point_aliases": {},
+    "difficulty_aliases": {},
+    "mistake_tag_aliases": {},
+}
+
+
+def load_alias_mappings(path: str | Path = DEFAULT_ALIAS_PATH) -> dict[str, dict[str, str]]:
+    try:
+        with Path(path).open("r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        return {key: {} for key in EMPTY_ALIASES}
+    except yaml.YAMLError:
+        return {key: {} for key in EMPTY_ALIASES}
+
+    result: dict[str, dict[str, str]] = {}
+    for key in EMPTY_ALIASES:
+        section = data.get(key, {})
+        result[key] = section if isinstance(section, dict) else {}
+    return result
+
+
+def suggest_value(field: str, current_value: Any, aliases: dict[str, dict[str, str]] | None = None) -> str | None:
+    if current_value is None:
+        return None
+    aliases = aliases or load_alias_mappings()
+    value = str(current_value).strip()
+    field_to_alias_key = {
+        "question_type": "question_type_aliases",
+        "knowledge_point": "knowledge_point_aliases",
+        "difficulty": "difficulty_aliases",
+        "mistake_tag": "mistake_tag_aliases",
+        "target_mistake_tag": "mistake_tag_aliases",
+        "layout": {},
+    }
+    if field == "layout":
+        return {"双列": "two_columns", "单列": "single_column"}.get(value)
+    alias_key = field_to_alias_key.get(field)
+    if not isinstance(alias_key, str):
+        return None
+    return aliases.get(alias_key, {}).get(value)

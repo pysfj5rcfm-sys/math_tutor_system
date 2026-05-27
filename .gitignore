@@ -1,0 +1,67 @@
+﻿# Python cache
+__pycache__/
+*.py[cod]
+*.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local secrets / env
+.env
+.env.*
+*.key
+*.pem
+secrets.*
+config/secrets.yaml
+config/local_settings.yaml
+.streamlit/secrets.toml
+
+# Local SQLite runtime data
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/*backup*.db
+data/*_backup*.db
+data/*.bak
+
+# Generated outputs
+outputs/worksheets/*
+outputs/answer_sheets/*
+outputs/prompts/*
+outputs/reviews/*
+outputs/*.html
+outputs/*.md
+outputs/*.json
+
+# Keep output directory placeholders if created
+!outputs/.gitkeep
+!outputs/worksheets/.gitkeep
+!outputs/answer_sheets/.gitkeep
+!outputs/prompts/.gitkeep
+!outputs/reviews/.gitkeep
+
+# Logs / temp
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build
+build/
+dist/
+*.egg-info/

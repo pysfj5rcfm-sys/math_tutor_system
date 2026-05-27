@@ -53,7 +53,7 @@ def test_invalid_mistakes_sample_reports_errors_and_warning(conn):
     assert "invalid_question_type" in error_codes
     assert "empty_question_summary" in error_codes
     assert "unknown_knowledge_point" in warning_codes
-    assert report["imported_count"] == 1
+    assert report["imported_count"] == 0
     assert report["skipped_count"] == 4
 
 

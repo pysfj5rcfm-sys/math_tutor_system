@@ -1,0 +1,15 @@
+worksheet:
+  title: "UAT 缩进错误试卷"
+  date: "2026-05-27"
+  student_id: "daughter_grade5"
+  sections:
+- name: "一、递等式计算"
+  layout: "two_columns"
+    questions:
+      - question_type: "递等式计算"
+        knowledge_point: "小数计算"
+        target_mistake_tag: "C3"
+        difficulty: "基础"
+        question: "3.6 ÷ 0.9"
+        answer: "4"
+        explanation: "小数除法。"

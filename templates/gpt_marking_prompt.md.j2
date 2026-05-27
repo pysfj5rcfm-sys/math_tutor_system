@@ -11,6 +11,10 @@ mistake_tags:
 - 每道错题必须选择一个 mistake_tag，且只能使用上方 24 个标签 code。
 - question_type、knowledge_point、difficulty 必须尽量使用系统合法值。
 - 输出必须是 YAML，不要输出 Markdown 表格。
+- 当前 v0.1.x 只接受 mistakes 下直接列表，不接受 student_id/date/source/items 包裹结构。
+- 必须直接从 mistakes: 开始。
+- 不输出 ```yaml，不输出 ```。
+- 每条记录必须写成缩进两个空格的列表项：`  - date: ...`。
 
 mistakes.yaml schema:
 {{ mistake_schema_yaml }}

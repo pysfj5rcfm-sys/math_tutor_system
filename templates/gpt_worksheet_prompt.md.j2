@@ -21,6 +21,15 @@ mistake_tag_by_knowledge_point:
 default_training_constraints:
 {{ constraints_yaml }}
 
+合法 question_type 枚举：
+{{ question_types_yaml }}
+
+合法 knowledge_point 枚举：
+{{ knowledge_points_yaml }}
+
+合法 difficulty 枚举：
+{{ difficulties_yaml }}
+
 试卷格式要求：
 - A4 页面。
 - 递等式计算和方程适合两列排版。
@@ -28,6 +37,33 @@ default_training_constraints:
 - 题目不要重复近期题目。
 - 每题必须标注 question_type、knowledge_point、target_mistake_tag、difficulty。
 - 总题量不要超过默认限制。
+- 只输出 worksheet.yaml，必须直接从 worksheet: 开始。
+- 不输出 Markdown，不输出 ```yaml，不输出 ```。
+- 必须使用标准 YAML 缩进。
+- worksheet 下字段缩进 2 个空格。
+- sections 列表项缩进 4 个空格。
+- questions 列表项缩进 8 个空格。
+- 每道题后续字段缩进 10 个空格。
+- question_type 只能使用 MVP 合法枚举。
+- knowledge_point 必须优先使用 MVP 初始合法值。
+- target_mistake_tag 只能使用上方错因标签 code，不要写标签名称或解释。
+- difficulty 只能是 基础/中等/提高/浅奥。
+- v0.1.2 暂不输出 diagram。
+- 不输出 svg_primitives。
+- 不写“如图”但没有图。
+- 每道题必须有 question、answer、explanation。
+
+数据驱动出题规则：
+- 出题结构必须根据 MVP Prompt 中提供的 confirmed 错因统计、学生画像、当前阶段目标和用户本次要求动态决定。
+- 不得把 UAT 样例数据当成真实学生错因。
+- 不得把某次测试中出现的 C3/F3/R4 等错因写成全局默认。
+- 如果统计中某类错因高频，应优先在适合该错因的题型中覆盖。
+- 如果没有足够统计数据，再使用温和均衡结构。
+- 不得机械固定为 4+3+2+2+3。
+- 不得机械固定 C3/F3/R4/U1/K3/G1 权重。
+- 当前学生画像与项目指令优先于 UAT 示例。
+- 可以给出示例性分配方法，但必须明确这只是示例，不是全局硬规则。
+- 题型和错因覆盖必须依据 confirmed 错因统计动态分配。
 
 worksheet.yaml schema:
 {{ worksheet_schema_yaml }}

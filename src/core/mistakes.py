@@ -72,6 +72,8 @@ def import_mistakes_payload(
     created_by_user_id: str = DEFAULT_CREATED_BY_USER_ID,
 ) -> dict[str, Any]:
     report, valid_rows = validate_mistakes_payload(payload)
+    if report.errors:
+        return report.as_dict()
     ts = now_iso()
     for row in valid_rows:
         conn.execute(

@@ -7,6 +7,7 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from src.core.mistake_tags import tags_as_dicts
+from src.schemas.mistake_schema import DIFFICULTIES, KNOWLEDGE_POINTS, QUESTION_TYPES
 from src.schemas.worksheet_schema import WORKSHEET_SCHEMA_EXAMPLE
 
 
@@ -32,6 +33,9 @@ def build_worksheet_prompt(
         by_type_yaml=yaml.safe_dump(stats.get("mistake_tag_by_question_type", []), allow_unicode=True, sort_keys=False),
         by_knowledge_yaml=yaml.safe_dump(stats.get("mistake_tag_by_knowledge_point", []), allow_unicode=True, sort_keys=False),
         constraints_yaml=yaml.safe_dump(constraints, allow_unicode=True, sort_keys=False),
+        question_types_yaml=yaml.safe_dump(QUESTION_TYPES, allow_unicode=True, sort_keys=False),
+        knowledge_points_yaml=yaml.safe_dump(KNOWLEDGE_POINTS, allow_unicode=True, sort_keys=False),
+        difficulties_yaml=yaml.safe_dump(DIFFICULTIES, allow_unicode=True, sort_keys=False),
         worksheet_schema_yaml=yaml.safe_dump(WORKSHEET_SCHEMA_EXAMPLE, allow_unicode=True, sort_keys=False),
     )
 
