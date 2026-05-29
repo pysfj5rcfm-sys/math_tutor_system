@@ -7,6 +7,7 @@ from typing import Any
 
 import yaml
 
+from src.core.duplicate_guard import detect_duplicate_worksheet
 from src.core.rule_registry import RuleRegistry, load_rule_registry
 from src.db import now_iso
 from src.schemas.mistake_schema import (
@@ -115,6 +116,91 @@ def import_worksheet_payload(
     report, worksheet = validate_worksheet_payload(payload)
     if worksheet is None:
         return report.as_dict(), None
+    return _insert_valid_worksheet(conn, report, worksheet, tenant_id, created_by_user_id, source_prompt_id)
+
+
+def preview_worksheet_payload(conn: sqlite3.Connection, payload: dict[str, Any]) -> dict[str, Any]:
+    report, worksheet = validate_worksheet_payload(payload)
+    duplicate_scan = detect_duplicate_worksheet(conn, {"worksheet": worksheet}) if worksheet is not None else {
+        "hash": "",
+        "is_duplicate": False,
+        "duplicate_count": 0,
+        "matches": [],
+    }
+    question_count = _question_count(worksheet) if worksheet is not None else 0
+    return {
+        "source_type": "worksheet",
+        "valid": worksheet is not None and not report.errors,
+        "validation": report.as_dict(),
+        "worksheet": worksheet,
+        "total_count": 1 if isinstance(payload.get("worksheet"), dict) else 0,
+        "question_count": question_count,
+        "error_count": len(report.errors),
+        "warning_count": len(report.warnings),
+        "duplicate_scan": duplicate_scan,
+        "duplicate_count": duplicate_scan["duplicate_count"],
+        "new_count": 0 if duplicate_scan["is_duplicate"] else (1 if worksheet is not None else 0),
+        "will_import_count": 0 if report.errors or duplicate_scan["is_duplicate"] else 1,
+        "will_skip_count": 1 if duplicate_scan["is_duplicate"] else int(worksheet is None),
+    }
+
+
+def confirm_worksheet_import(
+    conn: sqlite3.Connection,
+    preview: dict[str, Any],
+    duplicate_strategy: str = "skip_duplicate",
+    tenant_id: str = DEFAULT_TENANT_ID,
+    created_by_user_id: str = DEFAULT_CREATED_BY_USER_ID,
+    source_prompt_id: int | None = None,
+) -> tuple[dict[str, Any], int | None]:
+    report_dict = dict(preview.get("validation") or {})
+    worksheet = preview.get("worksheet")
+    if not preview.get("valid") or worksheet is None or report_dict.get("errors"):
+        report_dict.update({
+            "imported_count": 0,
+            "duplicate_count": preview.get("duplicate_count", 0),
+            "skipped_duplicate_count": 0,
+        })
+        return report_dict, None
+
+    duplicate_scan = preview.get("duplicate_scan") or {}
+    is_duplicate = bool(duplicate_scan.get("is_duplicate"))
+    if duplicate_strategy in {"cancel", "取消导入"}:
+        report_dict.update({
+            "imported_count": 0,
+            "duplicate_count": duplicate_scan.get("duplicate_count", 0),
+            "skipped_duplicate_count": 1 if is_duplicate else 0,
+            "skipped_count": int(report_dict.get("skipped_count", 0)) + (1 if is_duplicate else 0),
+        })
+        return report_dict, None
+    if is_duplicate and duplicate_strategy in {"skip_duplicate", "跳过导入", "跳过重复"}:
+        report_dict.update({
+            "imported_count": 0,
+            "duplicate_count": duplicate_scan.get("duplicate_count", 0),
+            "skipped_duplicate_count": 1,
+            "skipped_count": int(report_dict.get("skipped_count", 0)) + 1,
+        })
+        return report_dict, None
+    if duplicate_strategy not in {"skip_duplicate", "import_all", "仍然导入", "仍然导入全部"}:
+        raise ValueError(f"Unsupported duplicate strategy: {duplicate_strategy}")
+
+    report = _report_from_dict(report_dict)
+    inserted_report, worksheet_id = _insert_valid_worksheet(conn, report, worksheet, tenant_id, created_by_user_id, source_prompt_id)
+    inserted_report.update({
+        "duplicate_count": duplicate_scan.get("duplicate_count", 0),
+        "skipped_duplicate_count": 0,
+    })
+    return inserted_report, worksheet_id
+
+
+def _insert_valid_worksheet(
+    conn: sqlite3.Connection,
+    report: ValidationReport,
+    worksheet: dict[str, Any],
+    tenant_id: str = DEFAULT_TENANT_ID,
+    created_by_user_id: str = DEFAULT_CREATED_BY_USER_ID,
+    source_prompt_id: int | None = None,
+) -> tuple[dict[str, Any], int | None]:
     ts = now_iso()
     student_id = worksheet.get("student_id") or DEFAULT_STUDENT_ID
     tags = sorted({q["target_mistake_tag"] for s in worksheet["sections"] for q in s["questions"]})
@@ -201,3 +287,19 @@ def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[st
         sections.setdefault(section_name, {"name": section_name, "layout": layout, "questions": []})
         sections[section_name]["questions"].append(item)
     return {"worksheet": dict(worksheet), "sections": list(sections.values())}
+
+
+def _question_count(worksheet: dict[str, Any] | None) -> int:
+    if worksheet is None:
+        return 0
+    return sum(len(section.get("questions", [])) for section in worksheet.get("sections", []))
+
+
+def _report_from_dict(report_dict: dict[str, Any]) -> ValidationReport:
+    report = ValidationReport()
+    report.valid = bool(report_dict.get("valid", True))
+    report.errors = list(report_dict.get("errors", []))
+    report.warnings = list(report_dict.get("warnings", []))
+    report.imported_count = int(report_dict.get("imported_count", 0))
+    report.skipped_count = int(report_dict.get("skipped_count", 0))
+    return report

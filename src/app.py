@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
+import hashlib
 from pathlib import Path
 import sys
 
@@ -12,16 +13,40 @@ if str(PROJECT_ROOT) not in sys.path:
 import streamlit as st
 import yaml
 
+from src.core.backup_export import (
+    DEFAULT_BACKUP_DIR,
+    DEFAULT_EXPORT_DIR,
+    backup_database,
+    export_mistakes_csv,
+    export_mistakes_yaml,
+    export_worksheet_items_csv,
+    export_worksheets_yaml,
+)
+from src.core.data_governance import (
+    batch_confirm_mistakes,
+    batch_delete_mistakes,
+    batch_revoke_mistakes,
+    data_overview,
+    filter_mistakes,
+    scan_mistake_duplicates,
+    scan_worksheet_duplicates,
+)
+from src.core.import_preview import (
+    confirm_mistakes_dry_run,
+    confirm_worksheet_dry_run,
+    dry_run_mistakes_yaml,
+    dry_run_worksheet_yaml,
+)
 from src.core.mistake_tags import tags_as_dicts
-from src.core.mistakes import import_mistakes_payload, list_mistakes, validate_mistakes_payload
 from src.core.parse_report import format_parse_error, save_parse_report
 from src.core.rule_registry import RuleRegistryError, load_rule_registry
+from src.core.sample_guard import detect_sample_data_warning
 from src.core.stats import stats_summary
 from src.core.student_profile import load_student_profile
 from src.core.validation_report import format_validation_report, save_validation_report
-from src.core.worksheets import get_worksheet_bundle, import_worksheet_payload, validate_worksheet_payload
-from src.core.yaml_utils import safe_parse_yaml
-from src.db import confirm_record, get_connection, init_db
+from src.core.worksheets import get_worksheet_bundle
+from src.core.yaml_utils import YamlParseResult
+from src.db import get_connection, init_db
 from src.prompts.marking_prompt import build_marking_prompt, save_marking_prompt
 from src.prompts.repair_prompt import build_validation_repair_prompt, build_yaml_parse_repair_prompt, save_repair_prompt
 from src.prompts.worksheet_prompt import build_worksheet_prompt, save_worksheet_prompt
@@ -47,14 +72,95 @@ def _show_report(report: dict) -> None:
         st.success("校验通过。")
 
 
-def _sample_picker(prefix: str, default_name: str) -> str:
+def _sample_picker(prefix: str, default_name: str) -> tuple[str, str]:
     sample_files = sorted((ROOT / "samples").glob(f"*{prefix}*.yaml"))
     names = [path.name for path in sample_files]
     default_index = names.index(default_name) if default_name in names else 0
     selected = st.selectbox("选择样例文件", names, index=default_index)
-    if selected.startswith("uat_"):
-        st.warning("这是 UAT 测试数据，不建议导入正式学习库；如需测试，请使用临时数据库或先备份数据库。")
-    return (ROOT / "samples" / selected).read_text(encoding="utf-8")
+    warning = detect_sample_data_warning(file_name=selected)
+    _show_sample_warning(warning)
+    return selected, (ROOT / "samples" / selected).read_text(encoding="utf-8")
+
+
+def _show_sample_warning(warning: dict | None) -> None:
+    if warning and warning.get("is_sample"):
+        st.warning(warning.get("message") or "这是测试 / 样例数据，不建议导入正式学习库。")
+        if warning.get("reasons"):
+            st.caption("；".join(warning["reasons"]))
+
+
+def _text_hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _show_import_numbers(preview: dict) -> None:
+    cols = st.columns(6)
+    cols[0].metric("总数量", preview.get("total_count", 0))
+    cols[1].metric("将导入", preview.get("will_import_count", 0))
+    cols[2].metric("错误", preview.get("error_count", 0))
+    cols[3].metric("warning", preview.get("warning_count", 0))
+    cols[4].metric("重复", preview.get("duplicate_count", 0))
+    cols[5].metric("将跳过", preview.get("will_skip_count", 0))
+
+
+def _show_mistake_duplicate_preview(preview: dict) -> None:
+    duplicates = (preview.get("duplicate_scan") or {}).get("duplicates") or []
+    if not duplicates:
+        st.success("未发现 exact duplicate。")
+        return
+    st.warning("发现重复记录，请先确认导入策略。")
+    st.dataframe(duplicates, use_container_width=True)
+
+
+def _show_worksheet_duplicate_preview(preview: dict) -> None:
+    duplicate_scan = preview.get("duplicate_scan") or {}
+    if not duplicate_scan.get("is_duplicate"):
+        st.success("未发现重复 worksheet。")
+        return
+    st.warning("发现重复 worksheet，请先确认导入策略。")
+    st.dataframe(duplicate_scan.get("matches", []), use_container_width=True)
+
+
+def _show_parse_report_from_preview(source_type: str, preview: dict, original_text: str) -> None:
+    parse = YamlParseResult(**preview["parse"])
+    _show_parse_report(source_type, format_parse_error(parse, source_type, original_text), original_text)
+
+
+def _mistake_filter_controls(conn, key_prefix: str) -> dict:
+    registry = load_rule_registry()
+    source_rows = conn.execute("SELECT DISTINCT source FROM mistakes WHERE source IS NOT NULL AND source != '' ORDER BY source").fetchall()
+    sources = [row["source"] for row in source_rows]
+    cols = st.columns(4)
+    status = cols[0].selectbox("status", ["全部", "needs_confirmation", "confirmed"], key=f"{key_prefix}_status")
+    source = cols[1].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
+    mistake_tag = cols[2].selectbox("mistake_tag", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
+    question_type = cols[3].selectbox("question_type", ["全部"] + registry.get_question_type_codes(), key=f"{key_prefix}_type")
+    cols = st.columns(4)
+    knowledge_point = cols[0].selectbox("knowledge_point", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
+    difficulty = cols[1].selectbox("difficulty", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
+    date_from = cols[2].text_input("date from", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_from")
+    date_to = cols[3].text_input("date to", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_to")
+    return {
+        "status": None if status == "全部" else status,
+        "source": None if source == "全部" else source,
+        "mistake_tag": None if mistake_tag == "全部" else mistake_tag,
+        "question_type": None if question_type == "全部" else question_type,
+        "knowledge_point": None if knowledge_point == "全部" else knowledge_point,
+        "difficulty": None if difficulty == "全部" else difficulty,
+        "date_from": date_from or None,
+        "date_to": date_to or None,
+    }
+
+
+def _select_mistake_ids(rows: list[dict], key: str) -> list[int]:
+    ids = [int(row["id"]) for row in rows]
+    if not ids:
+        return []
+    select_all = st.checkbox("全选当前筛选结果", key=f"{key}_all")
+    if select_all:
+        st.caption(f"已选择当前筛选结果中的 {len(ids)} 条。")
+        return ids
+    return [int(value) for value in st.multiselect("选择记录 id", ids, key=key)]
 
 
 def _show_parse_report(source_type: str, report: dict, original_text: str) -> None:
@@ -106,9 +212,9 @@ def _show_validation_report(source_type: str, report: dict, original_text: str) 
 
 
 def page_home() -> None:
-    st.title("math_tutor_system v0.1.3")
+    st.title("math_tutor_system v0.1.4")
     st.write("GPT 协作型家庭教培教务系统：本地负责记录、校验、统计、Prompt 和 HTML 排版。")
-    st.info("v0.1.3 聚焦 Rule Registry：规则来自 config/*.yaml；仍不接 API、不做 OCR、不自动批改、不做几何 SVG。")
+    st.info("v0.1.4 聚焦 Workflow UX + Data Governance：导入前预览、重复检测、批量治理、备份导出；仍不接 API、不做 OCR、不自动批改、不做几何 SVG。")
 
 
 def page_profile() -> None:
@@ -122,9 +228,8 @@ def page_profile() -> None:
 
 def page_tags() -> None:
     st.header("错因标签库")
-    with _conn() as conn:
-        rows = conn.execute("SELECT * FROM mistake_tags ORDER BY code").fetchall()
-        st.dataframe([dict(row) for row in rows], use_container_width=True)
+    st.info("v0.1.4 起，错因标签库已合并至“规则库查看”。下方显示合并后的规则库视图。")
+    page_rule_registry()
 
 
 def page_rule_registry() -> None:
@@ -158,7 +263,29 @@ def page_rule_registry() -> None:
     st.dataframe(registry.get_difficulty_levels(active_only=False), use_container_width=True)
 
     st.subheader("mistake_tags")
-    st.dataframe(registry.get_mistake_tags(active_only=False), use_container_width=True)
+    registry_tags = registry.get_mistake_tags(active_only=False)
+    with _conn() as conn:
+        db_count = conn.execute("SELECT COUNT(*) FROM mistake_tags").fetchone()[0]
+    cols = st.columns(3)
+    cols[0].metric("registry mistake_tags", len(registry_tags))
+    cols[1].metric("database mistake_tags", db_count)
+    cols[2].metric("数量一致", "是" if len(registry_tags) == db_count else "否")
+    if len(registry_tags) != db_count:
+        st.warning("registry 与数据库 mistake_tags 数量不一致。请检查配置和 seed 状态；系统不会自动删除已有数据。")
+    tag_rows = []
+    for tag in registry_tags:
+        symptoms = tag.get("typical_symptoms", "")
+        tag_rows.append({
+            "code": tag.get("code", ""),
+            "category": tag.get("category", ""),
+            "name": tag.get("name", ""),
+            "description": tag.get("description", ""),
+            "typical_symptoms": "；".join(symptoms) if isinstance(symptoms, list) else symptoms,
+            "training_hint": tag.get("training_hint", ""),
+            "default_question_types": tag.get("default_question_types", []),
+            "active": tag.get("active", True),
+        })
+    st.dataframe(tag_rows, use_container_width=True)
 
     st.subheader("alias_mappings")
     alias_rows = []
@@ -184,36 +311,76 @@ def page_rule_registry() -> None:
 
 def page_import_mistakes() -> None:
     st.header("mistakes.yaml 导入与校验")
-    st.caption("v0.1.2 暂允许重复导入，请家长确认时留意重复记录；正式去重策略留到后续版本。")
-    sample = _sample_picker("mistakes", "sample_mistakes.yaml")
+    st.caption("先校验 / 预览，再确认导入。parse fail 或 business validation error 都不会写库。")
+    sample_name, sample = _sample_picker("mistakes", "sample_mistakes.yaml")
     text = st.text_area("YAML", value=sample, height=320)
-    if st.button("校验并导入 mistakes.yaml"):
-        parse_result = safe_parse_yaml(text)
-        if not parse_result.ok:
-            _show_parse_report("mistakes", format_parse_error(parse_result, "mistakes", text), text)
-            return
-        payload = parse_result.payload if isinstance(parse_result.payload, dict) else {}
-        validation_result, _ = validate_mistakes_payload(payload)
-        validation_view = format_validation_report(validation_result.as_dict(), "mistakes", payload, text)
-        if validation_result.errors:
-            _show_validation_report("mistakes", validation_view, text)
-            return
+    text_hash = _text_hash(text)
+    if st.button("校验 / 预览 mistakes.yaml"):
         with _conn() as conn:
-            report = import_mistakes_payload(conn, payload)
-            _show_validation_report("mistakes", format_validation_report(report, "mistakes", payload, text), text)
+            preview = dry_run_mistakes_yaml(conn, text, file_name=sample_name)
+        preview["text_hash"] = text_hash
+        st.session_state["mistakes_import_preview"] = preview
+
+    preview = st.session_state.get("mistakes_import_preview")
+    if not preview:
+        return
+    if preview.get("text_hash") != text_hash:
+        st.info("YAML 内容已变化，请重新点击“校验 / 预览”。")
+        return
+    _show_sample_warning(preview.get("sample_warning"))
+    if not preview.get("parse", {}).get("ok"):
+        _show_parse_report_from_preview("mistakes", preview, text)
+        return
+    st.success("解析状态：YAML parse 通过。")
+    _show_validation_report(
+        "mistakes",
+        format_validation_report(preview["validation"], "mistakes", preview.get("payload") or {}, text),
+        text,
+    )
+    _show_import_numbers(preview)
+    _show_mistake_duplicate_preview(preview)
+    if not preview.get("valid"):
+        st.error("存在业务校验 error，不能确认导入。")
+        return
+
+    strategy_label = st.radio(
+        "重复记录处理",
+        ["只导入非重复（推荐）", "跳过全部重复（只导入新记录）", "仍然导入全部", "取消导入"],
+        index=0,
+    )
+    strategy_map = {
+        "只导入非重复（推荐）": "only_new",
+        "跳过全部重复（只导入新记录）": "skip_all_duplicates",
+        "仍然导入全部": "import_all",
+        "取消导入": "cancel",
+    }
+    if st.button("确认导入 mistakes.yaml"):
+        with _conn() as conn:
+            report = confirm_mistakes_dry_run(conn, preview, duplicate_strategy=strategy_map[strategy_label])
+        st.success(
+            f"导入完成：imported_count={report.get('imported_count', 0)}，"
+            f"duplicate_count={report.get('duplicate_count', 0)}，"
+            f"skipped_duplicate_count={report.get('skipped_duplicate_count', 0)}"
+        )
+        st.session_state.pop("mistakes_import_preview", None)
 
 
 def page_mistake_list() -> None:
     st.header("错题记录列表")
-    include = st.checkbox("include_unconfirmed", value=True)
     with _conn() as conn:
-        rows = list_mistakes(conn, include)
+        filters = _mistake_filter_controls(conn, "mistake_list")
+        rows = filter_mistakes(conn, **filters)
         st.dataframe(rows, use_container_width=True)
-        ids = [row["id"] for row in rows if row["status"] == "needs_confirmation"]
-        selected = st.selectbox("选择待确认记录", ids) if ids else None
-        if selected and st.button("确认为 confirmed"):
-            confirm_record(conn, "mistakes", int(selected))
-            st.success("已确认。")
+        selected_ids = _select_mistake_ids(rows, "mistake_list_ids")
+        cols = st.columns(2)
+        if cols[0].button("批量确认 selected needs_confirmation → confirmed"):
+            count = batch_confirm_mistakes(conn, selected_ids)
+            st.success(f"已确认 {count} 条。")
+            st.rerun()
+        if cols[1].button("批量撤销 selected confirmed → needs_confirmation"):
+            count = batch_revoke_mistakes(conn, selected_ids)
+            st.success(f"已撤销 {count} 条。")
+            st.rerun()
 
 
 def page_stats() -> None:
@@ -227,7 +394,7 @@ def page_stats() -> None:
 
 
 def page_marking_prompt() -> None:
-    st.header("GPT 批改 Prompt 生成")
+    st.header("生成批改用 Prompt")
     prompt = build_marking_prompt(load_student_profile(), tags_as_dicts())
     st.text_area("Prompt", prompt, height=420)
     if st.button("保存到 outputs/prompts"):
@@ -236,7 +403,7 @@ def page_marking_prompt() -> None:
 
 
 def page_worksheet_prompt() -> None:
-    st.header("GPT 出题 Prompt 生成")
+    st.header("生成出题用 Prompt")
     with _conn() as conn:
         stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
     prompt = build_worksheet_prompt(load_student_profile(), stats, tags_as_dicts())
@@ -248,25 +415,59 @@ def page_worksheet_prompt() -> None:
 
 def page_import_worksheet() -> None:
     st.header("worksheet.yaml 导入与校验")
-    st.caption("v0.1.2 暂允许重复导入 worksheet；正式去重策略留到后续版本。")
-    sample = _sample_picker("worksheet", "sample_worksheet.yaml")
+    st.caption("先校验 / 预览，再确认导入。parse fail 或 business validation error 都不会写库。")
+    sample_name, sample = _sample_picker("worksheet", "sample_worksheet.yaml")
     text = st.text_area("YAML", value=sample, height=360)
-    if st.button("校验并导入 worksheet.yaml"):
-        parse_result = safe_parse_yaml(text)
-        if not parse_result.ok:
-            _show_parse_report("worksheet", format_parse_error(parse_result, "worksheet", text), text)
-            return
-        payload = parse_result.payload if isinstance(parse_result.payload, dict) else {}
-        validation_result, _ = validate_worksheet_payload(payload)
-        validation_view = format_validation_report(validation_result.as_dict(), "worksheet", payload, text)
-        if validation_result.errors:
-            _show_validation_report("worksheet", validation_view, text)
-            return
+    text_hash = _text_hash(text)
+    if st.button("校验 / 预览 worksheet.yaml"):
         with _conn() as conn:
-            report, worksheet_id = import_worksheet_payload(conn, payload)
-            _show_validation_report("worksheet", format_validation_report(report, "worksheet", payload, text), text)
-            if worksheet_id:
-                st.success(f"worksheet_id={worksheet_id}")
+            preview = dry_run_worksheet_yaml(conn, text, file_name=sample_name)
+        preview["text_hash"] = text_hash
+        st.session_state["worksheet_import_preview"] = preview
+
+    preview = st.session_state.get("worksheet_import_preview")
+    if not preview:
+        return
+    if preview.get("text_hash") != text_hash:
+        st.info("YAML 内容已变化，请重新点击“校验 / 预览”。")
+        return
+    _show_sample_warning(preview.get("sample_warning"))
+    if not preview.get("parse", {}).get("ok"):
+        _show_parse_report_from_preview("worksheet", preview, text)
+        return
+    st.success("解析状态：YAML parse 通过。")
+    _show_validation_report(
+        "worksheet",
+        format_validation_report(preview["validation"], "worksheet", preview.get("payload") or {}, text),
+        text,
+    )
+    _show_import_numbers(preview)
+    _show_worksheet_duplicate_preview(preview)
+    if not preview.get("valid"):
+        st.error("存在业务校验 error，不能确认导入。")
+        return
+
+    strategy_label = st.radio(
+        "重复 worksheet 处理",
+        ["跳过导入（推荐）", "仍然导入", "取消"],
+        index=0,
+    )
+    strategy_map = {
+        "跳过导入（推荐）": "skip_duplicate",
+        "仍然导入": "import_all",
+        "取消": "cancel",
+    }
+    if st.button("确认导入 worksheet.yaml"):
+        with _conn() as conn:
+            report, worksheet_id = confirm_worksheet_dry_run(conn, preview, duplicate_strategy=strategy_map[strategy_label])
+        if worksheet_id:
+            st.success(f"导入完成：worksheet_id={worksheet_id}，题目数={report.get('imported_count', 0)}")
+        else:
+            st.warning(
+                f"未生成新 worksheet：duplicate_count={report.get('duplicate_count', 0)}，"
+                f"skipped_duplicate_count={report.get('skipped_duplicate_count', 0)}"
+            )
+        st.session_state.pop("worksheet_import_preview", None)
 
 
 def _worksheet_ids(conn) -> list[int]:
@@ -305,6 +506,96 @@ def page_weekly_review() -> None:
         with _conn() as conn:
             path = generate_weekly_review(conn, load_student_profile(), date.today())
             st.success(f"已输出：{path}")
+
+
+def page_data_management() -> None:
+    st.header("数据管理 / 备份 / 导出 / 重复检测")
+    with _conn() as conn:
+        st.subheader("数据概览")
+        overview = data_overview(conn, DEFAULT_BACKUP_DIR)
+        cols = st.columns(6)
+        cols[0].metric("mistakes", overview["mistakes_total"])
+        cols[1].metric("needs_confirmation", overview["needs_confirmation"])
+        cols[2].metric("confirmed", overview["confirmed"])
+        cols[3].metric("worksheets", overview["worksheets_total"])
+        cols[4].metric("worksheet_items", overview["worksheet_items_total"])
+        cols[5].metric("最近 7 天导入", overview["recent_imports_7_days"])
+        if overview["recent_backups"]:
+            st.caption("最近备份文件：" + "；".join(overview["recent_backups"]))
+        else:
+            st.caption("暂无备份文件。")
+
+        st.subheader("筛选错因记录")
+        filters = _mistake_filter_controls(conn, "data_management")
+        rows = filter_mistakes(conn, **filters)
+        st.dataframe(rows, use_container_width=True)
+        selected_ids = _select_mistake_ids(rows, "data_management_ids")
+
+        st.subheader("批量操作")
+        cols = st.columns(3)
+        if cols[0].button("批量确认"):
+            count = batch_confirm_mistakes(conn, selected_ids)
+            st.success(f"影响 {count} 条。")
+            st.rerun()
+        if cols[1].button("批量撤销"):
+            count = batch_revoke_mistakes(conn, selected_ids)
+            st.success(f"影响 {count} 条。")
+            st.rerun()
+        delete_confirmed = st.checkbox("我已备份数据库，并确认删除 selected records")
+        if cols[2].button("批量删除"):
+            st.warning("建议先备份数据库；删除不可自动恢复。")
+            try:
+                count = batch_delete_mistakes(conn, selected_ids, confirm_delete=delete_confirmed)
+            except ValueError as exc:
+                st.error(str(exc))
+            else:
+                st.success(f"已删除 {count} 条。")
+                st.rerun()
+
+        st.subheader("重复检测")
+        cols = st.columns(2)
+        if cols[0].button("扫描重复 mistakes"):
+            groups = scan_mistake_duplicates(conn)
+            if groups:
+                st.warning(f"发现 {len(groups)} 个 exact duplicate group。系统不会自动删除，请筛选后手动批量处理。")
+                for group in groups:
+                    st.write(f"hash={group['hash']}，记录数={group['count']}")
+                    st.dataframe(group["records"], use_container_width=True)
+            else:
+                st.success("未发现重复 mistakes。")
+        if cols[1].button("扫描重复 worksheets"):
+            groups = scan_worksheet_duplicates(conn)
+            if groups:
+                st.warning(f"发现 {len(groups)} 个重复 worksheet group。系统不会自动删除。")
+                for group in groups:
+                    st.write(f"hash={group['hash']}，记录数={group['count']}")
+                    st.dataframe(group["worksheets"], use_container_width=True)
+            else:
+                st.success("未发现重复 worksheets。")
+
+        st.subheader("数据备份")
+        if st.button("一键备份 data/math_tutor.db"):
+            result = backup_database()
+            if result["ok"]:
+                st.success(f"备份成功：{result['path']}")
+            else:
+                st.error(result["error"])
+        recent = data_overview(conn, DEFAULT_BACKUP_DIR)["recent_backups"]
+        if recent:
+            st.write("最近备份：")
+            st.write(recent)
+
+        st.subheader("数据导出")
+        cols = st.columns(4)
+        if cols[0].button("导出 mistakes CSV"):
+            st.success(f"已导出：{export_mistakes_csv(conn)}")
+        if cols[1].button("导出 mistakes YAML"):
+            st.success(f"已导出：{export_mistakes_yaml(conn)}")
+        if cols[2].button("导出 worksheets YAML"):
+            st.success(f"已导出：{export_worksheets_yaml(conn)}")
+        if cols[3].button("导出 worksheet_items CSV"):
+            st.success(f"已导出：{export_worksheet_items_csv(conn)}")
+        st.caption(f"导出目录：{DEFAULT_EXPORT_DIR}")
 
 
 def page_extension_notes() -> None:
@@ -353,26 +644,26 @@ def page_worksheet_quality_checklist() -> None:
 
 
 PAGES = {
-    "首页 / 项目说明": page_home,
+    "首页 / 使用说明": page_home,
     "学生画像查看": page_profile,
     "规则库查看": page_rule_registry,
-    "错因标签库": page_tags,
+    "出卷质量验收清单": page_worksheet_quality_checklist,
+    "生成批改用 Prompt": page_marking_prompt,
     "mistakes.yaml 导入与校验": page_import_mistakes,
     "错题记录列表": page_mistake_list,
     "错因统计": page_stats,
-    "GPT 批改 Prompt 生成": page_marking_prompt,
-    "GPT 出题 Prompt 生成": page_worksheet_prompt,
+    "生成出题用 Prompt": page_worksheet_prompt,
     "worksheet.yaml 导入与校验": page_import_worksheet,
     "学生卷 HTML 导出": page_export_student,
     "答案页 HTML 导出": page_export_answer,
     "周复盘生成": page_weekly_review,
-    "出卷质量验收清单": page_worksheet_quality_checklist,
+    "数据管理 / 备份 / 导出 / 重复检测": page_data_management,
     "系统扩展预留说明": page_extension_notes,
 }
 
 
 def main() -> None:
-    st.set_page_config(page_title="math_tutor_system v0.1.3", layout="wide")
+    st.set_page_config(page_title="math_tutor_system v0.1.4", layout="wide")
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

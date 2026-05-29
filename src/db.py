@@ -15,6 +15,7 @@ OUTPUT_DIRS = [
     ROOT / "outputs" / "answer_sheets",
     ROOT / "outputs" / "prompts",
     ROOT / "outputs" / "reviews",
+    ROOT / "outputs" / "exports",
 ]
 
 

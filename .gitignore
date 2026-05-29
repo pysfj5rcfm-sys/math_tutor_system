@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.class
 .pytest_cache/
+.pytest_tmp/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -37,6 +38,7 @@ outputs/worksheets/*
 outputs/answer_sheets/*
 outputs/prompts/*
 outputs/reviews/*
+outputs/exports/*
 outputs/*.html
 outputs/*.md
 outputs/*.json
@@ -47,6 +49,10 @@ outputs/*.json
 !outputs/answer_sheets/.gitkeep
 !outputs/prompts/.gitkeep
 !outputs/reviews/.gitkeep
+!outputs/exports/.gitkeep
+
+# Local backups
+backups/
 
 # Logs / temp
 *.log
