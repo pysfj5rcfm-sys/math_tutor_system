@@ -15,6 +15,7 @@ import yaml
 from src.core.mistake_tags import tags_as_dicts
 from src.core.mistakes import import_mistakes_payload, list_mistakes, validate_mistakes_payload
 from src.core.parse_report import format_parse_error, save_parse_report
+from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.core.stats import stats_summary
 from src.core.student_profile import load_student_profile
 from src.core.validation_report import format_validation_report, save_validation_report
@@ -105,9 +106,9 @@ def _show_validation_report(source_type: str, report: dict, original_text: str) 
 
 
 def page_home() -> None:
-    st.title("math_tutor_system v0.1.2")
+    st.title("math_tutor_system v0.1.3")
     st.write("GPT 协作型家庭教培教务系统：本地负责记录、校验、统计、Prompt 和 HTML 排版。")
-    st.info("v0.1 不接 API、不做 OCR、不自动批改、不自动出题。")
+    st.info("v0.1.3 聚焦 Rule Registry：规则来自 config/*.yaml；仍不接 API、不做 OCR、不自动批改、不做几何 SVG。")
 
 
 def page_profile() -> None:
@@ -124,6 +125,61 @@ def page_tags() -> None:
     with _conn() as conn:
         rows = conn.execute("SELECT * FROM mistake_tags ORDER BY code").fetchall()
         st.dataframe([dict(row) for row in rows], use_container_width=True)
+
+
+def page_rule_registry() -> None:
+    st.header("规则库查看")
+    try:
+        registry = load_rule_registry(force_reload=True)
+        result = registry.validate_config()
+    except RuleRegistryError as exc:
+        st.error("Rule Registry 配置加载失败")
+        st.code(str(exc), language="text")
+        return
+
+    if result["valid"]:
+        st.success("Rule Registry 加载成功，配置校验通过。")
+    else:
+        st.error("Rule Registry 配置校验失败。")
+    if result["errors"]:
+        st.subheader("配置错误")
+        st.write(result["errors"])
+    if result["warnings"]:
+        st.subheader("配置提醒")
+        st.write(result["warnings"])
+
+    st.subheader("question_types")
+    st.dataframe(registry.get_question_types(active_only=False), use_container_width=True)
+
+    st.subheader("knowledge_points")
+    st.dataframe(registry.get_knowledge_points(active_only=False), use_container_width=True)
+
+    st.subheader("difficulty_levels")
+    st.dataframe(registry.get_difficulty_levels(active_only=False), use_container_width=True)
+
+    st.subheader("mistake_tags")
+    st.dataframe(registry.get_mistake_tags(active_only=False), use_container_width=True)
+
+    st.subheader("alias_mappings")
+    alias_rows = []
+    for group, values in registry.alias_mappings.items():
+        for alias, canonical in values.items():
+            alias_rows.append({"group": group, "alias": alias, "canonical": canonical})
+    st.dataframe(alias_rows, use_container_width=True)
+
+    st.subheader("worksheet_policies")
+    policy_rows = []
+    for name in registry.list_policies():
+        policy = registry.get_policy(name) or {}
+        policy_rows.append({
+            "name": name,
+            "description": policy.get("description", ""),
+            "max_questions": policy.get("max_questions"),
+            "sections": yaml.safe_dump(policy.get("sections", []), allow_unicode=True, sort_keys=False),
+        })
+    st.dataframe(policy_rows, use_container_width=True)
+    with st.expander("worksheet_policy 原始 YAML"):
+        st.code(registry.render_worksheet_policies_for_prompt(), language="yaml")
 
 
 def page_import_mistakes() -> None:
@@ -265,24 +321,33 @@ def page_extension_notes() -> None:
 
 def page_worksheet_quality_checklist() -> None:
     st.header("出卷质量验收清单")
+    try:
+        registry = load_rule_registry()
+        policies = registry.list_policies()
+    except RuleRegistryError as exc:
+        st.error("无法加载 worksheet policies，请先修复 Rule Registry 配置。")
+        st.code(str(exc), language="text")
+        policies = []
+    if policies:
+        selected_policy = st.selectbox("可选 worksheet_policy（用于人工核对，不是全局硬规则）", ["未指定"] + policies)
+        if selected_policy != "未指定":
+            st.code(yaml.safe_dump(registry.get_policy(selected_policy), allow_unicode=True, sort_keys=False), language="yaml")
     st.markdown(
         """
-        - 是否总题量适合本次训练目标。
         - 是否依据 confirmed 错因统计分配题型。
         - 是否覆盖最高频错因。
         - 是否没有让低频错因挤占核心训练。
         - 是否符合当前学生画像。
-        - 是否基础/中等为主。
-        - 是否浅奥题数量可控。
         - 是否 question_type 合法。
         - 是否 knowledge_point 合法或可解释 warning。
-        - 是否 target_mistake_tag 只用代码。
+        - 是否 target_mistake_tag 只用 active mistake_tag code。
         - 是否 difficulty 合法。
         - 是否没有 diagram。
         - 是否没有 svg_primitives。
         - 是否没有 Markdown。
         - 是否每题都有 question、answer、explanation。
         - 是否适合当前 v0.1.x HTML 打印。
+        - 如果选择了某个 worksheet_policy，是否大致符合该 policy 的题型与数量范围。
         """
     )
 
@@ -290,6 +355,7 @@ def page_worksheet_quality_checklist() -> None:
 PAGES = {
     "首页 / 项目说明": page_home,
     "学生画像查看": page_profile,
+    "规则库查看": page_rule_registry,
     "错因标签库": page_tags,
     "mistakes.yaml 导入与校验": page_import_mistakes,
     "错题记录列表": page_mistake_list,
@@ -306,7 +372,7 @@ PAGES = {
 
 
 def main() -> None:
-    st.set_page_config(page_title="math_tutor_system v0.1.2", layout="wide")
+    st.set_page_config(page_title="math_tutor_system v0.1.3", layout="wide")
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

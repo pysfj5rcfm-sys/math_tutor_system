@@ -30,6 +30,15 @@ default_training_constraints:
 合法 difficulty 枚举：
 {{ difficulties_yaml }}
 
+合法 mistake_tag / target_mistake_tag 枚举：
+{{ mistake_tag_codes_yaml }}
+
+alias 映射提示（只用于理解与建议，不自动修复写回）：
+{{ alias_mappings_yaml }}
+
+可选 worksheet_policy 策略模板（不是全局硬规则；如无用户指定，可参考 balanced_default 后再按 confirmed 错因动态调整）：
+{{ worksheet_policies_yaml }}
+
 试卷格式要求：
 - A4 页面。
 - 递等式计算和方程适合两列排版。
@@ -64,6 +73,7 @@ default_training_constraints:
 - 当前学生画像与项目指令优先于 UAT 示例。
 - 可以给出示例性分配方法，但必须明确这只是示例，不是全局硬规则。
 - 题型和错因覆盖必须依据 confirmed 错因统计动态分配。
+- worksheet_policy 只是策略模板，不得把某一个 policy 当成全局固定规则。
 
 worksheet.yaml schema:
 {{ worksheet_schema_yaml }}

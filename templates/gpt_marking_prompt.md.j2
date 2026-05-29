@@ -6,6 +6,18 @@ student_profile:
 mistake_tags:
 {{ mistake_tags_yaml }}
 
+合法 question_type 枚举：
+{{ question_types_yaml }}
+
+合法 knowledge_point 枚举：
+{{ knowledge_points_yaml }}
+
+合法 difficulty 枚举：
+{{ difficulties_yaml }}
+
+alias 映射提示（只用于建议规范字段，不自动修复写回）：
+{{ alias_mappings_yaml }}
+
 要求：
 - 不只判断对错，还要判断错因。
 - 每道错题必须选择一个 mistake_tag，且只能使用上方 24 个标签 code。

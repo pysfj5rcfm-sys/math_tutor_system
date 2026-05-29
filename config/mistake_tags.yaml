@@ -1,0 +1,282 @@
+mistake_tags:
+  - code: "C1"
+    category: "计算执行错误"
+    name: "基础计算错误"
+    description: "简单加减乘除、口算或笔算过程中的基础错误。"
+    typical_symptoms:
+      - "口算或笔算结果错误"
+      - "进位、退位、乘除步骤不稳定"
+    training_hint: "安排短时基础计算与检查训练。"
+    default_question_types:
+      - "递等式计算"
+    active: true
+  - code: "C2"
+    category: "计算执行错误"
+    name: "运算顺序错误"
+    description: "括号、先乘除后加减、递等式步骤顺序错误。"
+    typical_symptoms:
+      - "先算了不该先算的部分"
+      - "递等式过程顺序混乱"
+    training_hint: "先圈运算顺序，再进行递等式计算。"
+    default_question_types:
+      - "递等式计算"
+    active: true
+  - code: "C3"
+    category: "计算执行错误"
+    name: "小数点/位数错误"
+    description: "小数点位置、位数对齐、单位位数处理错误。"
+    typical_symptoms:
+      - "小数乘除后小数点位置错误"
+      - "单位换算时进率位数错误"
+    training_hint: "安排小数乘除、单位换算、带小数的递等式计算。"
+    default_question_types:
+      - "递等式计算"
+      - "单位换算"
+    active: true
+  - code: "C4"
+    category: "计算执行错误"
+    name: "分数处理错误"
+    description: "通分、约分、分数乘除、带分数处理错误。"
+    typical_symptoms:
+      - "通分、约分或化简错误"
+      - "分数乘除步骤错误"
+    training_hint: "拆练通分、约分和分数乘除。"
+    default_question_types:
+      - "递等式计算"
+    active: true
+  - code: "C5"
+    category: "计算执行错误"
+    name: "抄写/转录错误"
+    description: "抄错数字、符号、题目条件或答案。"
+    typical_symptoms:
+      - "过程中的数字与题干不一致"
+      - "答案转写时漏写或写错"
+    training_hint: "读题后复核关键数字和符号。"
+    default_question_types:
+      - "递等式计算"
+      - "应用题"
+    active: true
+  - code: "C6"
+    category: "计算执行错误"
+    name: "最后一步失误"
+    description: "前面过程正确，最后一步算错或写错答案。"
+    typical_symptoms:
+      - "末尾计算出错"
+      - "答案句或单位漏写"
+    training_hint: "训练最后一步回看与答案检查。"
+    default_question_types:
+      - "递等式计算"
+      - "应用题"
+    active: true
+  - code: "K1"
+    category: "概念与知识点错误"
+    name: "概念理解不清"
+    description: "面积、周长、体积、倍数、平均数等概念理解不清。"
+    typical_symptoms:
+      - "概念定义说不清"
+      - "相近概念混用"
+    training_hint: "用实物、图示或反例解释概念。"
+    default_question_types:
+      - "填空"
+      - "应用题"
+    active: true
+  - code: "K2"
+    category: "概念与知识点错误"
+    name: "公式记忆错误"
+    description: "公式记错、漏乘 2、底高混淆。"
+    typical_symptoms:
+      - "套公式时漏项"
+      - "把周长、面积、体积公式混淆"
+    training_hint: "建立公式卡片和对比练习。"
+    default_question_types:
+      - "几何计算"
+    active: true
+  - code: "K3"
+    category: "概念与知识点错误"
+    name: "公式不会应用"
+    description: "会背公式，但不知道题目应该用哪一个。"
+    typical_symptoms:
+      - "题目条件与公式无法对应"
+      - "看到几何题不知道先求什么"
+    training_hint: "先找条件，再匹配公式。"
+    default_question_types:
+      - "几何计算"
+      - "应用题"
+    active: true
+  - code: "K4"
+    category: "概念与知识点错误"
+    name: "知识点混淆"
+    description: "周长/面积、表面积/体积等相近知识点混淆。"
+    typical_symptoms:
+      - "相近知识点混用"
+      - "把不同量的单位混在一起"
+    training_hint: "做对比表和分类练习。"
+    default_question_types:
+      - "填空"
+      - "几何计算"
+    active: true
+  - code: "F1"
+    category: "方程与代数表达错误"
+    name: "等量关系找错"
+    description: "不知道怎样根据题意列出正确等量关系。"
+    typical_symptoms:
+      - "未知数和等量关系不清"
+      - "方程左右两边含义不对应"
+    training_hint: "先用一句话写出等量关系。"
+    default_question_types:
+      - "方程"
+      - "应用题"
+    active: true
+  - code: "F2"
+    category: "方程与代数表达错误"
+    name: "解方程步骤错误"
+    description: "移项、去括号、除法等解方程步骤错误。"
+    typical_symptoms:
+      - "等式两边操作不一致"
+      - "解方程过程计算错误"
+    training_hint: "分步骤训练等式性质。"
+    default_question_types:
+      - "方程"
+    active: true
+  - code: "F3"
+    category: "方程与代数表达错误"
+    name: "方程格式不规范"
+    description: "跳步、等号不齐、过程不完整。"
+    typical_symptoms:
+      - "格式缺失导致丢分"
+      - "等号书写位置混乱"
+    training_hint: "训练规范书写模板。"
+    default_question_types:
+      - "方程"
+    active: true
+  - code: "R1"
+    category: "审题与阅读理解错误"
+    name: "题意理解错误"
+    description: "读完不知道题目说什么或误解整体意思。"
+    typical_symptoms:
+      - "无法复述题意"
+      - "列式方向与题意相反"
+    training_hint: "先让孩子复述题目。"
+    default_question_types:
+      - "应用题"
+      - "阅读理解型数学题"
+    active: true
+  - code: "R2"
+    category: "审题与阅读理解错误"
+    name: "漏读条件"
+    description: "少看一句、漏看限制条件或隐藏条件。"
+    typical_symptoms:
+      - "遗漏关键条件"
+      - "没使用题目中的重要数字"
+    training_hint: "圈画条件和问题。"
+    default_question_types:
+      - "应用题"
+      - "阅读理解型数学题"
+    active: true
+  - code: "R3"
+    category: "审题与阅读理解错误"
+    name: "看错问题"
+    description: "把题目问的对象或方向看错。"
+    typical_symptoms:
+      - "问剩下多少却算用了多少"
+      - "答案方向相反"
+    training_hint: "写出题目真正问什么。"
+    default_question_types:
+      - "应用题"
+      - "阅读理解型数学题"
+    active: true
+  - code: "R4"
+    category: "审题与阅读理解错误"
+    name: "关键词理解弱"
+    description: "对剩下、相当于、比……多/少等关键词理解错误。"
+    typical_symptoms:
+      - "关键词转化错误"
+      - "不能把自然语言转成数量关系"
+    training_hint: "安排关键词解释和变式练习。"
+    default_question_types:
+      - "应用题"
+      - "阅读理解型数学题"
+    active: true
+  - code: "M1"
+    category: "数量关系与建模错误"
+    name: "数量关系找不到"
+    description: "不知道谁和谁比较，无法建立数量关系。"
+    typical_symptoms:
+      - "无法建立比较关系"
+      - "列式缺少依据"
+    training_hint: "用线段图寻找关系。"
+    default_question_types:
+      - "应用题"
+    active: true
+  - code: "M2"
+    category: "数量关系与建模错误"
+    name: "多步骤拆解弱"
+    description: "一步题能做，多步骤题不知道如何拆解。"
+    typical_symptoms:
+      - "多步骤应用题顺序混乱"
+      - "不知道先求中间量"
+    training_hint: "训练分步问题链。"
+    default_question_types:
+      - "应用题"
+      - "综合题"
+    active: true
+  - code: "M3"
+    category: "数量关系与建模错误"
+    name: "倍数/份数关系错误"
+    description: "几倍、几分之几、对应量找错。"
+    typical_symptoms:
+      - "一倍量或对应量错误"
+      - "份数关系与实际数量不匹配"
+    training_hint: "画份数图找对应量。"
+    default_question_types:
+      - "应用题"
+    active: true
+  - code: "M4"
+    category: "数量关系与建模错误"
+    name: "不会画图/列表辅助"
+    description: "不会用线段图、表格、示意图整理信息。"
+    typical_symptoms:
+      - "信息整理困难"
+      - "题目条件多时无从下手"
+    training_hint: "训练线段图和表格。"
+    default_question_types:
+      - "应用题"
+      - "阅读理解型数学题"
+    active: true
+  - code: "U1"
+    category: "单位、几何、习惯问题"
+    name: "单位换算错误"
+    description: "长度、面积、体积、容积等单位进率和换算错误。"
+    typical_symptoms:
+      - "单位进率错误"
+      - "平方单位、立方单位换算位数错误"
+    training_hint: "建立常见单位换算表。"
+    default_question_types:
+      - "单位换算"
+      - "几何计算"
+    active: true
+  - code: "G1"
+    category: "单位、几何、习惯问题"
+    name: "几何图形/公式错误"
+    description: "图形识别、几何公式、面积/周长/体积关系错误。"
+    typical_symptoms:
+      - "几何图形与公式匹配错误"
+      - "漏用或错用几何条件"
+    training_hint: "先识图，再列公式。"
+    default_question_types:
+      - "几何计算"
+      - "几何画图"
+    active: true
+  - code: "H1"
+    category: "单位、几何、习惯问题"
+    name: "草稿/书写/检查习惯问题"
+    description: "草稿乱、跳步、不检查、答案句不完整。"
+    typical_symptoms:
+      - "过程不清或检查缺失"
+      - "书写影响计算和复盘"
+    training_hint: "固定草稿和检查流程。"
+    default_question_types:
+      - "递等式计算"
+      - "方程"
+      - "应用题"
+    active: true

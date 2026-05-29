@@ -1,0 +1,17 @@
+difficulty_levels:
+  - code: "基础"
+    order: 1
+    active: true
+    description: "基础巩固题。"
+  - code: "中等"
+    order: 2
+    active: true
+    description: "校内中等难度题。"
+  - code: "提高"
+    order: 3
+    active: true
+    description: "略高于基础的提高题。"
+  - code: "浅奥"
+    order: 4
+    active: true
+    description: "少量浅层拓展题，不作为默认大量训练。"

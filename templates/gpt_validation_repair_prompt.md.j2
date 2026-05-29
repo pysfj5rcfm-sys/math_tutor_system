@@ -32,6 +32,11 @@ source_type: {{ source_type }}
 {{ difficulties_yaml }}
 ```
 
+alias 映射提示（只提供 suggested_value，不自动修复写回）：
+```yaml
+{{ alias_mappings_yaml }}
+```
+
 修复要求：
 - 不重新出题，只修复字段和枚举、缺失必填项和不支持字段。
 - 不重新批改。

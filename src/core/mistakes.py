@@ -6,15 +6,12 @@ from typing import Any
 
 import yaml
 
-from src.core.mistake_tags import TAG_CODES
+from src.core.rule_registry import RuleRegistry, load_rule_registry
 from src.db import now_iso
 from src.schemas.mistake_schema import (
     DEFAULT_CREATED_BY_USER_ID,
     DEFAULT_STUDENT_ID,
     DEFAULT_TENANT_ID,
-    DIFFICULTIES,
-    KNOWLEDGE_POINTS,
-    QUESTION_TYPES,
     ValidationReport,
 )
 
@@ -24,7 +21,15 @@ def load_mistakes_yaml(path: str | Path) -> dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
-def validate_mistakes_payload(payload: dict[str, Any]) -> tuple[ValidationReport, list[dict[str, Any]]]:
+def validate_mistakes_payload(
+    payload: dict[str, Any],
+    registry: RuleRegistry | None = None,
+) -> tuple[ValidationReport, list[dict[str, Any]]]:
+    registry = registry or load_rule_registry()
+    question_types = set(registry.get_question_type_codes())
+    knowledge_points = set(registry.get_knowledge_point_codes())
+    mistake_tags = set(registry.get_mistake_tag_codes())
+    difficulties = set(registry.get_difficulty_codes())
     report = ValidationReport()
     rows = payload.get("mistakes")
     if not isinstance(rows, list):
@@ -41,19 +46,19 @@ def validate_mistakes_payload(payload: dict[str, Any]) -> tuple[ValidationReport
         if not row.get("date"):
             report.add_error("missing_date", "date is required", idx)
             item_errors += 1
-        if row.get("question_type") not in QUESTION_TYPES:
+        if row.get("question_type") not in question_types:
             report.add_error("invalid_question_type", "question_type is not supported", idx)
             item_errors += 1
-        if row.get("mistake_tag") not in TAG_CODES:
+        if row.get("mistake_tag") not in mistake_tags:
             report.add_error("invalid_mistake_tag", "mistake_tag must be one of the 24 core tags", idx)
             item_errors += 1
-        if row.get("difficulty") not in DIFFICULTIES:
+        if row.get("difficulty") not in difficulties:
             report.add_error("invalid_difficulty", "difficulty is not supported", idx)
             item_errors += 1
         if not row.get("question_summary"):
             report.add_error("empty_question_summary", "question_summary must not be empty", idx)
             item_errors += 1
-        if row.get("knowledge_point") not in KNOWLEDGE_POINTS:
+        if row.get("knowledge_point") not in knowledge_points:
             report.add_warning("unknown_knowledge_point", "knowledge_point is not in initial values; imported as needs_confirmation", idx)
         if item_errors:
             report.skipped_count += 1

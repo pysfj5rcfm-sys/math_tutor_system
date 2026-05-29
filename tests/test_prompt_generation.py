@@ -24,12 +24,14 @@ def test_prompt_generation_contains_required_context(conn):
     marking = build_marking_prompt(profile, tags_as_dicts())
     worksheet = build_worksheet_prompt(profile, stats, tags_as_dicts())
     assert "student_profile" in marking
-    assert marking.count("code:") == 24
+    assert "mistake_tags" in marking
+    assert "合法 question_type 枚举" in marking
     assert "mistakes.yaml schema" in marking
     assert "student_profile" in worksheet
-    assert worksheet.count("code:") == 24
+    assert "mistake_tags" in worksheet
     assert "recent_7_days_stats" in worksheet
     assert "recent_30_days_stats" in worksheet
     assert "worksheet.yaml schema" in worksheet
     assert "试卷格式要求" in worksheet
+    assert "worksheet_policy" in worksheet
     assert "C3" in worksheet

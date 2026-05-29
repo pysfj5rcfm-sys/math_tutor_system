@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import yaml
+from src.core.rule_registry import RuleRegistryError, load_rule_registry
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,19 +18,24 @@ EMPTY_ALIASES = {
 
 
 def load_alias_mappings(path: str | Path = DEFAULT_ALIAS_PATH) -> dict[str, dict[str, str]]:
-    try:
-        with Path(path).open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        return {key: {} for key in EMPTY_ALIASES}
-    except yaml.YAMLError:
-        return {key: {} for key in EMPTY_ALIASES}
+    if Path(path).resolve() != DEFAULT_ALIAS_PATH.resolve():
+        from yaml import YAMLError, safe_load
 
-    result: dict[str, dict[str, str]] = {}
-    for key in EMPTY_ALIASES:
-        section = data.get(key, {})
-        result[key] = section if isinstance(section, dict) else {}
-    return result
+        try:
+            with Path(path).open("r", encoding="utf-8") as f:
+                data = safe_load(f) or {}
+        except (FileNotFoundError, YAMLError):
+            return {key: {} for key in EMPTY_ALIASES}
+        result: dict[str, dict[str, str]] = {}
+        for key in EMPTY_ALIASES:
+            section = data.get(key, {})
+            result[key] = section if isinstance(section, dict) else {}
+        return result
+
+    try:
+        return load_rule_registry().alias_mappings
+    except RuleRegistryError:
+        return {key: {} for key in EMPTY_ALIASES}
 
 
 def suggest_value(field: str, current_value: Any, aliases: dict[str, dict[str, str]] | None = None) -> str | None:

@@ -6,8 +6,7 @@ from typing import Any
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from src.core.mistake_tags import TAG_CODES
-from src.schemas.mistake_schema import DIFFICULTIES, KNOWLEDGE_POINTS, QUESTION_TYPES
+from src.core.rule_registry import load_rule_registry
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -60,14 +59,16 @@ def build_yaml_parse_repair_prompt(source_type: str, parse_report: dict[str, Any
 
 
 def build_validation_repair_prompt(source_type: str, validation_report: dict[str, Any], original_text: str) -> str:
+    registry = load_rule_registry()
     return _env().get_template("gpt_validation_repair_prompt.md.j2").render(
         source_type=source_type,
         readable_report_yaml=yaml.safe_dump(validation_report.get("readable_items", []), allow_unicode=True, sort_keys=False),
         raw_validation_yaml=yaml.safe_dump(validation_report.get("raw_validation", {}), allow_unicode=True, sort_keys=False),
-        question_types_yaml=yaml.safe_dump(QUESTION_TYPES, allow_unicode=True, sort_keys=False),
-        knowledge_points_yaml=yaml.safe_dump(KNOWLEDGE_POINTS, allow_unicode=True, sort_keys=False),
-        mistake_tags_yaml=yaml.safe_dump(sorted(TAG_CODES), allow_unicode=True, sort_keys=False),
-        difficulties_yaml=yaml.safe_dump(DIFFICULTIES, allow_unicode=True, sort_keys=False),
+        question_types_yaml=registry.render_question_types_for_prompt(),
+        knowledge_points_yaml=registry.render_knowledge_points_for_prompt(),
+        mistake_tags_yaml=registry.render_mistake_tags_for_prompt(),
+        difficulties_yaml=registry.render_difficulty_levels_for_prompt(),
+        alias_mappings_yaml=registry.render_alias_mappings_for_prompt(),
         original_text=original_text,
     )
 

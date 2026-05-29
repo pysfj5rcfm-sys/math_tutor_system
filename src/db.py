@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from src.core.mistake_tags import MISTAKE_TAGS
+from src.core.rule_registry import RuleRegistry, load_rule_registry
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -165,39 +165,47 @@ def create_tables(conn: sqlite3.Connection) -> None:
     )
 
 
-def seed_mistake_tags(conn: sqlite3.Connection) -> None:
+def seed_mistake_tags(conn: sqlite3.Connection, registry: RuleRegistry | None = None) -> None:
     ts = now_iso()
+    tags = (registry or load_rule_registry()).get_mistake_tags(active_only=False)
     conn.executemany(
         """
         INSERT INTO mistake_tags (
             code, category, name, description, typical_symptoms, training_hint,
             is_active, created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(code) DO UPDATE SET
             category=excluded.category,
             name=excluded.name,
             description=excluded.description,
             typical_symptoms=excluded.typical_symptoms,
             training_hint=excluded.training_hint,
-            is_active=1,
+            is_active=excluded.is_active,
             updated_at=excluded.updated_at
         """,
         [
             (
-                tag.code,
-                tag.category,
-                tag.name,
-                tag.description,
-                tag.typical_symptoms,
-                tag.training_hint,
+                str(tag.get("code", "")),
+                str(tag.get("category", "")),
+                str(tag.get("name", "")),
+                str(tag.get("description", "")),
+                _symptoms_to_text(tag.get("typical_symptoms", "")),
+                str(tag.get("training_hint", "")),
+                1 if tag.get("active", True) else 0,
                 ts,
                 ts,
             )
-            for tag in MISTAKE_TAGS
+            for tag in tags
         ],
     )
     conn.commit()
+
+
+def _symptoms_to_text(value: Any) -> str:
+    if isinstance(value, list):
+        return "；".join(str(item) for item in value)
+    return str(value)
 
 
 def fetch_all(conn: sqlite3.Connection, sql: str, params: tuple[Any, ...] = ()) -> list[dict[str, Any]]:

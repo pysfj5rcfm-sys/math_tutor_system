@@ -1,4 +1,4 @@
-# math_tutor_system v0.1.2
+# math_tutor_system v0.1.3
 
 小学五年级数学错因训练与试卷生成系统。本项目是一个本地 MVP：GPT 负责看卷、批改、判断错因、生成 YAML；本地系统负责记录、校验、统计、Prompt 生成和 HTML 排版。
 
@@ -10,6 +10,39 @@
 - 不做 PDF 和复杂几何 SVG。
 - GPT 通过手动复制 `mistakes.yaml` / `worksheet.yaml` 与本地系统协作。
 - 本地系统负责保存学生画像、错因标签、导入校验、统计、Prompt 生成、学生卷 HTML、答案页 HTML、周复盘 Markdown。
+
+## v0.1.3 Rule Registry
+
+v0.1.3 的定位是 Rule Registry / 规则配置化中心。`config/*.yaml` 是规则事实源，`src/core/rule_registry.py` 是统一加载与访问中心。新增题型、知识点、难度、错因标签、alias 或 worksheet policy 时，应优先修改配置文件，再运行测试。
+
+规则配置文件：
+
+- `config/question_types.yaml`：合法 `question_type`，`active=true` 才作为默认合法值。
+- `config/knowledge_points.yaml`：合法 `knowledge_point`，未知知识点仍按 v0.1.2 作为 warning，不硬拒绝。
+- `config/difficulty_levels.yaml`：合法 `difficulty`。
+- `config/mistake_tags.yaml`：24 个核心错因标签事实源。
+- `config/alias_mappings.yaml`：alias 到 canonical value 的建议映射，只用于 `suggested_value`，不会自动修复写回。
+- `config/worksheet_policy.yaml`：可选出卷策略模板，不是全局硬规则。
+
+新增规则的方法：
+
+1. 新增 `question_type`：在 `question_types.yaml` 增加唯一 `code`，设置 `active` 和 `default_layout`。`default_layout` 只能是 `two_columns` 或 `single_column`。
+2. 新增 `knowledge_point`：在 `knowledge_points.yaml` 增加唯一 `code`，设置学科、年级和 `active`。
+3. 新增 `difficulty`：在 `difficulty_levels.yaml` 增加唯一 `code` 和可排序 `order`。
+4. 新增 `mistake_tag`：在 `mistake_tags.yaml` 增加唯一 `code`，并确保 `default_question_types` 引用已启用题型。
+5. 新增 alias：在 `alias_mappings.yaml` 增加 alias，target 必须存在于对应 active 合法值。
+6. 新增 worksheet policy：在 `worksheet_policy.yaml` 增加 policy，确保题型、layout、min/max 范围合法。
+7. 修改后运行：
+
+```bash
+python -m pytest
+```
+
+如果本机 `python` 不在 PATH，请使用项目可用解释器运行等价命令。
+
+`mistake_tags.yaml` 与数据库 `mistake_tags` 表的关系：配置文件是事实源，数据库表是落地副本。`python -m src.db` 会从 registry seed / sync 标签；多次运行不会重复插入，不会清空用户数据。新增配置标签后再次初始化会补齐；`active=false` 不会删除旧数据库记录，但不会作为默认合法值。
+
+v0.1.3 仍不接真实 API，仍不做 OCR，仍不做几何 SVG / diagram schema，UAT 样例仍不会自动导入。v0.2 计划在 Rule Registry 基础上扩展 diagram registry。
 
 ## Python 版本
 

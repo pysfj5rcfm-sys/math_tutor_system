@@ -1,0 +1,51 @@
+question_types:
+  - code: "递等式计算"
+    display_name: "递等式计算"
+    active: true
+    default_layout: "two_columns"
+    description: "递等式、四则混合运算等计算题。"
+  - code: "方程"
+    display_name: "方程"
+    active: true
+    default_layout: "two_columns"
+    description: "解方程、列方程、方程过程规范训练。"
+  - code: "填空"
+    display_name: "填空"
+    active: true
+    default_layout: "single_column"
+  - code: "选择"
+    display_name: "选择"
+    active: true
+    default_layout: "single_column"
+  - code: "判断"
+    display_name: "判断"
+    active: true
+    default_layout: "single_column"
+  - code: "单位换算"
+    display_name: "单位换算"
+    active: true
+    default_layout: "single_column"
+  - code: "几何计算"
+    display_name: "几何计算"
+    active: true
+    default_layout: "single_column"
+  - code: "几何画图"
+    display_name: "几何画图"
+    active: true
+    default_layout: "single_column"
+  - code: "应用题"
+    display_name: "应用题"
+    active: true
+    default_layout: "single_column"
+  - code: "阅读理解型数学题"
+    display_name: "阅读理解型数学题"
+    active: true
+    default_layout: "single_column"
+  - code: "综合题"
+    display_name: "综合题"
+    active: true
+    default_layout: "single_column"
+  - code: "其它"
+    display_name: "其它"
+    active: true
+    default_layout: "single_column"

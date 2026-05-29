@@ -6,7 +6,7 @@ from typing import Any
 import json
 import yaml
 
-from src.core.alias_registry import load_alias_mappings, suggest_value
+from src.core.rule_registry import RuleRegistry, load_rule_registry
 
 
 ERROR_FIELD_MAP = {
@@ -32,12 +32,13 @@ def format_validation_report(
     source_type: str,
     original_payload: dict[str, Any],
     original_text: str,
+    registry: RuleRegistry | None = None,
 ) -> dict[str, Any]:
-    aliases = load_alias_mappings()
+    registry = registry or load_rule_registry()
     items: list[dict[str, Any]] = []
     for level in ("errors", "warnings"):
         for raw in validation_result.get(level, []):
-            items.append(_readable_item(raw, level[:-1], source_type, original_payload, aliases))
+            items.append(_readable_item(raw, level[:-1], source_type, original_payload, registry))
     return {
         "stage": "business_validation",
         "valid": validation_result.get("valid", False),
@@ -64,14 +65,14 @@ def _readable_item(
     level: str,
     source_type: str,
     payload: dict[str, Any],
-    aliases: dict[str, dict[str, str]],
+    registry: RuleRegistry,
 ) -> dict[str, Any]:
     code = raw.get("code", "")
     field = _field_for(code, source_type)
     index = raw.get("index")
     position = _position(source_type, payload, index, code)
     current_value = _current_value(source_type, payload, field, index, code)
-    suggested = suggest_value(field, current_value, aliases)
+    suggested = registry.suggest_field_value(field, current_value)
     human = _human_message(level, field, current_value, suggested, raw.get("message", ""))
     return {
         "level": level,
@@ -81,10 +82,25 @@ def _readable_item(
         "suggested_value": suggested,
         "message": raw.get("message", ""),
         "human_message": human,
+        "legal_values": _legal_values(field, registry),
         "index": index,
         **position,
         "path": _path(source_type, field, position),
     }
+
+
+def _legal_values(field: str, registry: RuleRegistry) -> list[str]:
+    if field == "question_type":
+        return registry.get_question_type_codes()
+    if field == "knowledge_point":
+        return registry.get_knowledge_point_codes()
+    if field == "difficulty":
+        return registry.get_difficulty_codes()
+    if field in {"mistake_tag", "target_mistake_tag"}:
+        return registry.get_mistake_tag_codes()
+    if field == "layout":
+        return ["two_columns", "single_column"]
+    return []
 
 
 def _field_for(code: str, source_type: str) -> str:

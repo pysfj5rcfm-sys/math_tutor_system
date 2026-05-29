@@ -3,20 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from src.core.rule_registry import load_rule_registry
 
-QUESTION_TYPES = [
-    "递等式计算", "方程", "填空", "选择", "判断", "单位换算", "几何计算", "几何画图",
-    "应用题", "阅读理解型数学题", "综合题", "其它",
-]
+_REGISTRY = load_rule_registry()
 
-KNOWLEDGE_POINTS = [
-    "整数四则混合运算", "小数计算", "分数计算", "小数/分数互化", "方程", "单位换算",
-    "长方形/正方形面积", "三角形面积", "梯形面积", "平行四边形面积", "组合图形面积",
-    "长方体/正方体表面积", "长方体/正方体体积", "平均数", "倍数关系", "分数应用题",
-    "行程问题", "工程问题", "线段图", "阅读理解型应用题",
-]
-
-DIFFICULTIES = ["基础", "中等", "提高", "浅奥"]
+QUESTION_TYPES = _REGISTRY.get_question_type_codes()
+KNOWLEDGE_POINTS = _REGISTRY.get_knowledge_point_codes()
+DIFFICULTIES = _REGISTRY.get_difficulty_codes()
 
 DEFAULT_TENANT_ID = "personal"
 DEFAULT_STUDENT_ID = "daughter_grade5"

@@ -1,0 +1,81 @@
+knowledge_points:
+  - code: "整数四则混合运算"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "小数计算"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "分数计算"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "小数/分数互化"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "方程"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "单位换算"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "长方形/正方形面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "三角形面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "梯形面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "平行四边形面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "组合图形面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "长方体/正方体表面积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "长方体/正方体体积"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "平均数"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "倍数关系"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "分数应用题"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "行程问题"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "工程问题"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "线段图"
+    subject: "math"
+    grade: "五年级"
+    active: true
+  - code: "阅读理解型应用题"
+    subject: "math"
+    grade: "五年级"
+    active: true

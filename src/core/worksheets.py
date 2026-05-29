@@ -7,15 +7,12 @@ from typing import Any
 
 import yaml
 
-from src.core.mistake_tags import TAG_CODES
+from src.core.rule_registry import RuleRegistry, load_rule_registry
 from src.db import now_iso
 from src.schemas.mistake_schema import (
     DEFAULT_CREATED_BY_USER_ID,
     DEFAULT_STUDENT_ID,
     DEFAULT_TENANT_ID,
-    DIFFICULTIES,
-    KNOWLEDGE_POINTS,
-    QUESTION_TYPES,
     ValidationReport,
 )
 from src.schemas.worksheet_schema import SECTION_LAYOUTS
@@ -26,7 +23,15 @@ def load_worksheet_yaml(path: str | Path) -> dict[str, Any]:
         return yaml.safe_load(f) or {}
 
 
-def validate_worksheet_payload(payload: dict[str, Any]) -> tuple[ValidationReport, dict[str, Any] | None]:
+def validate_worksheet_payload(
+    payload: dict[str, Any],
+    registry: RuleRegistry | None = None,
+) -> tuple[ValidationReport, dict[str, Any] | None]:
+    registry = registry or load_rule_registry()
+    question_types = set(registry.get_question_type_codes())
+    knowledge_points = set(registry.get_knowledge_point_codes())
+    mistake_tags = set(registry.get_mistake_tag_codes())
+    difficulties = set(registry.get_difficulty_codes())
     report = ValidationReport()
     worksheet = payload.get("worksheet")
     if not isinstance(worksheet, dict):
@@ -66,15 +71,15 @@ def validate_worksheet_payload(payload: dict[str, Any]) -> tuple[ValidationRepor
                 skipped_questions += 1
                 continue
             item_errors = 0
-            if question.get("question_type") not in QUESTION_TYPES:
+            if question.get("question_type") not in question_types:
                 report.add_error("invalid_question_type", "question_type is not supported", index)
                 item_errors += 1
-            if question.get("knowledge_point") not in KNOWLEDGE_POINTS:
+            if question.get("knowledge_point") not in knowledge_points:
                 report.add_warning("unknown_knowledge_point", "knowledge_point is not in initial values; imported as needs_confirmation", index)
-            if question.get("target_mistake_tag") not in TAG_CODES:
+            if question.get("target_mistake_tag") not in mistake_tags:
                 report.add_error("invalid_mistake_tag", "target_mistake_tag must be one of the 24 core tags", index)
                 item_errors += 1
-            if question.get("difficulty") not in DIFFICULTIES:
+            if question.get("difficulty") not in difficulties:
                 report.add_error("invalid_difficulty", "difficulty is not supported", index)
                 item_errors += 1
             if not question.get("question"):
@@ -177,6 +182,11 @@ def import_worksheet_file(conn: sqlite3.Connection, path: str | Path) -> tuple[d
 
 
 def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[str, Any]:
+    registry = load_rule_registry()
+    layout_by_type = {
+        item["code"]: item.get("default_layout", "single_column")
+        for item in registry.get_question_types(active_only=False)
+    }
     worksheet = conn.execute("SELECT * FROM worksheets WHERE id = ?", (worksheet_id,)).fetchone()
     if worksheet is None:
         raise ValueError(f"worksheet not found: {worksheet_id}")
@@ -187,7 +197,7 @@ def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[st
     sections: dict[str, dict[str, Any]] = {}
     for item in items:
         section_name = item["section"]
-        layout = "two_columns" if item["question_type"] in {"递等式计算", "方程"} else "single_column"
+        layout = layout_by_type.get(item["question_type"], "single_column")
         sections.setdefault(section_name, {"name": section_name, "layout": layout, "questions": []})
         sections[section_name]["questions"].append(item)
     return {"worksheet": dict(worksheet), "sections": list(sections.values())}
