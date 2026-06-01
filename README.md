@@ -1,199 +1,135 @@
-# math_tutor_system v0.1.4
+# edu_tutor_system
 
-小学五年级数学错因训练与试卷生成系统。本项目是一个本地 MVP：GPT 负责看卷、批改、判断错因、生成 YAML；本地系统负责记录、校验、统计、Prompt 生成、HTML 排版、备份和导出。
+Formerly math_tutor_system.
 
-## v0.1.4 定位
+A local-first K12 multi-subject tutoring system for student profiles, curriculum-aware mistake tracking, worksheet generation, and future subject rendering.
 
-v0.1.4 的定位是 Workflow UX + Data Governance。
+本项目原为 math_tutor_system，自 v0.1.5 起升级为 edu_tutor_system。目标是支持 K12 多学生、多年级、多学科的错因管理、课程范围管理、试卷生成与未来学科表达渲染。
 
-本轮重点：
+## v0.1.5 定位
 
-- 主菜单按真实家长使用流程重排。
-- 页面名改为“生成批改用 Prompt”和“生成出题用 Prompt”。
-- “错因标签库”合并进“规则库查看”。
-- `mistakes.yaml` 和 `worksheet.yaml` 导入前先 dry-run / preview，再确认写库。
-- 导入前做 exact duplicate 检测，用户可跳过重复或仍然导入。
-- 支持错题记录筛选、批量确认、批量撤销、批量删除。
-- 支持一键备份 SQLite。
-- 支持导出 mistakes CSV、mistakes YAML、worksheets YAML。
-- UAT / sample / invalid 数据导入时给出醒目提示。
+v0.1.5 是 Teaching Domain Model，不是渲染层。
 
-v0.1.4 仍不接真实 API，仍不做 OCR，仍不做自动批改，仍不做几何 SVG / diagram schema，仍不做 PDF。
+本轮完成：
 
-## v0.1.x 边界
+- 多学生配置入口：`config/students/*.yaml`。
+- K12 学段、年级、学科配置：`config/education/`。
+- 通用 + 学科专属 question_types。
+- 通用 + 学科专属 mistake taxonomy，保留原 24 个数学错因 code。
+- 跨学科 skills。
+- subject expression capabilities 声明，为 v0.2 渲染层铺路。
+- `cn_k12_2022` 多学科多年级课程骨架。
+- Rule Registry 按 student / subject / grade 过滤知识点、题型、错因、能力声明。
+- 批改 Prompt 和出题 Prompt 自动注入当前学生、学科、年级、课程范围。
+- `mistakes.yaml` / `worksheet.yaml` 兼容旧格式，并可选带 student/subject/grade context。
+
+本轮仍不做：
 
 - 不接 OpenAI API，不产生 API 费用。
 - 不做 OCR、照片识别、自动批改、自动出题。
-- 不做 Agent SDK、服务端、多用户、支付、云同步。
-- 不做 PDF 和复杂几何 SVG。
-- GPT 通过手动复制 `mistakes.yaml` / `worksheet.yaml` 与本地系统协作。
-- 本地系统负责保存学生画像、规则库、导入校验、重复检测、统计、Prompt 生成、HTML 导出、周复盘、备份和导出。
+- 不做 PDF。
+- 不做数学几何 SVG、物理图示、化学结构式渲染。
+- 不做公式渲染器。
+- 不做服务端、云同步、SaaS 多租户权限。
+- 不删除用户历史数据，不做破坏性数据库迁移。
 
-## 主菜单顺序
+## 版本路线
 
-一、开始与规则
+- v0.1.5：Teaching Domain Model。完成 K12 多学生、多年级、多学科教学体系的数据建模与配置骨架。
+- v0.1.6：Schema Cleanup & Cross-subject Text Exam Validation。清理历史包袱，验证多学生、多年级、多学科文字类试卷拓展。
+- v0.2：Subject Rendering Layer。支持数学图形、物理公式/图示、化学式/方程式/配方表达。
 
-1. 首页 / 使用说明
-2. 学生画像查看
-3. 规则库查看
-4. 出卷质量验收清单
-
-二、批改与错因入库
-
-5. 生成批改用 Prompt
-6. mistakes.yaml 导入与校验
-7. 错题记录列表
-8. 错因统计
-
-三、出题与试卷导入
-
-9. 生成出题用 Prompt
-10. worksheet.yaml 导入与校验
-
-四、打印与复盘
-
-11. 学生卷 HTML 导出
-12. 答案页 HTML 导出
-13. 周复盘生成
-
-五、数据管理
-
-14. 数据管理 / 备份 / 导出 / 重复检测
-
-六、系统说明
-
-15. 系统扩展预留说明
-
-## 规则库查看
-
-v0.1.3 引入 Rule Registry；v0.1.4 起，错因标签统一在“规则库查看”中查看，不再作为主菜单独立入口。
-
-“规则库查看”展示：
-
-- `question_types`
-- `knowledge_points`
-- `difficulty_levels`
-- `mistake_tags`
-- `alias_mappings`
-- `worksheet_policies`
-- registry 加载状态
-- 配置校验结果
-- registry 与数据库 `mistake_tags` 数量对比
-
-`config/*.yaml` 是规则事实源，数据库 `mistake_tags` 表是落地副本。`python -m src.db` 会 seed / sync 标签，不会清空用户数据。
-
-## mistakes.yaml 导入流程
-
-v0.1.4 起，导入流程是：
+## 配置目录
 
 ```text
-粘贴 YAML
-↓
-safe_parse_yaml
-↓
-business validation
-↓
-duplicate detection
-↓
-导入预览
-↓
-用户确认
-↓
-真正写库
+config/
+  students/
+    daughter.yaml
+  education/
+    subjects.yaml
+    stages.yaml
+    grades.yaml
+    question_types.yaml
+    skills.yaml
+    mistake_taxonomy.yaml
+    expression_capabilities.yaml
+  curriculum/
+    cn_k12_2022/
+      math/grade_5.yaml ... grade_12.yaml
+      physics/grade_8.yaml ... grade_12.yaml
+      chemistry/grade_9.yaml ... grade_12.yaml
+  student_profile.yaml
 ```
 
-规则：
+`config/student_profile.yaml` 已进入兼容层，推荐新配置使用 `config/students/*.yaml`。旧文件保留读取，旧 YAML 样例仍可用。
 
-- parse fail 不写库。
-- business validation error 不写库。
-- warning-only 可以进入预览。
-- 用户未点击“确认导入”前不写库。
-- 默认策略是只导入非重复记录。
-- 用户也可以选择仍然导入全部。
+## 学生配置
 
-mistake exact duplicate hash 使用稳定字段：
+新增学生：在 `config/students/` 下新增一个 YAML 文件，必须包含稳定的 `student_id`、`display_name`、`active`、`current_grade`、`current_term`、`curriculum_version`、`textbook_version`、`default_subjects`。
 
-- `student_id`，缺省为 `daughter_grade5`
-- `date`
-- `question_type`
-- `knowledge_point`
-- `mistake_tag`
-- `difficulty`
-- `question_summary`
-- `wrong_answer_summary`
-- `correct_answer_summary`
+修改学生年级：直接修改同一个学生文件里的 `current_grade` 和 `current_term`。不要因为升年级新建割裂身份。
 
-hash 对字段顺序不敏感，并会做基础空白 normalize。
+active student：当前 `active: true` 的学生作为默认学生。若多个学生同时 active，Rule Registry 会给出 warning，并默认使用第一个。
 
-## worksheet.yaml 导入流程
+当前默认学生：
 
-worksheet 导入同样先 dry-run / preview，再确认写库。
-
-规则：
-
-- parse fail 不写库。
-- business validation error 不写库。
-- warning-only 可以进入预览。
-- 检测到重复 worksheet 时，默认跳过导入。
-- 只有用户明确选择“仍然导入”时，才生成新的 `worksheet_id`。
-
-worksheet hash 基于题卷标题、日期、学生、section 名称、题目、答案、解析、题型、知识点、目标错因和难度等持久化内容计算，不改变原有 `worksheets` / `worksheet_items` 表结构。
-
-## 数据管理
-
-“数据管理 / 备份 / 导出 / 重复检测”页面包含：
-
-- 数据概览：mistakes 总数、needs_confirmation、confirmed、worksheets、worksheet_items、最近导入、最近备份。
-- 筛选错因记录：支持 `status`、`source`、date range、`mistake_tag`、`question_type`、`knowledge_point`、`difficulty`。
-- 批量操作：批量确认、批量撤销、批量删除。
-- 重复检测：扫描重复 mistakes 和重复 worksheets，只展示，不自动删除。
-- 数据备份：一键备份 `data/math_tutor.db` 到 `backups/`。
-- 数据导出：导出到 `outputs/exports/`。
-
-批量删除必须二次确认，并会提示建议先备份数据库。
-
-## 备份与导出
-
-备份文件：
-
-```text
-backups/math_tutor_YYYYMMDD_HHMMSS.db
+```yaml
+student_id: "daughter"
+current_grade: 6
+current_term: "六年级上"
+curriculum_version: "cn_k12_2022"
+default_subjects:
+  - "math"
 ```
 
-导出文件：
+## 学科与课程
 
-```text
-outputs/exports/mistakes_YYYYMMDD_HHMMSS.csv
-outputs/exports/mistakes_YYYYMMDD_HHMMSS.yaml
-outputs/exports/worksheets_YYYYMMDD_HHMMSS.yaml
-```
+新增学科：
 
-CSV 使用 `utf-8-sig`，方便 Windows Excel 打开中文。YAML 使用 `allow_unicode=True`。
+1. 在 `config/education/subjects.yaml` 添加 `subject_id`。
+2. 在 `question_types.yaml`、`skills.yaml`、`mistake_taxonomy.yaml`、`expression_capabilities.yaml` 中按需声明该学科可用项。
+3. 如当前要支持课程范围，在 `config/curriculum/<version>/<subject_id>/grade_<n>.yaml` 添加课程骨架。
 
-`backups/` 和 `outputs/exports/*` 是本地运行产物，不应提交到 git；仓库只保留 `outputs/exports/.gitkeep`。
+新增课程文件：
 
-## UAT / sample 数据边界
+- `subject_id` 必须存在于 `subjects.yaml`。
+- `grade` 使用数字 1-12。
+- `stage_id` 必须匹配该年级所在学段。
+- `units` 可以是粗粒度骨架，不要伪造全量精细教材。
 
-当文件名包含 `uat_`、`sample_`、`invalid_`，或 `source` 字段包含 UAT / sample / 测试时，页面会提示：
+新增知识点：
 
-```text
-这是测试 / 样例数据，不建议导入正式学习库。
-如果只是验收功能，请使用临时数据库或先备份数据库。
-```
+- 在对应课程文件的 `units[].knowledge_points[]` 下添加。
+- `knowledge_point_id` 必须全局唯一。
+- `question_types` 必须引用 `config/education/question_types.yaml` 中的 canonical code。
+- `skills` 必须引用 `config/education/skills.yaml` 中的 `skill_id`。
 
-该提示不强制阻止导入，用户仍可手动确认。系统不会自动导入 UAT 数据，也不会把 UAT 样例作为默认统计数据；只有用户主动确认导入后，才会进入本地库。
+新增学科错因：
 
-## YAML 错误分层
+- 在 `config/education/mistake_taxonomy.yaml` 添加 `mistake_tags`。
+- 通用错因用 `scope: "general"` 并列出适用学科。
+- 学科专属错因用 `scope: "subject_specific"`。
+- 原 24 个数学错因 code 继续保留并可用。
 
-YAML Parse Error：语法、缩进、列表层级、冒号、Markdown 代码块标记等问题。此时 YAML 尚未解析成 dict/list，不会进入业务校验，不会写库。页面会显示行号、列号、附近文本、中文解释和 GPT YAML 语法修复 Prompt。
+## Rule Registry
 
-Business Validation Error：YAML 能解析，但字段、枚举、必填项不合法，例如非法 `question_type`、非法 `difficulty`、缺 `answer`、空 `question_summary`。页面会显示位置、字段、当前值、建议修复值和 GPT 业务校验修复 Prompt。存在 error 时不会写库。
+`src/core/rule_registry.py` 是 v0.1.5 的教学领域模型入口。
 
-Policy Warning：可以导入但需要人工确认的问题，例如 unknown `knowledge_point`。warning 记录仍按原机制导入为 `needs_confirmation`，默认统计不纳入，只有家长确认成 `confirmed` 后才进入默认统计。
+新增或增强的接口包括：
 
-## 标准 YAML 结构
+- Student：`get_students()`、`get_active_student()`、`get_student(student_id)`、`get_active_student_id()`。
+- Subject：`get_subjects()`、`get_subject(subject_id)`、`get_supported_subjects()`。
+- Stage / Grade：`get_stages()`、`get_grades()`、`get_stage_for_grade(grade)`、`get_grade_display_name(grade)`。
+- Curriculum：`get_curriculum_for()`、`get_curriculum_for_student()`、`get_units_for_student()`、`get_knowledge_points_for_student()`。
+- Education：`get_question_types_for_subject()`、`get_mistake_tags_for_subject()`、`get_skills_for_subject()`、`get_expression_capabilities_for_subject()`。
+- Prompt：`render_student_profile_for_prompt()`、`render_curriculum_scope_for_prompt()`、`render_question_types_for_prompt()`、`render_mistake_tags_for_prompt()`、`render_expression_capabilities_for_prompt()`。
+- Validation：`validate_education_config()`、`validate_curriculum_config()`、`validate_student_config()`。
 
-`mistakes.yaml`：
+旧接口如 `get_question_type_codes()`、`get_knowledge_point_codes()`、`get_mistake_tag_codes()` 继续可用。为兼容旧 worksheet，中文题型名如“递等式计算”“方程”“单位换算”“几何计算”“应用题”仍可通过校验。
+
+## YAML 兼容
+
+旧 `mistakes.yaml` 仍合法：
 
 ```yaml
 mistakes:
@@ -203,34 +139,59 @@ mistakes:
     mistake_tag: "R4"
     difficulty: "中等"
     question_summary: "..."
-    wrong_answer_summary: "..."
-    correct_answer_summary: "..."
-    training_needed: true
-    source: "GPT批改"
-    note: "..."
 ```
 
-`worksheet.yaml`：
+v0.1.5 可选字段：
 
 ```yaml
-worksheet:
-  title: "五年级数学专项训练"
-  date: "2026-05-27"
-  student_id: "daughter_grade5"
-  sections:
-    - name: "一、递等式计算"
-      layout: "two_columns"
-      questions:
-        - question_type: "递等式计算"
-          knowledge_point: "小数计算"
-          target_mistake_tag: "C3"
-          difficulty: "基础"
-          question: "..."
-          answer: "..."
-          explanation: "..."
+student_id: "daughter"
+subject_id: "math"
+grade_at_time: 6
+term_at_time: "六年级上"
+curriculum_version_at_time: "cn_k12_2022"
 ```
 
-v0.1.4 仍不输出 `diagram`、`diagram_json`、`svg_primitives`，也不要写“如图”但没有图。
+缺省策略：
+
+- `student_id` 默认 active student。
+- `subject_id` 默认 active student 的第一个 `default_subjects`。
+- `grade_at_time` 默认 active student 的 `current_grade`。
+- `term_at_time` 默认 active student 的 `current_term`。
+- `curriculum_version_at_time` 默认 active student 的 `curriculum_version`。
+
+v0.1.5 不做破坏性数据库重构。上述上下文会在 preview / validation 的内部记录中补齐；数据库 schema hardening 留到 v0.1.6。
+
+## Prompt 范围
+
+生成批改用 Prompt 会注入：
+
+- 当前学生、年级、学期、学段、学科、课程版本。
+- 当前学生的当前学科/年级课程范围。
+- 当前学科可用 question_types。
+- 当前学科可用 mistake_tags。
+- 当前学科 expression_capabilities。
+- 最近 confirmed 错因统计。
+
+生成出题用 Prompt 会强调：
+
+- 根据当前学生、当前学科、当前年级课程范围出题。
+- 不默认跨年级，除非用户明确要求复习或预习。
+- 不默认跨学科。
+- 当前 v0.1.5 不输出 visuals / diagram / formula blocks。
+- 文字类题目必须保持 `worksheet.yaml` 可导入。
+
+## 数据治理
+
+v0.1.4 的能力继续保留：
+
+- YAML parse / business validation / repair prompt。
+- dry-run / preview 后再确认写库。
+- exact duplicate guard。
+- backup/export。
+- UAT / sample / invalid warning。
+- 批量确认、撤销、删除。
+
+v0.1.5 不清空 `data/math_tutor.db`，不删除旧表，不做 DROP TABLE。
 
 ## 启动与测试
 
@@ -259,11 +220,3 @@ python -m pytest
 ```
 
 如果本机 `python` 不在 PATH，请使用项目可用解释器运行等价命令。
-
-## 后续计划
-
-- v0.2：基础几何 SVG。
-- v0.3：PDF、趋势、能力雷达。
-- v0.4+：API 半自动、多用户服务端、客户端付费、Agent SDK 候选。
-
-这些方向本轮不实现。

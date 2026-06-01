@@ -9,6 +9,7 @@ from typing import Any
 
 import yaml
 
+from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.db import DEFAULT_DB_PATH
 
 
@@ -20,6 +21,10 @@ MISTAKE_EXPORT_COLUMNS = [
     "id",
     "tenant_id",
     "student_id",
+    "subject_id",
+    "grade_at_time",
+    "term_at_time",
+    "curriculum_version_at_time",
     "date",
     "question_type",
     "knowledge_point",
@@ -142,7 +147,7 @@ def _timestamp(now: datetime | None = None) -> str:
 
 
 def _all_mistakes(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    return [dict(row) for row in conn.execute("SELECT * FROM mistakes ORDER BY date DESC, id DESC").fetchall()]
+    return [_with_default_context(dict(row)) for row in conn.execute("SELECT * FROM mistakes ORDER BY date DESC, id DESC").fetchall()]
 
 
 def _all_worksheets(conn: sqlite3.Connection) -> list[dict[str, Any]]:
@@ -180,3 +185,24 @@ def _all_worksheets(conn: sqlite3.Connection) -> list[dict[str, Any]]:
             "sections": sections,
         }})
     return worksheets
+
+
+def _default_context() -> dict[str, Any]:
+    try:
+        return load_rule_registry().resolve_learning_context()
+    except RuleRegistryError:
+        return {
+            "subject_id": "math",
+            "grade_at_time": "",
+            "term_at_time": "",
+            "curriculum_version_at_time": "",
+        }
+
+
+def _with_default_context(row: dict[str, Any]) -> dict[str, Any]:
+    context = _default_context()
+    row.setdefault("subject_id", context.get("subject_id", "math"))
+    row.setdefault("grade_at_time", context.get("grade_at_time", ""))
+    row.setdefault("term_at_time", context.get("term_at_time", ""))
+    row.setdefault("curriculum_version_at_time", context.get("curriculum_version_at_time", ""))
+    return row

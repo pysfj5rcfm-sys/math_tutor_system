@@ -29,15 +29,20 @@ def validate_worksheet_payload(
     registry: RuleRegistry | None = None,
 ) -> tuple[ValidationReport, dict[str, Any] | None]:
     registry = registry or load_rule_registry()
-    question_types = set(registry.get_question_type_codes())
-    knowledge_points = set(registry.get_knowledge_point_codes())
-    mistake_tags = set(registry.get_mistake_tag_codes())
     difficulties = set(registry.get_difficulty_codes())
     report = ValidationReport()
     worksheet = payload.get("worksheet")
     if not isinstance(worksheet, dict):
         report.add_error("invalid_worksheet_root", "worksheet must be a mapping")
         return report, None
+    context = _context_for_worksheet(registry, payload, worksheet, report)
+    if context is None:
+        report.skipped_count = 1
+        return report, None
+    worksheet = _apply_context(worksheet, context)
+    subject_id = context["subject_id"]
+    question_types = set(registry.get_question_type_values_for_subject(subject_id))
+    mistake_tags = {item["code"] for item in registry.get_mistake_tags_for_subject(subject_id)}
     if not worksheet.get("title"):
         report.add_error("missing_title", "worksheet.title is required")
     if not worksheet.get("date"):
@@ -75,7 +80,15 @@ def validate_worksheet_payload(
             if question.get("question_type") not in question_types:
                 report.add_error("invalid_question_type", "question_type is not supported", index)
                 item_errors += 1
-            if question.get("knowledge_point") not in knowledge_points:
+            knowledge_point_result = registry.validate_knowledge_point_for_context(
+                question.get("knowledge_point"),
+                subject_id,
+                context["grade_at_time"],
+                context["curriculum_version_at_time"],
+            )
+            if knowledge_point_result["ambiguous"]:
+                report.add_warning("ambiguous_knowledge_point", "knowledge_point matches multiple items in current curriculum scope", index)
+            elif not knowledge_point_result["valid"]:
                 report.add_warning("unknown_knowledge_point", "knowledge_point is not in initial values; imported as needs_confirmation", index)
             if question.get("target_mistake_tag") not in mistake_tags:
                 report.add_error("invalid_mistake_tag", "target_mistake_tag must be one of the 24 core tags", index)
@@ -208,9 +221,10 @@ def _insert_valid_worksheet(
         """
         INSERT INTO worksheets (
             tenant_id, student_id, date, title, source_prompt_id, target_mistake_tags,
-            status, version, created_by_user_id, created_at, updated_at
+            status, version, subject_id, grade_at_time, term_at_time,
+            curriculum_version_at_time, created_by_user_id, created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, 'needs_confirmation', 1, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, 'needs_confirmation', 1, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
             tenant_id,
@@ -219,6 +233,10 @@ def _insert_valid_worksheet(
             worksheet["title"],
             source_prompt_id,
             json.dumps(tags, ensure_ascii=False),
+            worksheet.get("subject_id"),
+            worksheet.get("grade_at_time"),
+            worksheet.get("term_at_time"),
+            worksheet.get("curriculum_version_at_time"),
             created_by_user_id,
             ts,
             ts,
@@ -269,10 +287,12 @@ def import_worksheet_file(conn: sqlite3.Connection, path: str | Path) -> tuple[d
 
 def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[str, Any]:
     registry = load_rule_registry()
-    layout_by_type = {
-        item["code"]: item.get("default_layout", "single_column")
-        for item in registry.get_question_types(active_only=False)
-    }
+    layout_by_type: dict[str, str] = {}
+    for item in registry.get_question_types(active_only=False):
+        layout = item.get("default_layout", "single_column")
+        for value in [item.get("code"), item.get("name"), item.get("display_name"), *(item.get("legacy_names") or [])]:
+            if value:
+                layout_by_type[str(value)] = layout
     worksheet = conn.execute("SELECT * FROM worksheets WHERE id = ?", (worksheet_id,)).fetchone()
     if worksheet is None:
         raise ValueError(f"worksheet not found: {worksheet_id}")
@@ -303,3 +323,44 @@ def _report_from_dict(report_dict: dict[str, Any]) -> ValidationReport:
     report.imported_count = int(report_dict.get("imported_count", 0))
     report.skipped_count = int(report_dict.get("skipped_count", 0))
     return report
+
+
+def _context_for_worksheet(
+    registry: RuleRegistry,
+    payload: dict[str, Any],
+    worksheet: dict[str, Any],
+    report: ValidationReport,
+) -> dict[str, Any] | None:
+    student_id = worksheet.get("student_id") or payload.get("student_id")
+    subject_id = worksheet.get("subject_id") or payload.get("subject_id")
+    try:
+        context = registry.resolve_learning_context(student_id=student_id, subject_id=subject_id)
+    except Exception as exc:
+        report.add_error("invalid_learning_context", str(exc))
+        return None
+    for source in (payload, worksheet):
+        if source.get("grade_at_time"):
+            context["grade_at_time"] = int(source["grade_at_time"])
+            context["grade_display_name"] = registry.get_grade_display_name(context["grade_at_time"])
+            stage = registry.get_stage_for_grade(context["grade_at_time"])
+            context["stage_id"] = str(stage.get("stage_id", ""))
+            context["stage_name"] = str(stage.get("name", ""))
+        if source.get("term_at_time"):
+            context["term_at_time"] = str(source["term_at_time"])
+        if source.get("curriculum_version_at_time"):
+            context["curriculum_version_at_time"] = str(source["curriculum_version_at_time"])
+    return context
+
+
+def _apply_context(worksheet: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+    result = dict(worksheet)
+    for field, value in {
+        "student_id": context["student_id"],
+        "subject_id": context["subject_id"],
+        "grade_at_time": context["grade_at_time"],
+        "term_at_time": context["term_at_time"],
+        "curriculum_version_at_time": context["curriculum_version_at_time"],
+    }.items():
+        if not result.get(field):
+            result[field] = value
+    return result

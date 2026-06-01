@@ -1,0 +1,45 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "chemistry"
+grade: 9
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 化学代表性课程骨架，供文字类试卷验证使用。"
+units:
+  - unit_id: "chem_g9_air_oxygen_matter"
+    name: "空气与氧气、物质构成"
+    domain: "物质科学"
+    term: "九年级上"
+    knowledge_points:
+      - knowledge_point_id: "chem_g9_air_oxygen"
+        name: "空气与氧气"
+        skills:
+          - "reading_comprehension"
+          - "experimental_reasoning"
+        question_types:
+          - "multiple_choice"
+          - "chem_experiment"
+      - knowledge_point_id: "chem_g9_matter_particles"
+        name: "物质构成"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "fill_blank"
+          - "short_answer"
+  - unit_id: "chem_g9_formula_equation"
+    name: "化学式与化学方程式"
+    domain: "符号表达"
+    term: "九年级下"
+    knowledge_points:
+      - knowledge_point_id: "chem_g9_formula_writing"
+        name: "化学式书写"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "chem_formula_writing"
+      - knowledge_point_id: "chem_g9_equation_balancing"
+        name: "化学方程式配平"
+        skills:
+          - "symbolic_expression"
+          - "calculation_accuracy"
+        question_types:
+          - "chem_equation_balancing"

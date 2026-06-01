@@ -1,0 +1,37 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "chemistry"
+grade: 10
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中化学粗粒度骨架。"
+units:
+  - unit_id: "chem_g10_substance_reaction"
+    name: "物质分类与化学反应"
+    domain: "物质科学"
+    term: "高一"
+    knowledge_points:
+      - knowledge_point_id: "chem_g10_substance_classification"
+        name: "物质分类"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "multiple_choice"
+          - "fill_blank"
+      - knowledge_point_id: "chem_g10_redox_reaction"
+        name: "氧化还原反应"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "short_answer"
+          - "chem_equation_balancing"
+  - unit_id: "chem_g10_experiment_basics"
+    name: "化学实验基础"
+    domain: "实验探究"
+    term: "高一"
+    knowledge_points:
+      - knowledge_point_id: "chem_g10_experiment_operation"
+        name: "化学实验基本操作"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "chem_experiment"

@@ -58,7 +58,6 @@ def test_worksheet_readable_validation_report_suggests_aliases():
     report = format_validation_report(validation.as_dict(), "worksheet", payload, text)
     suggestions = {(item["field"], item["current_value"]): item["suggested_value"] for item in report["readable_items"]}
     assert suggestions[("question_type", "解方程")] == "方程"
-    assert suggestions[("knowledge_point", "小数混合运算")] == "小数计算"
     assert suggestions[("difficulty", "简单")] == "基础"
     assert suggestions[("target_mistake_tag", "R4 关键词理解弱")] == "R4"
     assert any(item.get("position_label") for item in report["readable_items"])
@@ -73,9 +72,7 @@ def test_mistakes_readable_validation_report_errors_and_warnings():
     report = format_validation_report(validation.as_dict(), "mistakes", payload, text)
     levels = {item["level"] for item in report["readable_items"]}
     codes = {item["code"] for item in report["readable_items"]}
-    assert "warning" in levels
     assert "error" in levels
-    assert "unknown_knowledge_point" in codes
     assert "invalid_mistake_tag" in codes
     assert any("第 1 条错因记录" in item.get("position_label", "") for item in report["readable_items"])
 

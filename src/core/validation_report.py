@@ -12,6 +12,7 @@ from src.core.rule_registry import RuleRegistry, load_rule_registry
 ERROR_FIELD_MAP = {
     "invalid_question_type": "question_type",
     "unknown_knowledge_point": "knowledge_point",
+    "ambiguous_knowledge_point": "knowledge_point",
     "invalid_difficulty": "difficulty",
     "invalid_mistake_tag": "mistake_tag",
     "empty_question_summary": "question_summary",

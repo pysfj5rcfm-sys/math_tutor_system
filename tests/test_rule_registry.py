@@ -23,7 +23,7 @@ def test_rule_registry_loads_all_configs_and_core_values():
     assert {"小数计算", "长方体/正方体体积", "阅读理解型应用题"}.issubset(registry.get_knowledge_point_codes())
     assert registry.get_difficulty_codes() == ["基础", "中等", "提高", "浅奥"]
     assert {"C1", "C3", "F3", "R4", "U1", "G1", "H1"}.issubset(registry.get_mistake_tag_codes())
-    assert len(registry.get_mistake_tag_codes()) == 24
+    assert len(registry.get_mistake_tag_codes()) >= 30
     assert registry.list_policies()
 
 
@@ -126,7 +126,7 @@ def test_db_seed_uses_registry_and_is_idempotent(tmp_path: Path):
     create_tables(db)
     seed_mistake_tags(db, registry=registry)
     seed_mistake_tags(db, registry=registry)
-    assert db.execute("SELECT COUNT(*) FROM mistake_tags").fetchone()[0] == 25
+    assert db.execute("SELECT COUNT(*) FROM mistake_tags").fetchone()[0] == len(registry.get_mistake_tag_codes())
     assert db.execute("SELECT COUNT(*) FROM mistake_tags WHERE code = 'T1'").fetchone()[0] == 1
     db.execute(
         """

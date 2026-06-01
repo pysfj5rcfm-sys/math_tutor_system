@@ -1,0 +1,46 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "physics"
+grade: 9
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 物理代表性课程骨架，供文字类试卷验证使用。"
+units:
+  - unit_id: "physics_g9_force_pressure"
+    name: "力、运动和压强"
+    domain: "运动与相互作用"
+    term: "九年级上"
+    knowledge_points:
+      - knowledge_point_id: "physics_g9_force_motion"
+        name: "力与运动"
+        skills:
+          - "formula_application"
+          - "reading_comprehension"
+        question_types:
+          - "physics_calculation"
+          - "short_answer"
+      - knowledge_point_id: "physics_g9_pressure_buoyancy"
+        name: "压强与浮力"
+        skills:
+          - "calculation_accuracy"
+          - "formula_application"
+        question_types:
+          - "physics_calculation"
+  - unit_id: "physics_g9_electricity"
+    name: "电学基础"
+    domain: "能量"
+    term: "九年级下"
+    knowledge_points:
+      - knowledge_point_id: "physics_g9_circuit_ohm"
+        name: "电路与欧姆定律"
+        skills:
+          - "formula_application"
+          - "graph_reading"
+        question_types:
+          - "physics_calculation"
+          - "physics_graph_analysis"
+      - knowledge_point_id: "physics_g9_electric_experiment"
+        name: "电学实验探究"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "physics_experiment"

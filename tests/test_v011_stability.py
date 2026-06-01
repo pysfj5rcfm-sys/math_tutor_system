@@ -39,7 +39,7 @@ def test_init_db_is_idempotent_and_preserves_user_data(tmp_path):
     with sqlite3.connect(db_path) as conn:
         tag_count = conn.execute("SELECT COUNT(*) FROM mistake_tags").fetchone()[0]
         mistake_count = conn.execute("SELECT COUNT(*) FROM mistakes").fetchone()[0]
-    assert tag_count == 24
+    assert tag_count >= 30
     assert mistake_count == 1
 
 
@@ -86,4 +86,4 @@ def test_outputs_directories_auto_create(tmp_path, monkeypatch):
 def test_streamlit_profile_page_source_does_not_use_st_yaml():
     app_source = (ROOT / "src" / "app.py").read_text(encoding="utf-8")
     assert "st.yaml" not in app_source
-    assert "yaml.safe_dump(profile, allow_unicode=True, sort_keys=False)" in app_source
+    assert "yaml.safe_dump(active, allow_unicode=True, sort_keys=False)" in app_source

@@ -1,0 +1,33 @@
+student_id: "daughter"
+display_name: "女儿"
+active: true
+legacy_student_ids:
+  - "daughter_grade5"
+
+current_stage: "primary"
+current_grade: 6
+current_term: "六年级上"
+
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+
+default_subjects:
+  - "math"
+
+profile:
+  math_level: "70-80"
+  learning_goals:
+    - "小升初衔接"
+    - "计算稳定性"
+    - "几何空间观念"
+  teaching_style:
+    - "温柔"
+    - "鼓励"
+    - "步骤清晰"
+  known_weaknesses:
+    - "阅读理解型应用题"
+    - "单位换算"
+    - "几何空间想象"
+  worksheet_preferences:
+    max_questions: 14
+    avoid_too_many_challenge_questions: true

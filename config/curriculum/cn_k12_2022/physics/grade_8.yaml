@@ -1,0 +1,52 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "physics"
+grade: 8
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 物理代表性课程骨架，供文字类试卷验证使用。"
+units:
+  - unit_id: "physics_g8_motion_sound_light"
+    name: "机械运动、声现象与光现象"
+    domain: "运动与相互作用"
+    term: "八年级上"
+    knowledge_points:
+      - knowledge_point_id: "physics_g8_mechanical_motion"
+        name: "机械运动"
+        skills:
+          - "formula_application"
+          - "calculation_accuracy"
+        question_types:
+          - "physics_calculation"
+      - knowledge_point_id: "physics_g8_speed"
+        name: "速度"
+        skills:
+          - "formula_application"
+          - "calculation_accuracy"
+        question_types:
+          - "physics_calculation"
+      - knowledge_point_id: "physics_g8_sound_light"
+        name: "声现象与光现象"
+        skills:
+          - "reading_comprehension"
+          - "graph_reading"
+        question_types:
+          - "multiple_choice"
+          - "short_answer"
+  - unit_id: "physics_g8_thermal_experiment"
+    name: "热现象与实验探究"
+    domain: "能量"
+    term: "八年级下"
+    knowledge_points:
+      - knowledge_point_id: "physics_g8_thermal_phenomena"
+        name: "物态变化与热现象"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "fill_blank"
+          - "short_answer"
+      - knowledge_point_id: "physics_g8_basic_experiment"
+        name: "基础实验探究"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "physics_experiment"

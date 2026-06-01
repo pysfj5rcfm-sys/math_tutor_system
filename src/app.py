@@ -28,21 +28,22 @@ from src.core.data_governance import (
     batch_revoke_mistakes,
     data_overview,
     filter_mistakes,
+    missing_mistake_context_columns,
     scan_mistake_duplicates,
     scan_worksheet_duplicates,
 )
+from src.core.display import enrich_mistake_display_rows
 from src.core.import_preview import (
     confirm_mistakes_dry_run,
     confirm_worksheet_dry_run,
     dry_run_mistakes_yaml,
     dry_run_worksheet_yaml,
 )
-from src.core.mistake_tags import tags_as_dicts
 from src.core.parse_report import format_parse_error, save_parse_report
 from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.core.sample_guard import detect_sample_data_warning
 from src.core.stats import stats_summary
-from src.core.student_profile import load_student_profile
+from src.core.student_profile import load_active_student_profile, load_student_profile
 from src.core.validation_report import format_validation_report, save_validation_report
 from src.core.worksheets import get_worksheet_bundle
 from src.core.yaml_utils import YamlParseResult
@@ -128,19 +129,43 @@ def _show_parse_report_from_preview(source_type: str, preview: dict, original_te
 
 def _mistake_filter_controls(conn, key_prefix: str) -> dict:
     registry = load_rule_registry()
+    columns = conn.execute("PRAGMA table_info(mistakes)").fetchall()
+    existing_columns = {row["name"] for row in columns}
     source_rows = conn.execute("SELECT DISTINCT source FROM mistakes WHERE source IS NOT NULL AND source != '' ORDER BY source").fetchall()
     sources = [row["source"] for row in source_rows]
+    default_context = registry.resolve_learning_context()
+    student_values = ["全部"] + _distinct_filter_values(conn, "mistakes", "student_id", existing_columns)
+    subject_values = ["全部"] + _unique_strings([
+        *_distinct_filter_values(conn, "mistakes", "subject_id", existing_columns),
+        default_context["subject_id"],
+        *[item["subject_id"] for item in registry.get_supported_subjects()],
+    ])
+    grade_values = ["全部"] + _unique_strings([
+        *_distinct_filter_values(conn, "mistakes", "grade_at_time", existing_columns),
+        str(default_context["grade_at_time"]),
+    ])
+
     cols = st.columns(4)
-    status = cols[0].selectbox("status", ["全部", "needs_confirmation", "confirmed"], key=f"{key_prefix}_status")
-    source = cols[1].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
-    mistake_tag = cols[2].selectbox("mistake_tag", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
-    question_type = cols[3].selectbox("question_type", ["全部"] + registry.get_question_type_codes(), key=f"{key_prefix}_type")
+    student_id = cols[0].selectbox("student_id", student_values, key=f"{key_prefix}_student")
+    subject_id = cols[1].selectbox("subject_id", subject_values, key=f"{key_prefix}_subject")
+    grade_at_time = cols[2].selectbox("grade_at_time", grade_values, key=f"{key_prefix}_grade")
+    status = cols[3].selectbox("status", ["全部", "needs_confirmation", "confirmed"], key=f"{key_prefix}_status")
     cols = st.columns(4)
-    knowledge_point = cols[0].selectbox("knowledge_point", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
-    difficulty = cols[1].selectbox("difficulty", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
-    date_from = cols[2].text_input("date from", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_from")
-    date_to = cols[3].text_input("date to", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_to")
+    source = cols[0].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
+    mistake_tag = cols[1].selectbox("mistake_tag", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
+    question_type = cols[2].selectbox("question_type", ["全部"] + registry.get_question_type_codes(), key=f"{key_prefix}_type")
+    knowledge_point = cols[3].selectbox("knowledge_point", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
+    cols = st.columns(3)
+    difficulty = cols[0].selectbox("difficulty", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
+    date_from = cols[1].text_input("date from", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_from")
+    date_to = cols[2].text_input("date to", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_to")
+    missing_context = sorted({"subject_id", "grade_at_time", "term_at_time"} - existing_columns)
+    if missing_context:
+        st.caption("兼容提示：mistakes 表暂缺 " + "、".join(missing_context) + "；页面使用 active student 默认上下文显示，v0.1.6 需要 schema hardening。")
     return {
+        "student_id": None if student_id == "全部" else student_id,
+        "subject_id": None if subject_id == "全部" else subject_id,
+        "grade_at_time": None if grade_at_time == "全部" else grade_at_time,
         "status": None if status == "全部" else status,
         "source": None if source == "全部" else source,
         "mistake_tag": None if mistake_tag == "全部" else mistake_tag,
@@ -161,6 +186,48 @@ def _select_mistake_ids(rows: list[dict], key: str) -> list[int]:
         st.caption(f"已选择当前筛选结果中的 {len(ids)} 条。")
         return ids
     return [int(value) for value in st.multiselect("选择记录 id", ids, key=key)]
+
+
+def _mistake_table_rows(rows: list[dict]) -> list[dict]:
+    rows = enrich_mistake_display_rows(rows)
+    columns = [
+        "id",
+        "student_id",
+        "subject_id",
+        "grade_at_time",
+        "term_at_time",
+        "date",
+        "status",
+        "source",
+        "question_type",
+        "question_type_display",
+        "knowledge_point",
+        "knowledge_point_display",
+        "mistake_tag",
+        "difficulty",
+        "question_summary",
+        "created_at",
+        "updated_at",
+    ]
+    return [{column: row.get(column, "") for column in columns} for row in rows]
+
+
+def _distinct_filter_values(conn, table: str, column: str, existing_columns: set[str]) -> list[str]:
+    if column not in existing_columns:
+        return []
+    rows = conn.execute(
+        f"SELECT DISTINCT {column} AS value FROM {table} WHERE {column} IS NOT NULL AND {column} != '' ORDER BY {column}"
+    ).fetchall()
+    return [str(row["value"]) for row in rows if row["value"] not in (None, "")]
+
+
+def _unique_strings(values: list[str]) -> list[str]:
+    result: list[str] = []
+    for value in values:
+        text = str(value)
+        if text and text not in result:
+            result.append(text)
+    return result
 
 
 def _show_parse_report(source_type: str, report: dict, original_text: str) -> None:
@@ -212,18 +279,38 @@ def _show_validation_report(source_type: str, report: dict, original_text: str) 
 
 
 def page_home() -> None:
-    st.title("math_tutor_system v0.1.4")
-    st.write("GPT 协作型家庭教培教务系统：本地负责记录、校验、统计、Prompt 和 HTML 排版。")
-    st.info("v0.1.4 聚焦 Workflow UX + Data Governance：导入前预览、重复检测、批量治理、备份导出；仍不接 API、不做 OCR、不自动批改、不做几何 SVG。")
+    st.title("edu_tutor_system v0.1.5.3")
+    st.caption("Formerly math_tutor_system.")
+    st.write("K12 多学生、多年级、多学科本地优先教培系统：本地负责学生画像、课程范围、错因管理、YAML 校验、Prompt 生成、HTML 排版、备份和导出。")
+    try:
+        registry = load_rule_registry()
+        active = registry.get_active_student()
+        context = registry.resolve_learning_context(active["student_id"])
+        cols = st.columns(5)
+        cols[0].metric("active student", context["student_id"])
+        cols[1].metric("年级", context["grade_display_name"])
+        cols[2].metric("学段", context["stage_name"])
+        cols[3].metric("默认学科", context["subject_id"])
+        cols[4].metric("课程版本", context["curriculum_version_at_time"])
+        with st.expander("当前课程范围"):
+            st.code(registry.render_curriculum_scope_for_prompt(context["student_id"], context["subject_id"]), language="yaml")
+    except RuleRegistryError as exc:
+        st.error("Rule Registry 配置加载失败")
+        st.code(str(exc), language="text")
+    st.info("v0.1.5 定位：Teaching Domain Model。完成 K12 多学生、多年级、多学科配置骨架；仍不接 API、不做 OCR、不做 PDF、不做数学图形/物理公式/化学式渲染。")
 
 
 def page_profile() -> None:
     st.header("学生画像查看")
-    profile = load_student_profile()
-    st.code(
-        yaml.safe_dump(profile, allow_unicode=True, sort_keys=False),
-        language="yaml",
-    )
+    registry = load_rule_registry(force_reload=True)
+    active = registry.get_active_student()
+    st.subheader("active student")
+    st.code(yaml.safe_dump(active, allow_unicode=True, sort_keys=False), language="yaml")
+    st.subheader("all students")
+    st.dataframe(registry.get_students(active_only=False), use_container_width=True)
+    with st.expander("兼容层：config/student_profile.yaml"):
+        st.caption("v0.1.5 推荐使用 config/students/*.yaml；旧 student_profile.yaml 保留读取兼容。")
+        st.code(yaml.safe_dump(load_student_profile(), allow_unicode=True, sort_keys=False), language="yaml")
 
 
 def page_tags() -> None:
@@ -256,8 +343,22 @@ def page_rule_registry() -> None:
     st.subheader("question_types")
     st.dataframe(registry.get_question_types(active_only=False), use_container_width=True)
 
+    st.subheader("subjects")
+    st.dataframe(registry.get_subjects(active_only=False), use_container_width=True)
+
+    st.subheader("stages")
+    st.dataframe(registry.get_stages(), use_container_width=True)
+
+    st.subheader("grades")
+    st.dataframe(registry.get_grades(), use_container_width=True)
+
     st.subheader("knowledge_points")
     st.dataframe(registry.get_knowledge_points(active_only=False), use_container_width=True)
+
+    active_student = registry.get_active_student()
+    default_subject = registry.get_default_subject_for_student(active_student["student_id"])
+    st.subheader("当前学生对应知识点范围")
+    st.dataframe(registry.get_knowledge_points_for_student(active_student["student_id"], default_subject), use_container_width=True)
 
     st.subheader("difficulty_levels")
     st.dataframe(registry.get_difficulty_levels(active_only=False), use_container_width=True)
@@ -283,9 +384,21 @@ def page_rule_registry() -> None:
             "typical_symptoms": "；".join(symptoms) if isinstance(symptoms, list) else symptoms,
             "training_hint": tag.get("training_hint", ""),
             "default_question_types": tag.get("default_question_types", []),
+            "scope": tag.get("scope", ""),
+            "subjects": tag.get("subjects", []),
+            "legacy_compatible": tag.get("legacy_compatible", False),
             "active": tag.get("active", True),
         })
     st.dataframe(tag_rows, use_container_width=True)
+
+    st.subheader("skills")
+    st.dataframe(registry.skills, use_container_width=True)
+
+    st.subheader("expression_capabilities")
+    st.dataframe(registry.expression_capabilities, use_container_width=True)
+
+    st.subheader("curriculum scope")
+    st.code(registry.render_curriculum_scope_for_prompt(active_student["student_id"], default_subject), language="yaml")
 
     st.subheader("alias_mappings")
     alias_rows = []
@@ -368,9 +481,12 @@ def page_import_mistakes() -> None:
 def page_mistake_list() -> None:
     st.header("错题记录列表")
     with _conn() as conn:
+        missing = missing_mistake_context_columns(conn)
+        if missing:
+            st.caption("兼容提示：mistakes 表暂缺 " + "、".join(missing) + "；列表使用 active student 默认上下文补齐显示。")
         filters = _mistake_filter_controls(conn, "mistake_list")
         rows = filter_mistakes(conn, **filters)
-        st.dataframe(rows, use_container_width=True)
+        st.dataframe(_mistake_table_rows(rows), use_container_width=True)
         selected_ids = _select_mistake_ids(rows, "mistake_list_ids")
         cols = st.columns(2)
         if cols[0].button("批量确认 selected needs_confirmation → confirmed"):
@@ -395,7 +511,13 @@ def page_stats() -> None:
 
 def page_marking_prompt() -> None:
     st.header("生成批改用 Prompt")
-    prompt = build_marking_prompt(load_student_profile(), tags_as_dicts())
+    active_student = load_active_student_profile()
+    with _conn() as conn:
+        stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
+    registry = load_rule_registry()
+    context = registry.resolve_learning_context(active_student["student_id"])
+    st.caption(f"当前范围：{context['student_id']} / {context['stage_name']} / {context['grade_display_name']} / {context['subject_id']} / {context['curriculum_version_at_time']}")
+    prompt = build_marking_prompt(active_student, confirmed_stats=stats)
     st.text_area("Prompt", prompt, height=420)
     if st.button("保存到 outputs/prompts"):
         path = save_marking_prompt(prompt)
@@ -404,9 +526,13 @@ def page_marking_prompt() -> None:
 
 def page_worksheet_prompt() -> None:
     st.header("生成出题用 Prompt")
+    active_student = load_active_student_profile()
     with _conn() as conn:
         stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
-    prompt = build_worksheet_prompt(load_student_profile(), stats, tags_as_dicts())
+    registry = load_rule_registry()
+    context = registry.resolve_learning_context(active_student["student_id"])
+    st.caption(f"当前范围：{context['student_id']} / {context['stage_name']} / {context['grade_display_name']} / {context['subject_id']} / {context['curriculum_version_at_time']}")
+    prompt = build_worksheet_prompt(active_student, stats)
     st.text_area("Prompt", prompt, height=420)
     if st.button("保存到 outputs/prompts"):
         path = save_worksheet_prompt(prompt)
@@ -504,7 +630,7 @@ def page_weekly_review() -> None:
     st.header("周复盘生成")
     if st.button("生成 weekly_review.md"):
         with _conn() as conn:
-            path = generate_weekly_review(conn, load_student_profile(), date.today())
+            path = generate_weekly_review(conn, load_active_student_profile(), date.today())
             st.success(f"已输出：{path}")
 
 
@@ -526,9 +652,12 @@ def page_data_management() -> None:
             st.caption("暂无备份文件。")
 
         st.subheader("筛选错因记录")
+        missing = missing_mistake_context_columns(conn)
+        if missing:
+            st.caption("兼容提示：mistakes 表暂缺 " + "、".join(missing) + "；筛选结果使用 active student 默认上下文补齐显示。")
         filters = _mistake_filter_controls(conn, "data_management")
         rows = filter_mistakes(conn, **filters)
-        st.dataframe(rows, use_container_width=True)
+        st.dataframe(_mistake_table_rows(rows), use_container_width=True)
         selected_ids = _select_mistake_ids(rows, "data_management_ids")
 
         st.subheader("批量操作")
@@ -602,10 +731,11 @@ def page_extension_notes() -> None:
     st.header("系统扩展预留说明")
     st.markdown(
         """
-        - v0.2：基础几何 SVG。
-        - v0.3：PDF、趋势、能力雷达。
-        - v0.4+：API 半自动、多用户服务端、客户端付费、Agent SDK 候选。
-        - v0.1 已预留 provider、llm_call_logs、tenant_id、student_id、status、version 字段。
+        - v0.1.5：Teaching Domain Model，K12 多学生、多年级、多学科配置骨架。
+        - v0.1.6：Schema Cleanup & Cross-subject Text Exam Validation。
+        - v0.2：Subject Rendering Layer，数学图形、物理公式/图示、化学式/方程式表达。
+        - 当前仍不接 API、不做 OCR、不做 PDF、不做渲染。
+        - v0.1 已预留 provider、llm_call_logs、tenant_id、student_id、status、version 字段；v0.1.5 增加教学上下文配置层。
         """
     )
 
@@ -663,7 +793,7 @@ PAGES = {
 
 
 def main() -> None:
-    st.set_page_config(page_title="math_tutor_system v0.1.4", layout="wide")
+    st.set_page_config(page_title="edu_tutor_system v0.1.5.3", layout="wide")
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

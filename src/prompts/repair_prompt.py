@@ -13,6 +13,11 @@ ROOT = Path(__file__).resolve().parents[2]
 
 MISTAKES_SKELETON = """mistakes:
   - date: "2026-05-27"
+    student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
     question_type: "应用题"
     knowledge_point: "阅读理解型应用题"
     mistake_tag: "R4"
@@ -26,9 +31,13 @@ MISTAKES_SKELETON = """mistakes:
 """
 
 WORKSHEET_SKELETON = """worksheet:
-  title: "五年级数学专项训练"
+  title: "六年级数学专项训练"
   date: "2026-05-27"
-  student_id: "daughter_grade5"
+  student_id: "daughter"
+  subject_id: "math"
+  grade_at_time: 6
+  term_at_time: "六年级上"
+  curriculum_version_at_time: "cn_k12_2022"
   sections:
     - name: "一、递等式计算"
       layout: "two_columns"

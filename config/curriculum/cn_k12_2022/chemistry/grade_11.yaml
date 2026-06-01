@@ -1,0 +1,37 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "chemistry"
+grade: 11
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中化学粗粒度骨架。"
+units:
+  - unit_id: "chem_g11_reaction_principles"
+    name: "化学反应原理"
+    domain: "反应原理"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "chem_g11_chemical_equilibrium"
+        name: "化学平衡"
+        skills:
+          - "reading_comprehension"
+          - "symbolic_expression"
+        question_types:
+          - "short_answer"
+      - knowledge_point_id: "chem_g11_acid_base_salt"
+        name: "酸碱盐与离子反应"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "chem_equation_balancing"
+          - "short_answer"
+  - unit_id: "chem_g11_experiment_inquiry"
+    name: "实验探究"
+    domain: "实验探究"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "chem_g11_experiment_inquiry"
+        name: "实验方案与现象分析"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "chem_experiment"

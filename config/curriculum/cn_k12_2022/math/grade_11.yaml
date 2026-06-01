@@ -1,0 +1,37 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 11
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中数学粗粒度骨架。"
+units:
+  - unit_id: "math_g11_solid_geometry"
+    name: "立体几何"
+    domain: "图形与几何"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "math_g11_spatial_lines_planes"
+        name: "空间点线面关系"
+        skills:
+          - "graph_reading"
+          - "proof_reasoning"
+        question_types:
+          - "short_answer"
+      - knowledge_point_id: "math_g11_solid_geometry_calculation"
+        name: "空间几何计算"
+        skills:
+          - "formula_application"
+        question_types:
+          - "math_geometry_calculation"
+  - unit_id: "math_g11_analytic_geometry"
+    name: "解析几何"
+    domain: "图形与几何"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "math_g11_conic_sections"
+        name: "圆锥曲线基础"
+        skills:
+          - "symbolic_expression"
+          - "graph_reading"
+        question_types:
+          - "short_answer"

@@ -1,0 +1,44 @@
+skills:
+  - skill_id: "reading_comprehension"
+    name: "题意理解"
+    applies_to_subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+  - skill_id: "calculation_accuracy"
+    name: "计算准确性"
+    applies_to_subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+  - skill_id: "formula_application"
+    name: "公式应用"
+    applies_to_subjects:
+      - "math"
+      - "physics"
+    active: true
+  - skill_id: "symbolic_expression"
+    name: "符号表达"
+    applies_to_subjects:
+      - "math"
+      - "chemistry"
+    active: true
+  - skill_id: "experimental_reasoning"
+    name: "实验分析"
+    applies_to_subjects:
+      - "physics"
+      - "chemistry"
+    active: true
+  - skill_id: "proof_reasoning"
+    name: "证明推理"
+    applies_to_subjects:
+      - "math"
+    active: true
+  - skill_id: "graph_reading"
+    name: "图像读取"
+    applies_to_subjects:
+      - "math"
+      - "physics"
+    active: true

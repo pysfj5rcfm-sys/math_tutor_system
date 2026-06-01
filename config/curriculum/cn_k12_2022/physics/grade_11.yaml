@@ -1,0 +1,39 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "physics"
+grade: 11
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中物理粗粒度骨架。"
+units:
+  - unit_id: "physics_g11_electromagnetism"
+    name: "电磁学"
+    domain: "电磁"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "physics_g11_electric_field_circuit"
+        name: "电场与电路"
+        skills:
+          - "formula_application"
+          - "graph_reading"
+        question_types:
+          - "physics_calculation"
+          - "physics_graph_analysis"
+      - knowledge_point_id: "physics_g11_magnetic_field"
+        name: "磁场与电磁感应"
+        skills:
+          - "reading_comprehension"
+          - "formula_application"
+        question_types:
+          - "short_answer"
+          - "physics_calculation"
+  - unit_id: "physics_g11_electric_experiment"
+    name: "电学实验"
+    domain: "实验探究"
+    term: "高二"
+    knowledge_points:
+      - knowledge_point_id: "physics_g11_electric_experiment"
+        name: "电学实验分析"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "physics_experiment"

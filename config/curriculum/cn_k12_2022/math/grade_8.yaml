@@ -1,0 +1,39 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 8
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 初中数学代表性骨架。"
+units:
+  - unit_id: "math_g8_triangles"
+    name: "三角形"
+    domain: "图形与几何"
+    term: "八年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g8_triangle_properties"
+        name: "三角形性质"
+        skills:
+          - "graph_reading"
+          - "proof_reasoning"
+        question_types:
+          - "math_geometry_calculation"
+          - "short_answer"
+      - knowledge_point_id: "math_g8_congruence"
+        name: "全等三角形"
+        skills:
+          - "proof_reasoning"
+        question_types:
+          - "short_answer"
+  - unit_id: "math_g8_functions"
+    name: "函数初步"
+    domain: "函数"
+    term: "八年级下"
+    knowledge_points:
+      - knowledge_point_id: "math_g8_linear_function"
+        name: "一次函数"
+        skills:
+          - "graph_reading"
+          - "symbolic_expression"
+        question_types:
+          - "math_application"
+          - "multiple_choice"

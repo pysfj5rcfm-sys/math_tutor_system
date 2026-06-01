@@ -1,0 +1,26 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "physics"
+grade: 12
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中物理粗粒度骨架。"
+units:
+  - unit_id: "physics_g12_integrated_physics"
+    name: "高中物理综合复习"
+    domain: "综合"
+    term: "高三"
+    knowledge_points:
+      - knowledge_point_id: "physics_g12_mechanics_electromagnetism_review"
+        name: "力学与电磁综合"
+        skills:
+          - "formula_application"
+          - "graph_reading"
+        question_types:
+          - "physics_calculation"
+          - "physics_graph_analysis"
+      - knowledge_point_id: "physics_g12_experiment_review"
+        name: "实验探究综合"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "physics_experiment"

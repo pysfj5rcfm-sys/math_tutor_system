@@ -1,0 +1,54 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 7
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 初中数学代表性骨架。"
+units:
+  - unit_id: "math_g7_rational_numbers"
+    name: "有理数"
+    domain: "数与代数"
+    term: "七年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g7_rational_number_concept"
+        name: "有理数的概念"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "multiple_choice"
+          - "fill_blank"
+      - knowledge_point_id: "math_g7_rational_number_operations"
+        name: "有理数运算"
+        skills:
+          - "calculation_accuracy"
+        question_types:
+          - "math_calculation"
+  - unit_id: "math_g7_linear_equation"
+    name: "一元一次方程"
+    domain: "数与代数"
+    term: "七年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g7_linear_equation_solving"
+        name: "一元一次方程求解"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "math_equation"
+      - knowledge_point_id: "math_g7_equation_application"
+        name: "一元一次方程应用"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "math_application"
+  - unit_id: "math_g7_basic_geometry"
+    name: "几何图形初步"
+    domain: "图形与几何"
+    term: "七年级下"
+    knowledge_points:
+      - knowledge_point_id: "math_g7_basic_geometry_concept"
+        name: "几何图形初步"
+        skills:
+          - "graph_reading"
+        question_types:
+          - "fill_blank"
+          - "math_geometry_calculation"

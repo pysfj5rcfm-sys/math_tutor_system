@@ -1,0 +1,37 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 10
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中数学粗粒度骨架。"
+units:
+  - unit_id: "math_g10_functions"
+    name: "函数"
+    domain: "函数"
+    term: "高一"
+    knowledge_points:
+      - knowledge_point_id: "math_g10_function_concept"
+        name: "函数概念与性质"
+        skills:
+          - "symbolic_expression"
+          - "graph_reading"
+        question_types:
+          - "multiple_choice"
+          - "short_answer"
+      - knowledge_point_id: "math_g10_elementary_functions"
+        name: "基本初等函数"
+        skills:
+          - "formula_application"
+        question_types:
+          - "math_application"
+  - unit_id: "math_g10_trigonometry"
+    name: "三角函数"
+    domain: "函数"
+    term: "高一"
+    knowledge_points:
+      - knowledge_point_id: "math_g10_trigonometric_functions"
+        name: "三角函数基础"
+        skills:
+          - "formula_application"
+        question_types:
+          - "short_answer"

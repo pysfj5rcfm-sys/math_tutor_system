@@ -16,6 +16,16 @@ from src.schemas.mistake_schema import (
     ValidationReport,
 )
 
+__all__ = [
+    "load_mistakes_yaml",
+    "validate_mistakes_payload",
+    "import_mistakes_payload",
+    "import_mistakes_file",
+    "preview_mistakes_payload",
+    "confirm_mistakes_import",
+    "list_mistakes",
+]
+
 
 def load_mistakes_yaml(path: str | Path) -> dict[str, Any]:
     with Path(path).open("r", encoding="utf-8") as f:
@@ -27,9 +37,6 @@ def validate_mistakes_payload(
     registry: RuleRegistry | None = None,
 ) -> tuple[ValidationReport, list[dict[str, Any]]]:
     registry = registry or load_rule_registry()
-    question_types = set(registry.get_question_type_codes())
-    knowledge_points = set(registry.get_knowledge_point_codes())
-    mistake_tags = set(registry.get_mistake_tag_codes())
     difficulties = set(registry.get_difficulty_codes())
     report = ValidationReport()
     rows = payload.get("mistakes")
@@ -43,28 +50,44 @@ def validate_mistakes_payload(
             report.add_error("invalid_item", "Each mistake must be a mapping", idx)
             report.skipped_count += 1
             continue
+        context = _context_for_row(registry, payload, row, report, idx)
+        if context is None:
+            report.skipped_count += 1
+            continue
+        subject_id = context["subject_id"]
+        question_types = set(registry.get_question_type_values_for_subject(subject_id))
+        mistake_tags = {item["code"] for item in registry.get_mistake_tags_for_subject(subject_id)}
+        normalized_row = _apply_context(row, context)
         item_errors = 0
-        if not row.get("date"):
+        if not normalized_row.get("date"):
             report.add_error("missing_date", "date is required", idx)
             item_errors += 1
-        if row.get("question_type") not in question_types:
+        if normalized_row.get("question_type") not in question_types:
             report.add_error("invalid_question_type", "question_type is not supported", idx)
             item_errors += 1
-        if row.get("mistake_tag") not in mistake_tags:
-            report.add_error("invalid_mistake_tag", "mistake_tag must be one of the 24 core tags", idx)
+        if normalized_row.get("mistake_tag") not in mistake_tags:
+            report.add_error("invalid_mistake_tag", "mistake_tag must be valid for the current subject", idx)
             item_errors += 1
-        if row.get("difficulty") not in difficulties:
+        if normalized_row.get("difficulty") not in difficulties:
             report.add_error("invalid_difficulty", "difficulty is not supported", idx)
             item_errors += 1
-        if not row.get("question_summary"):
+        if not normalized_row.get("question_summary"):
             report.add_error("empty_question_summary", "question_summary must not be empty", idx)
             item_errors += 1
-        if row.get("knowledge_point") not in knowledge_points:
+        knowledge_point_result = registry.validate_knowledge_point_for_context(
+            normalized_row.get("knowledge_point"),
+            subject_id,
+            context["grade_at_time"],
+            context["curriculum_version_at_time"],
+        )
+        if knowledge_point_result["ambiguous"]:
+            report.add_warning("ambiguous_knowledge_point", "knowledge_point matches multiple items in current curriculum scope", idx)
+        elif not knowledge_point_result["valid"]:
             report.add_warning("unknown_knowledge_point", "knowledge_point is not in initial values; imported as needs_confirmation", idx)
         if item_errors:
             report.skipped_count += 1
             continue
-        valid_rows.append(row)
+        valid_rows.append(normalized_row)
 
     report.valid = not report.errors
     return report, valid_rows
@@ -190,9 +213,10 @@ def _insert_mistake_rows(
                 tenant_id, student_id, date, question_type, knowledge_point,
                 mistake_tag, difficulty, question_summary, wrong_answer_summary,
                 correct_answer_summary, training_needed, source, note, status,
+                subject_id, grade_at_time, term_at_time, curriculum_version_at_time,
                 created_by_user_id, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_confirmation', ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_confirmation', ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 tenant_id,
@@ -208,6 +232,10 @@ def _insert_mistake_rows(
                 1 if row.get("training_needed", True) else 0,
                 row.get("source", "GPT批改"),
                 row.get("note", ""),
+                row.get("subject_id"),
+                row.get("grade_at_time"),
+                row.get("term_at_time"),
+                row.get("curriculum_version_at_time"),
                 created_by_user_id,
                 ts,
                 ts,
@@ -216,3 +244,45 @@ def _insert_mistake_rows(
         imported_count += 1
     conn.commit()
     return imported_count
+
+
+def _context_for_row(
+    registry: RuleRegistry,
+    payload: dict[str, Any],
+    row: dict[str, Any],
+    report: ValidationReport,
+    idx: int,
+) -> dict[str, Any] | None:
+    student_id = row.get("student_id") or payload.get("student_id")
+    subject_id = row.get("subject_id") or payload.get("subject_id")
+    try:
+        context = registry.resolve_learning_context(student_id=student_id, subject_id=subject_id)
+    except Exception as exc:
+        report.add_error("invalid_learning_context", str(exc), idx)
+        return None
+    for source in (payload, row):
+        if source.get("grade_at_time"):
+            context["grade_at_time"] = int(source["grade_at_time"])
+            context["grade_display_name"] = registry.get_grade_display_name(context["grade_at_time"])
+            stage = registry.get_stage_for_grade(context["grade_at_time"])
+            context["stage_id"] = str(stage.get("stage_id", ""))
+            context["stage_name"] = str(stage.get("name", ""))
+        if source.get("term_at_time"):
+            context["term_at_time"] = str(source["term_at_time"])
+        if source.get("curriculum_version_at_time"):
+            context["curriculum_version_at_time"] = str(source["curriculum_version_at_time"])
+    return context
+
+
+def _apply_context(row: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+    result = dict(row)
+    for field, value in {
+        "student_id": context["student_id"],
+        "subject_id": context["subject_id"],
+        "grade_at_time": context["grade_at_time"],
+        "term_at_time": context["term_at_time"],
+        "curriculum_version_at_time": context["curriculum_version_at_time"],
+    }.items():
+        if not result.get(field):
+            result[field] = value
+    return result

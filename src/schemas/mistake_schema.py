@@ -12,7 +12,7 @@ KNOWLEDGE_POINTS = _REGISTRY.get_knowledge_point_codes()
 DIFFICULTIES = _REGISTRY.get_difficulty_codes()
 
 DEFAULT_TENANT_ID = "personal"
-DEFAULT_STUDENT_ID = "daughter_grade5"
+DEFAULT_STUDENT_ID = "daughter"
 DEFAULT_CREATED_BY_USER_ID = "parent"
 
 
@@ -51,6 +51,11 @@ MISTAKES_SCHEMA_EXAMPLE = {
     "mistakes": [
         {
             "date": "YYYY-MM-DD",
+            "student_id": "daughter",
+            "subject_id": "math",
+            "grade_at_time": 6,
+            "term_at_time": "六年级上",
+            "curriculum_version_at_time": "cn_k12_2022",
             "question_type": "递等式计算",
             "knowledge_point": "小数计算",
             "mistake_tag": "C3",

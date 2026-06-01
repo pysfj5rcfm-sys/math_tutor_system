@@ -1,0 +1,40 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 12
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中数学粗粒度骨架。"
+units:
+  - unit_id: "math_g12_derivative_probability"
+    name: "导数与概率统计"
+    domain: "综合"
+    term: "高三"
+    knowledge_points:
+      - knowledge_point_id: "math_g12_derivative_applications"
+        name: "导数应用"
+        skills:
+          - "formula_application"
+          - "symbolic_expression"
+        question_types:
+          - "short_answer"
+          - "math_application"
+      - knowledge_point_id: "math_g12_probability_statistics"
+        name: "概率统计综合"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "multiple_choice"
+          - "short_answer"
+  - unit_id: "math_g12_integrated_review"
+    name: "高考综合复习"
+    domain: "综合与实践"
+    term: "高三"
+    knowledge_points:
+      - knowledge_point_id: "math_g12_integrated_problem_solving"
+        name: "数学综合问题解决"
+        skills:
+          - "reading_comprehension"
+          - "proof_reasoning"
+        question_types:
+          - "short_answer"
+          - "math_application"

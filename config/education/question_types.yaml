@@ -1,0 +1,163 @@
+question_types:
+  - code: "multiple_choice"
+    name: "选择"
+    scope: "general"
+    subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "fill_blank"
+    name: "填空"
+    scope: "general"
+    subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "judgement"
+    name: "判断"
+    scope: "general"
+    subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "short_answer"
+    name: "简答"
+    scope: "general"
+    subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "other"
+    name: "其它"
+    scope: "general"
+    subjects:
+      - "math"
+      - "physics"
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "math_calculation"
+    name: "递等式计算"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "two_columns"
+    legacy_names:
+      - "递等式计算"
+      - "计算题"
+  - code: "math_equation"
+    name: "方程"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "two_columns"
+    legacy_names:
+      - "方程"
+  - code: "math_unit_conversion"
+    name: "单位换算"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "单位换算"
+  - code: "math_geometry_calculation"
+    name: "几何计算"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "几何计算"
+      - "几何题"
+  - code: "math_geometry_drawing"
+    name: "几何画图"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "几何画图"
+  - code: "math_application"
+    name: "应用题"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "应用题"
+      - "文字题"
+  - code: "math_reading"
+    name: "阅读理解型数学题"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "阅读理解型数学题"
+  - code: "math_comprehensive"
+    name: "综合题"
+    scope: "subject_specific"
+    subjects:
+      - "math"
+    active: true
+    default_layout: "single_column"
+    legacy_names:
+      - "综合题"
+  - code: "physics_calculation"
+    name: "物理计算"
+    scope: "subject_specific"
+    subjects:
+      - "physics"
+    active: true
+    default_layout: "single_column"
+  - code: "physics_experiment"
+    name: "实验探究"
+    scope: "subject_specific"
+    subjects:
+      - "physics"
+    active: true
+    default_layout: "single_column"
+  - code: "physics_graph_analysis"
+    name: "图像分析"
+    scope: "subject_specific"
+    subjects:
+      - "physics"
+    active: true
+    default_layout: "single_column"
+  - code: "chem_formula_writing"
+    name: "化学式书写"
+    scope: "subject_specific"
+    subjects:
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "chem_equation_balancing"
+    name: "化学方程式配平"
+    scope: "subject_specific"
+    subjects:
+      - "chemistry"
+    active: true
+    default_layout: "single_column"
+  - code: "chem_experiment"
+    name: "实验探究"
+    scope: "subject_specific"
+    subjects:
+      - "chemistry"
+    active: true
+    default_layout: "single_column"

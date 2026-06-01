@@ -1,0 +1,26 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "chemistry"
+grade: 12
+stage_id: "senior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 高中化学粗粒度骨架。"
+units:
+  - unit_id: "chem_g12_integrated_review"
+    name: "高中化学综合复习"
+    domain: "综合"
+    term: "高三"
+    knowledge_points:
+      - knowledge_point_id: "chem_g12_reaction_principles_review"
+        name: "化学反应原理综合"
+        skills:
+          - "symbolic_expression"
+          - "reading_comprehension"
+        question_types:
+          - "short_answer"
+          - "chem_equation_balancing"
+      - knowledge_point_id: "chem_g12_experiment_review"
+        name: "实验探究综合"
+        skills:
+          - "experimental_reasoning"
+        question_types:
+          - "chem_experiment"

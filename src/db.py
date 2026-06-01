@@ -164,6 +164,28 @@ def create_tables(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    ensure_teaching_context_columns(conn)
+
+
+def ensure_teaching_context_columns(conn: sqlite3.Connection) -> None:
+    """Add v0.1.5 learning-context columns without rebuilding existing tables."""
+    for table in ("mistakes", "worksheets"):
+        existing = _table_columns(conn, table)
+        for name, definition in {
+            "subject_id": "TEXT",
+            "grade_at_time": "INTEGER",
+            "term_at_time": "TEXT",
+            "curriculum_version_at_time": "TEXT",
+        }.items():
+            if name not in existing:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+
+
+def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
+    columns: set[str] = set()
+    for row in conn.execute(f"PRAGMA table_info({table})").fetchall():
+        columns.add(str(row["name"] if isinstance(row, sqlite3.Row) else row[1]))
+    return columns
 
 
 def seed_mistake_tags(conn: sqlite3.Connection, registry: RuleRegistry | None = None) -> None:

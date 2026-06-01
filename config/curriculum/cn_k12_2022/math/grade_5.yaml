@@ -1,0 +1,60 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 5
+stage_id: "primary"
+textbook_version: "generic"
+coverage_note: "v0.1.5 仅提供代表性课程骨架，不是全量教材目录。"
+units:
+  - unit_id: "math_g5_decimal_fraction"
+    name: "小数与分数运算"
+    domain: "数与代数"
+    term: "五年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g5_decimal_operations"
+        name: "小数计算"
+        skills:
+          - "calculation_accuracy"
+        question_types:
+          - "math_calculation"
+      - knowledge_point_id: "math_g5_fraction_conversion"
+        name: "小数/分数互化"
+        skills:
+          - "symbolic_expression"
+        question_types:
+          - "fill_blank"
+          - "math_calculation"
+  - unit_id: "math_g5_area_volume"
+    name: "平面图形面积与立体图形体积"
+    domain: "图形与几何"
+    term: "五年级下"
+    knowledge_points:
+      - knowledge_point_id: "math_g5_plane_area"
+        name: "三角形、梯形、平行四边形面积"
+        skills:
+          - "formula_application"
+        question_types:
+          - "math_geometry_calculation"
+      - knowledge_point_id: "math_g5_cube_volume"
+        name: "长方体/正方体体积"
+        skills:
+          - "formula_application"
+          - "calculation_accuracy"
+        question_types:
+          - "math_geometry_calculation"
+  - unit_id: "math_g5_application"
+    name: "应用题数量关系"
+    domain: "综合与实践"
+    term: "五年级下"
+    knowledge_points:
+      - knowledge_point_id: "math_g5_reading_application"
+        name: "阅读理解型应用题"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "math_application"
+      - knowledge_point_id: "math_g5_unit_conversion"
+        name: "单位换算"
+        skills:
+          - "calculation_accuracy"
+        question_types:
+          - "math_unit_conversion"

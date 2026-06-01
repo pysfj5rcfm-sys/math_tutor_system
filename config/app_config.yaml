@@ -1,6 +1,6 @@
 defaults:
   tenant_id: "personal"
-  student_id: "daughter_grade5"
+  student_id: "daughter"
   created_by_user_id: "parent"
 database:
   path: "data/math_tutor.db"

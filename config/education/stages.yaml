@@ -1,0 +1,13 @@
+stages:
+  - stage_id: "primary"
+    name: "小学"
+    grade_min: 1
+    grade_max: 6
+  - stage_id: "junior_high"
+    name: "初中"
+    grade_min: 7
+    grade_max: 9
+  - stage_id: "senior_high"
+    name: "高中"
+    grade_min: 10
+    grade_max: 12

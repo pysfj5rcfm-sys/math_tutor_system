@@ -54,6 +54,11 @@ alias 映射提示（只提供 suggested_value，不自动修复写回）：
 ```yaml
 mistakes:
   - date: "2026-05-27"
+    student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
     question_type: "应用题"
     knowledge_point: "阅读理解型应用题"
     mistake_tag: "R4"
@@ -69,9 +74,13 @@ mistakes:
 当前 v0.1.x worksheet.yaml 标准结构：
 ```yaml
 worksheet:
-  title: "五年级数学专项训练"
+  title: "六年级数学专项训练"
   date: "2026-05-27"
-  student_id: "daughter_grade5"
+  student_id: "daughter"
+  subject_id: "math"
+  grade_at_time: 6
+  term_at_time: "六年级上"
+  curriculum_version_at_time: "cn_k12_2022"
   sections:
     - name: "一、递等式计算"
       layout: "two_columns"

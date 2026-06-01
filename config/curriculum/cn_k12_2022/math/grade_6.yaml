@@ -1,0 +1,60 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 6
+stage_id: "primary"
+textbook_version: "generic"
+coverage_note: "v0.1.5 仅提供小升初衔接所需的代表性课程骨架。"
+units:
+  - unit_id: "math_g6_fraction_ratio"
+    name: "分数、百分数与比"
+    domain: "数与代数"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g6_fraction_operations"
+        name: "分数四则运算"
+        skills:
+          - "calculation_accuracy"
+        question_types:
+          - "math_calculation"
+      - knowledge_point_id: "math_g6_ratio_percent"
+        name: "比、比例与百分数"
+        skills:
+          - "symbolic_expression"
+          - "reading_comprehension"
+        question_types:
+          - "fill_blank"
+          - "math_application"
+  - unit_id: "math_g6_geometry_space"
+    name: "圆与空间观念"
+    domain: "图形与几何"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g6_circle_perimeter_area"
+        name: "圆的周长和面积"
+        skills:
+          - "formula_application"
+        question_types:
+          - "math_geometry_calculation"
+      - knowledge_point_id: "math_g6_space_visualization"
+        name: "几何空间想象"
+        skills:
+          - "graph_reading"
+        question_types:
+          - "math_geometry_calculation"
+  - unit_id: "math_g6_xiaoshengchu_bridge"
+    name: "小升初衔接综合"
+    domain: "综合与实践"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g6_word_problem_modeling"
+        name: "阅读理解型应用题"
+        skills:
+          - "reading_comprehension"
+        question_types:
+          - "math_application"
+      - knowledge_point_id: "math_g6_unit_conversion"
+        name: "单位换算"
+        skills:
+          - "calculation_accuracy"
+        question_types:
+          - "math_unit_conversion"

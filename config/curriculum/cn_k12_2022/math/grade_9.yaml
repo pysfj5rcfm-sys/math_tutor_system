@@ -1,0 +1,40 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "math"
+grade: 9
+stage_id: "junior_high"
+textbook_version: "generic"
+coverage_note: "v0.1.5 初中数学代表性骨架。"
+units:
+  - unit_id: "math_g9_similarity_circle"
+    name: "相似与圆"
+    domain: "图形与几何"
+    term: "九年级上"
+    knowledge_points:
+      - knowledge_point_id: "math_g9_similarity"
+        name: "相似三角形"
+        skills:
+          - "proof_reasoning"
+          - "graph_reading"
+        question_types:
+          - "short_answer"
+          - "math_geometry_calculation"
+      - knowledge_point_id: "math_g9_circle"
+        name: "圆"
+        skills:
+          - "formula_application"
+          - "graph_reading"
+        question_types:
+          - "math_geometry_calculation"
+  - unit_id: "math_g9_quadratic_function"
+    name: "二次函数"
+    domain: "函数"
+    term: "九年级下"
+    knowledge_points:
+      - knowledge_point_id: "math_g9_quadratic_function_graph"
+        name: "二次函数图像与性质"
+        skills:
+          - "graph_reading"
+          - "symbolic_expression"
+        question_types:
+          - "math_application"
+          - "multiple_choice"
