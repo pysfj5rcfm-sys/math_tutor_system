@@ -1,0 +1,31 @@
+mistakes:
+  - student_id: "uat_physics_g8"
+    subject_id: "physics"
+    grade_at_time: 8
+    term_at_time: "八年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "physics_calculation"
+    knowledge_point_id: "physics_g8_speed"
+    primary_mistake_tag_code: "PHY_F1"
+    difficulty_code: "basic"
+    question_summary: "速度公式应用错误"
+    wrong_answer_summary: "把速度公式选错"
+    correct_answer_summary: "应使用 v=s/t"
+    training_needed: true
+    source: "uat_v016"
+  - student_id: "uat_physics_g8"
+    subject_id: "physics"
+    grade_at_time: 8
+    term_at_time: "八年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "physics_experiment"
+    knowledge_point_id: "physics_g8_basic_experiment"
+    primary_mistake_tag_code: "PHY_E1"
+    difficulty_code: "medium"
+    question_summary: "实验变量控制不清"
+    wrong_answer_summary: "同时改变了两个条件"
+    correct_answer_summary: "应只改变一个自变量，其余条件保持不变"
+    training_needed: true
+    source: "uat_v016"

@@ -52,20 +52,19 @@ MISTAKES_SCHEMA_EXAMPLE = {
         {
             "date": "YYYY-MM-DD",
             "student_id": "daughter",
-            "subject_id": "math",
-            "grade_at_time": 6,
-            "term_at_time": "六年级上",
+            "subject_id": "physics",
+            "grade_at_time": 8,
+            "term_at_time": "八年级上",
             "curriculum_version_at_time": "cn_k12_2022",
-            "question_type": "递等式计算",
-            "knowledge_point": "小数计算",
-            "mistake_tag": "C3",
-            "difficulty": "基础",
+            "question_type_code": "physics_calculation",
+            "knowledge_point_id": "physics_g8_speed",
+            "primary_mistake_tag_code": "PHY_F1",
+            "difficulty_code": "basic",
             "question_summary": "题目摘要",
             "wrong_answer_summary": "错误答案摘要",
             "correct_answer_summary": "正确答案摘要",
             "training_needed": True,
-            "source": "GPT批改",
-            "note": "备注",
+            "source": "manual",
         }
     ]
 }

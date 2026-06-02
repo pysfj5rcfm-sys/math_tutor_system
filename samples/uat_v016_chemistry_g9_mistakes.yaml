@@ -1,0 +1,31 @@
+mistakes:
+  - student_id: "uat_chemistry_g9"
+    subject_id: "chemistry"
+    grade_at_time: 9
+    term_at_time: "九年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "chem_formula_writing"
+    knowledge_point_id: "chem_g9_formula_writing"
+    primary_mistake_tag_code: "CHEM_F1"
+    difficulty_code: "basic"
+    question_summary: "化学式书写角标错误"
+    wrong_answer_summary: "把水写成 HO"
+    correct_answer_summary: "水的化学式是 H2O"
+    training_needed: true
+    source: "uat_v016"
+  - student_id: "uat_chemistry_g9"
+    subject_id: "chemistry"
+    grade_at_time: 9
+    term_at_time: "九年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "chem_equation_balancing"
+    knowledge_point_id: "chem_g9_equation_balancing"
+    primary_mistake_tag_code: "CHEM_E1"
+    difficulty_code: "medium"
+    question_summary: "化学方程式未配平"
+    wrong_answer_summary: "写成 H2 + O2 -> H2O"
+    correct_answer_summary: "应配平为 2H2 + O2 -> 2H2O"
+    training_needed: true
+    source: "uat_v016"

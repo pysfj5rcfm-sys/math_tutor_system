@@ -1,0 +1,27 @@
+worksheet:
+  title: "七年级数学有理数与方程专项"
+  date: "2026-06-01"
+  student_id: "uat_math_g7"
+  subject_id: "math"
+  grade_at_time: 7
+  term_at_time: "七年级上"
+  curriculum_version_at_time: "cn_k12_2022"
+  source: "uat_v016"
+  sections:
+    - name: "一、有理数运算"
+      layout: "two_columns"
+      questions:
+        - question_type_code: "math_calculation"
+          knowledge_point_id: "math_g7_rational_number_operations"
+          target_mistake_tag_code: "C2"
+          difficulty_code: "basic"
+          question: "计算：-3 + 2×(-4)"
+          answer: "-11"
+          explanation: "先算乘法 2×(-4)=-8，再算 -3+(-8)=-11。"
+        - question_type_code: "math_equation"
+          knowledge_point_id: "math_g7_linear_equation_solving"
+          target_mistake_tag_code: "F2"
+          difficulty_code: "medium"
+          question: "解方程：3x - 5 = 10"
+          answer: "x=5"
+          explanation: "3x=15，所以 x=5。"

@@ -17,11 +17,11 @@ def tag_frequency(conn: sqlite3.Connection, days: int, include_unconfirmed: bool
     clause, params = _status_clause(include_unconfirmed)
     rows = conn.execute(
         f"""
-        SELECT mistake_tag, COUNT(*) AS count
+        SELECT primary_mistake_tag_code AS mistake_tag, COUNT(*) AS count
         FROM mistakes
         WHERE date >= ?{clause}
-        GROUP BY mistake_tag
-        ORDER BY count DESC, mistake_tag
+        GROUP BY primary_mistake_tag_code
+        ORDER BY count DESC, primary_mistake_tag_code
         """,
         (start, *params),
     ).fetchall()
@@ -35,8 +35,17 @@ def cross_stat(
     days: int | None = None,
     today: date | None = None,
 ) -> list[dict[str, Any]]:
-    if column not in {"question_type", "knowledge_point", "difficulty"}:
+    column_map = {
+        "question_type": "question_type_code",
+        "knowledge_point": "knowledge_point_id",
+        "difficulty": "difficulty_code",
+        "question_type_code": "question_type_code",
+        "knowledge_point_id": "knowledge_point_id",
+        "difficulty_code": "difficulty_code",
+    }
+    if column not in column_map:
         raise ValueError("Unsupported cross stat column")
+    db_column = column_map[column]
     where = ["1=1"]
     params: list[Any] = []
     if days:
@@ -48,11 +57,11 @@ def cross_stat(
         params.append("confirmed")
     rows = conn.execute(
         f"""
-        SELECT mistake_tag, {column}, COUNT(*) AS count
+        SELECT primary_mistake_tag_code AS mistake_tag, {db_column} AS {column}, COUNT(*) AS count
         FROM mistakes
         WHERE {' AND '.join(where)}
-        GROUP BY mistake_tag, {column}
-        ORDER BY count DESC, mistake_tag, {column}
+        GROUP BY primary_mistake_tag_code, {db_column}
+        ORDER BY count DESC, primary_mistake_tag_code, {db_column}
         """,
         tuple(params),
     ).fetchall()
@@ -63,11 +72,11 @@ def top_tags(conn: sqlite3.Connection, limit: int = 5, include_unconfirmed: bool
     clause, params = _status_clause(include_unconfirmed)
     rows = conn.execute(
         f"""
-        SELECT mistake_tag, COUNT(*) AS count
+        SELECT primary_mistake_tag_code AS mistake_tag, COUNT(*) AS count
         FROM mistakes
         WHERE 1=1{clause}
-        GROUP BY mistake_tag
-        ORDER BY count DESC, mistake_tag
+        GROUP BY primary_mistake_tag_code
+        ORDER BY count DESC, primary_mistake_tag_code
         LIMIT ?
         """,
         (*params, limit),
@@ -82,7 +91,7 @@ def missing_data_alerts(conn: sqlite3.Connection, include_unconfirmed: bool = Fa
     geometry_count = conn.execute(
         f"""
         SELECT COUNT(*) FROM mistakes
-        WHERE date >= ? AND (question_type LIKE '几何%' OR knowledge_point LIKE '%面积%' OR knowledge_point LIKE '%体积%'){clause}
+        WHERE date >= ? AND (question_type_code LIKE 'math_geometry%' OR knowledge_point_id LIKE '%area%' OR knowledge_point_id LIKE '%volume%'){clause}
         """,
         (start, *params),
     ).fetchone()[0]

@@ -19,10 +19,10 @@ WORKSHEET_SCHEMA_EXAMPLE = {
                 "layout": "two_columns",
                 "questions": [
                     {
-                        "question_type": "递等式计算",
-                        "knowledge_point": "小数计算",
-                        "target_mistake_tag": "C3",
-                        "difficulty": "基础",
+                        "question_type_code": "math_calculation",
+                        "knowledge_point_id": "math_g6_fraction_operations",
+                        "target_mistake_tag_code": "C3",
+                        "difficulty_code": "basic",
                         "question": "题目",
                         "answer": "答案",
                         "explanation": "解析",

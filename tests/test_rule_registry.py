@@ -21,7 +21,7 @@ def test_rule_registry_loads_all_configs_and_core_values():
     assert registry.validate_config()["valid"] is True
     assert {"递等式计算", "方程", "应用题"}.issubset(registry.get_question_type_codes())
     assert {"小数计算", "长方体/正方体体积", "阅读理解型应用题"}.issubset(registry.get_knowledge_point_codes())
-    assert registry.get_difficulty_codes() == ["基础", "中等", "提高", "浅奥"]
+    assert registry.get_difficulty_codes() == ["basic", "medium", "advanced", "challenge"]
     assert {"C1", "C3", "F3", "R4", "U1", "G1", "H1"}.issubset(registry.get_mistake_tag_codes())
     assert len(registry.get_mistake_tag_codes()) >= 30
     assert registry.list_policies()
@@ -29,9 +29,9 @@ def test_rule_registry_loads_all_configs_and_core_values():
 
 def test_registry_alias_suggestions():
     registry = load_rule_registry()
-    assert registry.suggest_question_type("解方程") == "方程"
-    assert registry.suggest_knowledge_point("小数混合运算") == "小数计算"
-    assert registry.suggest_difficulty("简单") == "基础"
+    assert registry.suggest_question_type("解方程") == "math_equation"
+    assert registry.suggest_knowledge_point("速度") == "physics_g8_speed"
+    assert registry.suggest_difficulty("简单") == "basic"
     assert registry.suggest_mistake_tag("R4 关键词理解弱") == "R4"
 
 
@@ -68,11 +68,11 @@ def test_invalid_values_still_error_and_unknown_knowledge_warns():
 
 
 def test_validation_report_uses_registry_suggestion():
-    payload = _worksheet(question_type="解方程")
+    payload = _worksheet(question_type="不存在题型")
     report, _ = validate_worksheet_payload(payload)
     readable = format_validation_report(report.as_dict(), "worksheet", payload, "")
     item = next(item for item in readable["readable_items"] if item["field"] == "question_type")
-    assert item["suggested_value"] == "方程"
+    assert item["suggested_value"] in (None, "")
     assert "方程" in item["legal_values"]
 
 
@@ -95,12 +95,12 @@ def test_prompts_use_registry_content(conn):
         "worksheet: {}",
     )
     assert registry.get_question_type_codes()[0] in worksheet_prompt
-    assert "长方体/正方体体积" in worksheet_prompt
+    assert "question_type_code" in worksheet_prompt
     assert "C3" in worksheet_prompt
     assert "基础" in worksheet_prompt
     assert "balanced_default" in worksheet_prompt
     assert "alias 映射提示" in repair_prompt
-    assert "合法 question_type 枚举" in marking_prompt
+    assert "合法 question_type_code 枚举" in marking_prompt
     assert "UAT" not in registry.render_worksheet_policies_for_prompt()
     assert "4+3+2+2+3" not in registry.render_worksheet_policies_for_prompt()
 
@@ -131,11 +131,13 @@ def test_db_seed_uses_registry_and_is_idempotent(tmp_path: Path):
     db.execute(
         """
         INSERT INTO mistakes (
-            tenant_id, student_id, date, question_type, knowledge_point, mistake_tag,
-            difficulty, question_summary, status, created_by_user_id, created_at, updated_at
+            student_id, subject_id, grade_at_time, curriculum_version_at_time, date,
+            question_type_code, knowledge_point_id, primary_mistake_tag_code,
+            difficulty_code, question_summary, status, created_at, updated_at
         )
-        VALUES ('personal', 's1', '2026-05-27', '递等式计算', '小数计算', 'C3',
-            '基础', 'keep me', 'needs_confirmation', 'parent', 'now', 'now')
+        VALUES ('daughter', 'math', 6, 'cn_k12_2022', '2026-05-27',
+            'math_calculation', 'math_g6_fraction_operations', 'C3',
+            'basic', 'keep me', 'needs_confirmation', 'now', 'now')
         """
     )
     seed_mistake_tags(db, registry=registry)

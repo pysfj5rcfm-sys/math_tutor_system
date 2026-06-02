@@ -5,52 +5,17 @@ from typing import Any
 from src.core.rule_registry import RuleRegistry, RuleRegistryError, load_rule_registry
 
 
-QUESTION_TYPE_LABELS = {
-    "multiple_choice": "选择",
-    "fill_blank": "填空",
-    "judgement": "判断",
-    "short_answer": "简答",
-    "other": "其它",
-    "math_calculation": "递等式计算",
-    "math_equation": "方程",
-    "math_unit_conversion": "单位换算",
-    "math_geometry_calculation": "几何计算",
-    "math_geometry_drawing": "几何画图",
-    "math_application": "应用题",
-    "math_reading": "阅读理解型数学题",
-    "math_comprehensive": "综合题",
-    "physics_calculation": "物理计算",
-    "physics_experiment": "实验探究",
-    "physics_graph_analysis": "图像分析",
-    "chem_formula_writing": "化学式书写",
-    "chem_equation_balancing": "化学方程式配平",
-    "chem_experiment": "实验探究",
-}
-
-QUESTION_TYPE_ALIASES = {
-    "应用题": "math_application",
-    "文字题": "math_application",
-    "递等式计算": "math_calculation",
-    "计算题": "math_calculation",
-    "方程": "math_equation",
-    "单位换算": "math_unit_conversion",
-    "几何计算": "math_geometry_calculation",
-    "几何题": "math_geometry_calculation",
-    "物理计算": "physics_calculation",
-    "化学式书写": "chem_formula_writing",
-    "化学方程式配平": "chem_equation_balancing",
-}
-
-
 def question_type_display(value: Any, registry: RuleRegistry | None = None) -> str:
-    text = _text(value)
-    if not text:
+    code = _text(value)
+    if not code:
         return ""
     registry = registry or load_rule_registry()
-    code = registry.canonicalize_question_type(text) or QUESTION_TYPE_ALIASES.get(text)
-    if not code:
-        return text
-    return f"{_question_type_label(code, registry)} ({code})"
+    for item in registry.get_question_types(active_only=False):
+        accepted = {str(v) for v in [item.get("code"), item.get("name"), item.get("display_name"), *(item.get("legacy_names") or [])] if v}
+        if code in accepted:
+            canonical_code = str(item.get("code") or code)
+            return _format(item.get("name") or item.get("display_name") or canonical_code, canonical_code)
+    return code
 
 
 def knowledge_point_display(
@@ -60,26 +25,46 @@ def knowledge_point_display(
     curriculum_version_at_time: Any = "cn_k12_2022",
     registry: RuleRegistry | None = None,
 ) -> str:
-    text = _text(value)
-    if not text:
+    point_id = _text(value)
+    if not point_id:
         return ""
     registry = registry or load_rule_registry()
-    subject = _text(subject_id)
-    grade = _text(grade_at_time)
-    curriculum_version = _text(curriculum_version_at_time) or "cn_k12_2022"
-    if not subject or not grade:
-        return text
     try:
-        result = registry.validate_knowledge_point_for_context(text, subject, grade, curriculum_version)
+        points = registry.get_knowledge_points_for_context(
+            _text(subject_id),
+            int(grade_at_time),
+            _text(curriculum_version_at_time) or "cn_k12_2022",
+        )
     except (RuleRegistryError, ValueError, TypeError):
-        return text
-    matches = result.get("matches") or []
-    if not matches:
-        return text
-    match = matches[0]
-    point_id = _text(match.get("knowledge_point_id"))
-    name = _text(match.get("name")) or point_id
-    return f"{name} ({point_id})" if point_id and point_id != name else name
+        return point_id
+    for item in points:
+        accepted = {str(v) for v in [item.get("knowledge_point_id"), item.get("name"), *(item.get("aliases") or [])] if v}
+        if point_id in accepted:
+            canonical_id = str(item.get("knowledge_point_id") or point_id)
+            return _format(item.get("name") or canonical_id, canonical_id)
+    return point_id
+
+
+def mistake_tag_display(value: Any, registry: RuleRegistry | None = None) -> str:
+    code = _text(value)
+    if not code:
+        return ""
+    registry = registry or load_rule_registry()
+    for item in registry.get_mistake_tags(active_only=False):
+        if item.get("code") == code:
+            return _format(item.get("name") or code, code)
+    return code
+
+
+def difficulty_display(value: Any, registry: RuleRegistry | None = None) -> str:
+    code = _text(value)
+    if not code:
+        return ""
+    registry = registry or load_rule_registry()
+    for item in registry.get_difficulty_levels(active_only=False):
+        if item.get("code") == code:
+            return _format(item.get("name") or code, code)
+    return code
 
 
 def enrich_mistake_display_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -87,25 +72,32 @@ def enrich_mistake_display_rows(rows: list[dict[str, Any]]) -> list[dict[str, An
     enriched: list[dict[str, Any]] = []
     for row in rows:
         item = dict(row)
-        item["question_type_display"] = question_type_display(item.get("question_type"), registry)
+        item["question_type_display"] = question_type_display(item.get("question_type_code"), registry)
         item["knowledge_point_display"] = knowledge_point_display(
-            item.get("knowledge_point"),
+            item.get("knowledge_point_id"),
             item.get("subject_id"),
             item.get("grade_at_time"),
             item.get("curriculum_version_at_time"),
             registry,
         )
+        item["mistake_tag_display"] = mistake_tag_display(item.get("primary_mistake_tag_code"), registry)
+        item["difficulty_display"] = difficulty_display(item.get("difficulty_code"), registry)
+        return_legacy_aliases(item)
         enriched.append(item)
     return enriched
 
 
-def _question_type_label(code: str, registry: RuleRegistry) -> str:
-    if code in QUESTION_TYPE_LABELS:
-        return QUESTION_TYPE_LABELS[code]
-    for item in registry.get_question_types(active_only=False):
-        if item.get("code") == code:
-            return str(item.get("name") or code)
-    return code
+def return_legacy_aliases(item: dict[str, Any]) -> None:
+    """Keep in-memory aliases for old helper callers; DB/export schema stays canonical."""
+    item.setdefault("question_type", item.get("question_type_code", ""))
+    item.setdefault("knowledge_point", item.get("knowledge_point_id", ""))
+    item.setdefault("mistake_tag", item.get("primary_mistake_tag_code", ""))
+    item.setdefault("difficulty", item.get("difficulty_code", ""))
+
+
+def _format(name: Any, code: str) -> str:
+    label = _text(name) or code
+    return f"{label} ({code})" if label != code else code
 
 
 def _text(value: Any) -> str:

@@ -35,9 +35,9 @@ def test_unknown_knowledge_point_warns_but_imports_needs_confirmation(conn):
     report = import_mistakes_payload(conn, payload)
     assert report["valid"] is True
     assert report["warnings"][0]["code"] == "unknown_knowledge_point"
-    row = conn.execute("SELECT status, knowledge_point FROM mistakes").fetchone()
+    row = conn.execute("SELECT status, knowledge_point_id FROM mistakes").fetchone()
     assert row["status"] == "needs_confirmation"
-    assert row["knowledge_point"] == "未知知识点"
+    assert row["knowledge_point_id"] in (None, "")
 
 
 def _base_mistake():

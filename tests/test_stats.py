@@ -7,7 +7,7 @@ from src.db import confirm_record
 
 def test_recent_7_days_stats_only_confirmed_by_default(conn):
     import_mistakes_payload(conn, {"mistakes": [_mistake("2026-05-27", "C3"), _mistake("2026-05-20", "M3")]})
-    first_id = conn.execute("SELECT id FROM mistakes WHERE mistake_tag = 'C3'").fetchone()[0]
+    first_id = conn.execute("SELECT id FROM mistakes WHERE primary_mistake_tag_code = 'C3'").fetchone()[0]
     confirm_record(conn, "mistakes", first_id)
     rows = tag_frequency(conn, 7, include_unconfirmed=False, today=date(2026, 5, 27))
     assert rows == [{"mistake_tag": "C3", "count": 1}]
@@ -21,7 +21,7 @@ def test_cross_stat_by_question_type(conn):
     confirm_record(conn, "mistakes", first_id)
     rows = cross_stat(conn, "question_type")
     assert rows[0]["mistake_tag"] == "C3"
-    assert rows[0]["question_type"] == "递等式计算"
+    assert rows[0]["question_type"] == "math_calculation"
     assert rows[0]["count"] == 1
 
 

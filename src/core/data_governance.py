@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from src.core.duplicate_guard import scan_duplicate_mistake_groups, scan_duplicate_worksheet_groups
-from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.db import now_iso
 
 
@@ -34,12 +33,16 @@ def filter_mistakes(
     grade_at_time: str | int | list[str] | None = None,
     status: str | list[str] | None = None,
     source: str | list[str] | None = None,
-    date_from: str | None = None,
-    date_to: str | None = None,
     mistake_tag: str | list[str] | None = None,
     question_type: str | list[str] | None = None,
     knowledge_point: str | list[str] | None = None,
     difficulty: str | list[str] | None = None,
+    question_type_code: str | list[str] | None = None,
+    knowledge_point_id: str | list[str] | None = None,
+    primary_mistake_tag_code: str | list[str] | None = None,
+    difficulty_code: str | list[str] | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
 ) -> list[dict[str, Any]]:
     where: list[str] = []
     params: list[Any] = []
@@ -49,10 +52,10 @@ def filter_mistakes(
     _add_filter(where, params, "grade_at_time", grade_at_time, existing_columns)
     _add_filter(where, params, "status", status, existing_columns)
     _add_filter(where, params, "source", source, existing_columns)
-    _add_filter(where, params, "mistake_tag", mistake_tag, existing_columns)
-    _add_filter(where, params, "question_type", question_type, existing_columns)
-    _add_filter(where, params, "knowledge_point", knowledge_point, existing_columns)
-    _add_filter(where, params, "difficulty", difficulty, existing_columns)
+    _add_filter(where, params, "primary_mistake_tag_code", primary_mistake_tag_code or mistake_tag, existing_columns)
+    _add_filter(where, params, "question_type_code", question_type_code or question_type, existing_columns)
+    _add_filter(where, params, "knowledge_point_id", knowledge_point_id or knowledge_point, existing_columns)
+    _add_filter(where, params, "difficulty_code", difficulty_code or difficulty, existing_columns)
     if date_from:
         where.append("date >= ?")
         params.append(date_from)
@@ -69,10 +72,10 @@ def filter_mistakes(
         "date",
         "status",
         "source",
-        "question_type",
-        "knowledge_point",
-        "mistake_tag",
-        "difficulty",
+        "question_type_code",
+        "knowledge_point_id",
+        "primary_mistake_tag_code",
+        "difficulty_code",
         "question_summary",
         "created_at",
         "updated_at",
@@ -82,15 +85,14 @@ def filter_mistakes(
     if where:
         sql += " WHERE " + " AND ".join(where)
     sql += " ORDER BY date DESC, id DESC"
-    rows = [_with_default_context(dict(row)) for row in conn.execute(sql, tuple(params)).fetchall()]
-    return _apply_virtual_context_filters(rows, subject_id=subject_id, grade_at_time=grade_at_time, existing_columns=existing_columns)
+    return [dict(row) for row in conn.execute(sql, tuple(params)).fetchall()]
 
 
 def missing_mistake_context_columns(conn: sqlite3.Connection) -> list[str]:
     existing_columns = _table_columns(conn, "mistakes")
     return [
         column
-        for column in ("subject_id", "grade_at_time", "term_at_time", "curriculum_version_at_time")
+        for column in ("student_id", "subject_id", "grade_at_time", "term_at_time", "curriculum_version_at_time")
         if column not in existing_columns
     ]
 
@@ -108,7 +110,7 @@ def batch_delete_mistakes(conn: sqlite3.Connection, ids: list[int], confirm_dele
     if not normalized_ids:
         return 0
     if not confirm_delete:
-        raise ValueError("批量删除需要显式二次确认；建议先备份数据库。")
+        raise ValueError("Batch delete requires explicit confirmation; back up the database first.")
     placeholders = ", ".join("?" for _ in normalized_ids)
     cur = conn.execute(f"DELETE FROM mistakes WHERE id IN ({placeholders})", tuple(normalized_ids))
     conn.commit()
@@ -127,7 +129,7 @@ def latest_backup_files(backup_dir: str | Path, limit: int = 5) -> list[Path]:
     path = Path(backup_dir)
     if not path.exists():
         return []
-    return sorted(path.glob("math_tutor_*.db"), key=lambda item: item.stat().st_mtime, reverse=True)[:limit]
+    return sorted(path.glob("edu_tutor_*.db"), key=lambda item: item.stat().st_mtime, reverse=True)[:limit]
 
 
 def _batch_update_status(
@@ -194,41 +196,3 @@ def _count_where(conn: sqlite3.Connection, table: str, where: str, params: tuple
 
 def _table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
     return {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
-
-
-def _default_context() -> dict[str, Any]:
-    try:
-        return load_rule_registry().resolve_learning_context()
-    except RuleRegistryError:
-        return {
-            "subject_id": "math",
-            "grade_at_time": "",
-            "term_at_time": "",
-            "curriculum_version_at_time": "",
-        }
-
-
-def _with_default_context(row: dict[str, Any]) -> dict[str, Any]:
-    context = _default_context()
-    row.setdefault("student_id", "")
-    row.setdefault("subject_id", context.get("subject_id", "math"))
-    row.setdefault("grade_at_time", context.get("grade_at_time", ""))
-    row.setdefault("term_at_time", context.get("term_at_time", ""))
-    row.setdefault("curriculum_version_at_time", context.get("curriculum_version_at_time", ""))
-    return row
-
-
-def _apply_virtual_context_filters(
-    rows: list[dict[str, Any]],
-    subject_id: str | list[str] | None,
-    grade_at_time: str | int | list[str] | None,
-    existing_columns: set[str],
-) -> list[dict[str, Any]]:
-    result = rows
-    if subject_id not in (None, "", "全部") and "subject_id" not in existing_columns:
-        subject_values = set(subject_id if isinstance(subject_id, list) else [subject_id])
-        result = [row for row in result if str(row.get("subject_id", "")) in {str(value) for value in subject_values}]
-    if grade_at_time not in (None, "", "全部") and "grade_at_time" not in existing_columns:
-        grade_values = set(grade_at_time if isinstance(grade_at_time, list) else [grade_at_time])
-        result = [row for row in result if str(row.get("grade_at_time", "")) in {str(value) for value in grade_values}]
-    return result

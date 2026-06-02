@@ -27,8 +27,8 @@ def generate_weekly_review(
     week_start = week_end - timedelta(days=6)
     stats = {
         "top_tags": top_tags(conn, include_unconfirmed=False),
-        "tag_by_type": cross_stat(conn, "question_type", include_unconfirmed=False, days=7, today=week_end),
-        "tag_by_knowledge": cross_stat(conn, "knowledge_point", include_unconfirmed=False, days=7, today=week_end),
+        "tag_by_type": cross_stat(conn, "question_type_code", include_unconfirmed=False, days=7, today=week_end),
+        "tag_by_knowledge": cross_stat(conn, "knowledge_point_id", include_unconfirmed=False, days=7, today=week_end),
         "missing_alerts": missing_data_alerts(conn, include_unconfirmed=False, today=week_end),
     }
     prompt = build_review_analysis_prompt(profile, stats)
@@ -51,13 +51,12 @@ def generate_weekly_review(
     conn.execute(
         """
         INSERT INTO weekly_reviews (
-            tenant_id, student_id, week_start, week_end, stats_summary,
+            student_id, week_start, week_end, stats_summary,
             gpt_analysis_imported, profile_update_suggestions, status, created_at, updated_at
         )
-        VALUES (?, ?, ?, ?, ?, '', '[]', 'generated', ?, ?)
+        VALUES (?, ?, ?, ?, '', '[]', 'generated', ?, ?)
         """,
         (
-            DEFAULT_TENANT_ID,
             profile.get("student_id", DEFAULT_STUDENT_ID),
             week_start.isoformat(),
             week_end.isoformat(),

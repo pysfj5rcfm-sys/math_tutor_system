@@ -1,0 +1,13 @@
+student_id: "uat_math_g7"
+display_name: "UAT Math G7"
+active: false
+current_stage: "junior_high"
+current_grade: 7
+current_term: "七年级上"
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+default_subjects:
+  - "math"
+profile:
+  learning_goals:
+    - "初一数学文字类试卷验证"

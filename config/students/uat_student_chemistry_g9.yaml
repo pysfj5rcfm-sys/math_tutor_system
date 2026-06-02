@@ -1,0 +1,13 @@
+student_id: "uat_chemistry_g9"
+display_name: "UAT Chemistry G9"
+active: false
+current_stage: "junior_high"
+current_grade: 9
+current_term: "九年级上"
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+default_subjects:
+  - "chemistry"
+profile:
+  learning_goals:
+    - "九年级化学文字类试卷验证"

@@ -1,0 +1,31 @@
+mistakes:
+  - student_id: "uat_math_g7"
+    subject_id: "math"
+    grade_at_time: 7
+    term_at_time: "七年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "math_calculation"
+    knowledge_point_id: "math_g7_rational_number_operations"
+    primary_mistake_tag_code: "C2"
+    difficulty_code: "medium"
+    question_summary: "有理数混合运算顺序错误"
+    wrong_answer_summary: "先算了加法，忽略乘除优先"
+    correct_answer_summary: "应先确定运算顺序再计算"
+    training_needed: true
+    source: "uat_v016"
+  - student_id: "uat_math_g7"
+    subject_id: "math"
+    grade_at_time: 7
+    term_at_time: "七年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-01"
+    question_type_code: "math_equation"
+    knowledge_point_id: "math_g7_linear_equation_solving"
+    primary_mistake_tag_code: "F2"
+    difficulty_code: "basic"
+    question_summary: "一元一次方程移项变号错误"
+    wrong_answer_summary: "移项后符号没有改变"
+    correct_answer_summary: "移项时加减号需要改变"
+    training_needed: true
+    source: "uat_v016"

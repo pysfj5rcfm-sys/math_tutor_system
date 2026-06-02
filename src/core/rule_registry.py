@@ -289,7 +289,17 @@ class RuleRegistry:
         return self._suggest("knowledge_point_aliases", value)
 
     def suggest_difficulty(self, value: Any) -> str | None:
-        return self._suggest("difficulty_aliases", value)
+        text = "" if value is None else str(value).strip()
+        if not text:
+            return None
+        alias = self._suggest("difficulty_aliases", text)
+        if alias:
+            return alias
+        for item in self.get_difficulty_levels(active_only=False):
+            accepted = [item.get("code", ""), item.get("name", ""), *(item.get("legacy_names") or [])]
+            if text in {str(v) for v in accepted if v}:
+                return str(item.get("code"))
+        return None
 
     def suggest_mistake_tag(self, value: Any) -> str | None:
         return self._suggest("mistake_tag_aliases", value)
@@ -610,7 +620,7 @@ def _load_rule_registry_cached(config_dir: str) -> RuleRegistry:
     registry = RuleRegistry(
         question_types=_load_question_types(path),
         knowledge_points=_load_section(path, "knowledge_points.yaml", "knowledge_points", list),
-        difficulty_levels=_load_section(path, "difficulty_levels.yaml", "difficulty_levels", list),
+        difficulty_levels=_load_difficulty_levels(path),
         mistake_tags=_load_mistake_tags(path),
         alias_mappings=_load_alias_mappings(path),
         worksheet_policy=_load_yaml_file(path / "worksheet_policy.yaml", dict),
@@ -715,6 +725,13 @@ def _load_mistake_tags(config_dir: Path) -> list[dict[str, Any]]:
             return _merge_by_code(education_items, legacy_items)
         return education_items
     return _load_section(config_dir, "mistake_tags.yaml", "mistake_tags", list)
+
+
+def _load_difficulty_levels(config_dir: Path) -> list[dict[str, Any]]:
+    education_path = config_dir / "education" / "difficulty_levels.yaml"
+    if education_path.exists():
+        return _load_section(config_dir / "education", "difficulty_levels.yaml", "difficulty_levels", list)
+    return _load_section(config_dir, "difficulty_levels.yaml", "difficulty_levels", list)
 
 
 def _load_education_section(config_dir: Path, file_name: str, section_name: str) -> list[dict[str, Any]]:

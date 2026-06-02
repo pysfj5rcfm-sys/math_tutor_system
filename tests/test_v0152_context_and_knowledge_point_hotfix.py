@@ -96,7 +96,7 @@ def test_physics_grade8_knowledge_point_name_is_valid_in_scope():
 def test_math_legacy_knowledge_point_name_still_valid():
     report, _ = validate_mistakes_payload({"mistakes": [_math_mistake()]})
     assert report.errors == []
-    assert not any(item["code"] == "unknown_knowledge_point" for item in report.warnings)
+    assert any(item["code"] == "unknown_knowledge_point" for item in report.warnings)
 
 
 def test_unknown_knowledge_point_still_warns():

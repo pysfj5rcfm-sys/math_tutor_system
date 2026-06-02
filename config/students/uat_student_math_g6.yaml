@@ -1,0 +1,13 @@
+student_id: "uat_math_g6"
+display_name: "UAT Math G6"
+active: false
+current_stage: "primary"
+current_grade: 6
+current_term: "六年级上"
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+default_subjects:
+  - "math"
+profile:
+  learning_goals:
+    - "小升初数学文字类试卷验证"

@@ -30,7 +30,7 @@ def test_project_name_readme_and_app_title_are_v015():
     app_source = (ROOT / "src" / "app.py").read_text(encoding="utf-8")
     assert "edu_tutor_system" in readme
     assert "Formerly math_tutor_system" in readme
-    assert "edu_tutor_system v0.1.5" in app_source
+    assert "edu_tutor_system v0.1.6" in app_source
 
 
 def test_students_subjects_stages_and_grades_load():

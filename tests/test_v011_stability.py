@@ -14,20 +14,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_init_db_is_idempotent_and_preserves_user_data(tmp_path):
-    db_path = tmp_path / "math_tutor.db"
+    db_path = tmp_path / "edu_tutor.db"
     init_db(db_path)
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             """
             INSERT INTO mistakes (
-                tenant_id, student_id, date, question_type, knowledge_point,
-                mistake_tag, difficulty, question_summary, status,
-                created_by_user_id, created_at, updated_at
+                student_id, subject_id, grade_at_time, curriculum_version_at_time, date,
+                question_type_code, knowledge_point_id, primary_mistake_tag_code,
+                difficulty_code, question_summary, status, created_at, updated_at
             )
             VALUES (
-                'personal', 'daughter_grade5', '2026-05-27', '递等式计算',
-                '小数计算', 'C3', '基础', '幂等测试', 'needs_confirmation',
-                'parent', '2026-05-27T00:00:00', '2026-05-27T00:00:00'
+                'daughter', 'math', 6, 'cn_k12_2022', '2026-05-27',
+                'math_calculation', 'math_g6_fraction_operations', 'C3',
+                'basic', '幂等测试', 'needs_confirmation',
+                '2026-05-27T00:00:00', '2026-05-27T00:00:00'
             )
             """
         )

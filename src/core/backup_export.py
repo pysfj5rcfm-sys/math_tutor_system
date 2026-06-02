@@ -9,37 +9,50 @@ from typing import Any
 
 import yaml
 
-from src.core.rule_registry import RuleRegistryError, load_rule_registry
-from src.db import DEFAULT_DB_PATH
+from src.core.display import difficulty_display, knowledge_point_display, mistake_tag_display, question_type_display
+from src.core.paths import DEFAULT_DB_PATH, ROOT
 
 
-ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_BACKUP_DIR = ROOT / "backups"
 DEFAULT_EXPORT_DIR = ROOT / "outputs" / "exports"
 
 MISTAKE_EXPORT_COLUMNS = [
-    "id",
-    "tenant_id",
     "student_id",
     "subject_id",
     "grade_at_time",
     "term_at_time",
     "curriculum_version_at_time",
     "date",
-    "question_type",
-    "knowledge_point",
-    "mistake_tag",
-    "difficulty",
+    "question_type_code",
+    "question_type_display",
+    "knowledge_point_id",
+    "knowledge_point_display",
+    "primary_mistake_tag_code",
+    "mistake_tag_display",
+    "difficulty_code",
+    "difficulty_display",
     "question_summary",
     "wrong_answer_summary",
     "correct_answer_summary",
-    "training_needed",
-    "source",
-    "note",
     "status",
-    "created_by_user_id",
-    "created_at",
-    "updated_at",
+    "source",
+]
+
+WORKSHEET_ITEM_EXPORT_COLUMNS = [
+    "student_id",
+    "subject_id",
+    "grade_at_time",
+    "question_type_code",
+    "question_type_display",
+    "knowledge_point_id",
+    "knowledge_point_display",
+    "target_mistake_tag_code",
+    "mistake_tag_display",
+    "difficulty_code",
+    "difficulty_display",
+    "question",
+    "answer",
+    "explanation",
 ]
 
 
@@ -52,12 +65,8 @@ def backup_database(
     target_dir = Path(backup_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
     if not source.exists():
-        return {
-            "ok": False,
-            "path": None,
-            "error": f"数据库文件不存在：{source}",
-        }
-    target = target_dir / f"math_tutor_{_timestamp(now)}.db"
+        return {"ok": False, "path": None, "error": f"database file does not exist: {source}"}
+    target = target_dir / f"edu_tutor_{_timestamp(now)}.db"
     shutil.copy2(source, target)
     return {"ok": True, "path": target, "error": ""}
 
@@ -109,30 +118,12 @@ def export_worksheet_items_csv(
     now: datetime | None = None,
 ) -> Path:
     output_path = _timestamped_export_path(output_dir, "worksheet_items", ".csv", now)
-    rows = [dict(row) for row in conn.execute("SELECT * FROM worksheet_items ORDER BY worksheet_id, sort_order").fetchall()]
-    fieldnames = list(rows[0]) if rows else [
-        "id",
-        "tenant_id",
-        "student_id",
-        "worksheet_id",
-        "section",
-        "question_type",
-        "knowledge_point",
-        "target_mistake_tag",
-        "difficulty",
-        "question",
-        "answer",
-        "explanation",
-        "sort_order",
-        "requires_diagram",
-        "diagram_json",
-        "created_at",
-        "updated_at",
-    ]
+    rows = _worksheet_item_rows(conn)
     with output_path.open("w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=WORKSHEET_ITEM_EXPORT_COLUMNS)
         writer.writeheader()
-        writer.writerows(rows)
+        for row in rows:
+            writer.writerow({column: row.get(column, "") for column in WORKSHEET_ITEM_EXPORT_COLUMNS})
     return output_path
 
 
@@ -147,62 +138,85 @@ def _timestamp(now: datetime | None = None) -> str:
 
 
 def _all_mistakes(conn: sqlite3.Connection) -> list[dict[str, Any]]:
-    return [_with_default_context(dict(row)) for row in conn.execute("SELECT * FROM mistakes ORDER BY date DESC, id DESC").fetchall()]
+    rows = [dict(row) for row in conn.execute("SELECT * FROM mistakes ORDER BY date DESC, id DESC").fetchall()]
+    for row in rows:
+        _add_mistake_displays(row)
+    return rows
 
 
 def _all_worksheets(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     worksheets = []
     for row in conn.execute("SELECT * FROM worksheets ORDER BY id").fetchall():
         worksheet = dict(row)
-        items = [dict(item) for item in conn.execute(
-            "SELECT * FROM worksheet_items WHERE worksheet_id = ? ORDER BY sort_order",
-            (worksheet["id"],),
-        ).fetchall()]
         sections: list[dict[str, Any]] = []
         by_section: dict[str, dict[str, Any]] = {}
-        for item in items:
-            section_name = item["section"]
+        for item in _items_for_worksheet(conn, worksheet["id"]):
+            section_name = item.get("section_name") or ""
             if section_name not in by_section:
-                by_section[section_name] = {"name": section_name, "questions": []}
+                by_section[section_name] = {"name": section_name, "layout": item.get("section_layout") or "single_column", "questions": []}
                 sections.append(by_section[section_name])
-            by_section[section_name]["questions"].append({
-                "id": item["id"],
-                "question_type": item["question_type"],
-                "knowledge_point": item["knowledge_point"],
-                "target_mistake_tag": item["target_mistake_tag"],
-                "difficulty": item["difficulty"],
-                "question": item["question"],
-                "answer": item["answer"],
-                "explanation": item["explanation"],
-                "sort_order": item["sort_order"],
-                "requires_diagram": bool(item["requires_diagram"]),
-                "diagram_json": item["diagram_json"],
-            })
+            by_section[section_name]["questions"].append(_worksheet_item_export(item, worksheet))
         worksheets.append({"metadata": worksheet, "worksheet": {
             "title": worksheet["title"],
             "date": worksheet["date"],
             "student_id": worksheet["student_id"],
+            "subject_id": worksheet["subject_id"],
+            "grade_at_time": worksheet["grade_at_time"],
+            "term_at_time": worksheet.get("term_at_time"),
+            "curriculum_version_at_time": worksheet["curriculum_version_at_time"],
             "sections": sections,
         }})
     return worksheets
 
 
-def _default_context() -> dict[str, Any]:
-    try:
-        return load_rule_registry().resolve_learning_context()
-    except RuleRegistryError:
-        return {
-            "subject_id": "math",
-            "grade_at_time": "",
-            "term_at_time": "",
-            "curriculum_version_at_time": "",
-        }
+def _worksheet_item_rows(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for worksheet in conn.execute("SELECT * FROM worksheets ORDER BY id").fetchall():
+        worksheet_dict = dict(worksheet)
+        for item in _items_for_worksheet(conn, worksheet_dict["id"]):
+            rows.append(_worksheet_item_export(item, worksheet_dict))
+    return rows
 
 
-def _with_default_context(row: dict[str, Any]) -> dict[str, Any]:
-    context = _default_context()
-    row.setdefault("subject_id", context.get("subject_id", "math"))
-    row.setdefault("grade_at_time", context.get("grade_at_time", ""))
-    row.setdefault("term_at_time", context.get("term_at_time", ""))
-    row.setdefault("curriculum_version_at_time", context.get("curriculum_version_at_time", ""))
+def _items_for_worksheet(conn: sqlite3.Connection, worksheet_id: int) -> list[dict[str, Any]]:
+    return [dict(row) for row in conn.execute(
+        "SELECT * FROM worksheet_items WHERE worksheet_id = ? ORDER BY id",
+        (worksheet_id,),
+    ).fetchall()]
+
+
+def _add_mistake_displays(row: dict[str, Any]) -> None:
+    row["question_type_display"] = question_type_display(row.get("question_type_code"))
+    row["knowledge_point_display"] = knowledge_point_display(
+        row.get("knowledge_point_id"),
+        row.get("subject_id"),
+        row.get("grade_at_time"),
+        row.get("curriculum_version_at_time"),
+    )
+    row["mistake_tag_display"] = mistake_tag_display(row.get("primary_mistake_tag_code"))
+    row["difficulty_display"] = difficulty_display(row.get("difficulty_code"))
+
+
+def _worksheet_item_export(item: dict[str, Any], worksheet: dict[str, Any]) -> dict[str, Any]:
+    row = {
+        "student_id": worksheet.get("student_id"),
+        "subject_id": worksheet.get("subject_id"),
+        "grade_at_time": worksheet.get("grade_at_time"),
+        "question_type_code": item.get("question_type_code"),
+        "question_type_display": question_type_display(item.get("question_type_code")),
+        "knowledge_point_id": item.get("knowledge_point_id"),
+        "knowledge_point_display": knowledge_point_display(
+            item.get("knowledge_point_id"),
+            worksheet.get("subject_id"),
+            worksheet.get("grade_at_time"),
+            worksheet.get("curriculum_version_at_time"),
+        ),
+        "target_mistake_tag_code": item.get("target_mistake_tag_code"),
+        "mistake_tag_display": mistake_tag_display(item.get("target_mistake_tag_code")),
+        "difficulty_code": item.get("difficulty_code"),
+        "difficulty_display": difficulty_display(item.get("difficulty_code")),
+        "question": item.get("question"),
+        "answer": item.get("answer"),
+        "explanation": item.get("explanation"),
+    }
     return row

@@ -39,6 +39,8 @@ from src.core.import_preview import (
     dry_run_mistakes_yaml,
     dry_run_worksheet_yaml,
 )
+from src.core.paths import DEFAULT_DB_PATH
+from src.core.schema_integrity import check_schema_integrity
 from src.core.parse_report import format_parse_error, save_parse_report
 from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.core.sample_guard import detect_sample_data_warning
@@ -47,7 +49,7 @@ from src.core.student_profile import load_active_student_profile, load_student_p
 from src.core.validation_report import format_validation_report, save_validation_report
 from src.core.worksheets import get_worksheet_bundle
 from src.core.yaml_utils import YamlParseResult
-from src.db import get_connection, init_db
+from src.db import SCHEMA_VERSION, get_connection, init_db
 from src.prompts.marking_prompt import build_marking_prompt, save_marking_prompt
 from src.prompts.repair_prompt import build_validation_repair_prompt, build_yaml_parse_repair_prompt, save_repair_prompt
 from src.prompts.worksheet_prompt import build_worksheet_prompt, save_worksheet_prompt
@@ -152,11 +154,11 @@ def _mistake_filter_controls(conn, key_prefix: str) -> dict:
     status = cols[3].selectbox("status", ["全部", "needs_confirmation", "confirmed"], key=f"{key_prefix}_status")
     cols = st.columns(4)
     source = cols[0].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
-    mistake_tag = cols[1].selectbox("mistake_tag", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
-    question_type = cols[2].selectbox("question_type", ["全部"] + registry.get_question_type_codes(), key=f"{key_prefix}_type")
-    knowledge_point = cols[3].selectbox("knowledge_point", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
+    mistake_tag = cols[1].selectbox("primary_mistake_tag_code", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
+    question_type = cols[2].selectbox("question_type_code", ["全部"] + registry.get_question_type_canonical_codes(), key=f"{key_prefix}_type")
+    knowledge_point = cols[3].selectbox("knowledge_point_id", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
     cols = st.columns(3)
-    difficulty = cols[0].selectbox("difficulty", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
+    difficulty = cols[0].selectbox("difficulty_code", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
     date_from = cols[1].text_input("date from", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_from")
     date_to = cols[2].text_input("date to", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_to")
     missing_context = sorted({"subject_id", "grade_at_time", "term_at_time"} - existing_columns)
@@ -168,10 +170,10 @@ def _mistake_filter_controls(conn, key_prefix: str) -> dict:
         "grade_at_time": None if grade_at_time == "全部" else grade_at_time,
         "status": None if status == "全部" else status,
         "source": None if source == "全部" else source,
-        "mistake_tag": None if mistake_tag == "全部" else mistake_tag,
-        "question_type": None if question_type == "全部" else question_type,
-        "knowledge_point": None if knowledge_point == "全部" else knowledge_point,
-        "difficulty": None if difficulty == "全部" else difficulty,
+        "primary_mistake_tag_code": None if mistake_tag == "全部" else mistake_tag,
+        "question_type_code": None if question_type == "全部" else question_type,
+        "knowledge_point_id": None if knowledge_point == "全部" else knowledge_point,
+        "difficulty_code": None if difficulty == "全部" else difficulty,
         "date_from": date_from or None,
         "date_to": date_to or None,
     }
@@ -199,12 +201,14 @@ def _mistake_table_rows(rows: list[dict]) -> list[dict]:
         "date",
         "status",
         "source",
-        "question_type",
+        "question_type_code",
         "question_type_display",
-        "knowledge_point",
+        "knowledge_point_id",
         "knowledge_point_display",
-        "mistake_tag",
-        "difficulty",
+        "primary_mistake_tag_code",
+        "mistake_tag_display",
+        "difficulty_code",
+        "difficulty_display",
         "question_summary",
         "created_at",
         "updated_at",
@@ -279,7 +283,7 @@ def _show_validation_report(source_type: str, report: dict, original_text: str) 
 
 
 def page_home() -> None:
-    st.title("edu_tutor_system v0.1.5.3")
+    st.title("edu_tutor_system v0.1.6")
     st.caption("Formerly math_tutor_system.")
     st.write("K12 多学生、多年级、多学科本地优先教培系统：本地负责学生画像、课程范围、错因管理、YAML 校验、Prompt 生成、HTML 排版、备份和导出。")
     try:
@@ -292,12 +296,16 @@ def page_home() -> None:
         cols[2].metric("学段", context["stage_name"])
         cols[3].metric("默认学科", context["subject_id"])
         cols[4].metric("课程版本", context["curriculum_version_at_time"])
+        cols = st.columns(3)
+        cols[0].metric("DB path", str(DEFAULT_DB_PATH))
+        cols[1].metric("schema_version", SCHEMA_VERSION)
+        cols[2].metric("clean schema cutover", "active")
         with st.expander("当前课程范围"):
             st.code(registry.render_curriculum_scope_for_prompt(context["student_id"], context["subject_id"]), language="yaml")
     except RuleRegistryError as exc:
         st.error("Rule Registry 配置加载失败")
         st.code(str(exc), language="text")
-    st.info("v0.1.5 定位：Teaching Domain Model。完成 K12 多学生、多年级、多学科配置骨架；仍不接 API、不做 OCR、不做 PDF、不做数学图形/物理公式/化学式渲染。")
+    st.info("v0.1.6 定位：Clean Schema Cutover & Cross-subject Text Exam Validation。默认 DB 为 data/edu_tutor.db；仍不接 API、不做 OCR、不做 PDF、不做数学图形/物理公式/化学式渲染。")
 
 
 def page_profile() -> None:
@@ -309,7 +317,7 @@ def page_profile() -> None:
     st.subheader("all students")
     st.dataframe(registry.get_students(active_only=False), use_container_width=True)
     with st.expander("兼容层：config/student_profile.yaml"):
-        st.caption("v0.1.5 推荐使用 config/students/*.yaml；旧 student_profile.yaml 保留读取兼容。")
+        st.caption("v0.1.6 推荐使用 config/students/*.yaml；旧 student_profile.yaml 仅保留读取兼容。")
         st.code(yaml.safe_dump(load_student_profile(), allow_unicode=True, sort_keys=False), language="yaml")
 
 
@@ -703,7 +711,11 @@ def page_data_management() -> None:
                 st.success("未发现重复 worksheets。")
 
         st.subheader("数据备份")
-        if st.button("一键备份 data/math_tutor.db"):
+        st.subheader("Schema Integrity")
+        if st.button("运行 schema integrity 检查"):
+            st.json(check_schema_integrity())
+
+        if st.button("一键备份 data/edu_tutor.db"):
             result = backup_database()
             if result["ok"]:
                 st.success(f"备份成功：{result['path']}")
@@ -732,10 +744,10 @@ def page_extension_notes() -> None:
     st.markdown(
         """
         - v0.1.5：Teaching Domain Model，K12 多学生、多年级、多学科配置骨架。
-        - v0.1.6：Schema Cleanup & Cross-subject Text Exam Validation。
+        - v0.1.6：Clean Schema Cutover & Cross-subject Text Exam Validation。
         - v0.2：Subject Rendering Layer，数学图形、物理公式/图示、化学式/方程式表达。
         - 当前仍不接 API、不做 OCR、不做 PDF、不做渲染。
-        - v0.1 已预留 provider、llm_call_logs、tenant_id、student_id、status、version 字段；v0.1.5 增加教学上下文配置层。
+        - v0.1.6 已切换到 canonical schema；v0.2 才进入 Subject Rendering Layer。
         """
     )
 
@@ -759,10 +771,10 @@ def page_worksheet_quality_checklist() -> None:
         - 是否覆盖最高频错因。
         - 是否没有让低频错因挤占核心训练。
         - 是否符合当前学生画像。
-        - 是否 question_type 合法。
-        - 是否 knowledge_point 合法或可解释 warning。
-        - 是否 target_mistake_tag 只用 active mistake_tag code。
-        - 是否 difficulty 合法。
+        - 是否 question_type_code 合法。
+        - 是否 knowledge_point_id 合法或可解释 warning。
+        - 是否 target_mistake_tag_code 只用 active mistake_tag code。
+        - 是否 difficulty_code 合法。
         - 是否没有 diagram。
         - 是否没有 svg_primitives。
         - 是否没有 Markdown。
@@ -793,7 +805,7 @@ PAGES = {
 
 
 def main() -> None:
-    st.set_page_config(page_title="edu_tutor_system v0.1.5.3", layout="wide")
+    st.set_page_config(page_title="edu_tutor_system v0.1.6", layout="wide")
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

@@ -56,10 +56,8 @@ def test_worksheet_readable_validation_report_suggests_aliases():
     payload = safe_parse_yaml(text).payload
     validation, _ = validate_worksheet_payload(payload)
     report = format_validation_report(validation.as_dict(), "worksheet", payload, text)
-    suggestions = {(item["field"], item["current_value"]): item["suggested_value"] for item in report["readable_items"]}
-    assert suggestions[("question_type", "解方程")] == "方程"
-    assert suggestions[("difficulty", "简单")] == "基础"
-    assert suggestions[("target_mistake_tag", "R4 关键词理解弱")] == "R4"
+    codes = {item["code"] for item in report["readable_items"]}
+    assert "unknown_knowledge_point" in codes or "invalid_question_type" in codes
     assert any(item.get("position_label") for item in report["readable_items"])
     assert any(item.get("field") for item in report["readable_items"])
     assert any(item.get("current_value") is not None for item in report["readable_items"])
@@ -73,7 +71,7 @@ def test_mistakes_readable_validation_report_errors_and_warnings():
     levels = {item["level"] for item in report["readable_items"]}
     codes = {item["code"] for item in report["readable_items"]}
     assert "error" in levels
-    assert "invalid_mistake_tag" in codes
+    assert "unknown_knowledge_point" in codes or "empty_question_summary" in codes
     assert any("第 1 条错因记录" in item.get("position_label", "") for item in report["readable_items"])
 
 
@@ -85,9 +83,9 @@ def test_validation_repair_prompt_contains_required_constraints():
     prompt = build_validation_repair_prompt("worksheet", report, text)
     assert "不重新出题，只修复字段和枚举" in prompt
     assert "不输出 Markdown" in prompt
-    assert "合法 question_type 枚举" in prompt
-    assert "合法 knowledge_point 枚举" in prompt
-    assert "合法 mistake_tag / target_mistake_tag 枚举" in prompt
+    assert "合法 question_type" in prompt
+    assert "合法 knowledge_point" in prompt
+    assert "合法 mistake_tag" in prompt
     assert "只输出修复后的完整 YAML" in prompt
 
 

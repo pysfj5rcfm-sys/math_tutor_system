@@ -1,0 +1,13 @@
+student_id: "uat_physics_g8"
+display_name: "UAT Physics G8"
+active: false
+current_stage: "junior_high"
+current_grade: 8
+current_term: "八年级上"
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+default_subjects:
+  - "physics"
+profile:
+  learning_goals:
+    - "八年级物理文字类试卷验证"

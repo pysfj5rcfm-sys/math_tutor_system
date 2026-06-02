@@ -25,10 +25,11 @@ def test_prompt_generation_contains_required_context(conn):
     worksheet = build_worksheet_prompt(profile, stats, tags_as_dicts())
     assert "student_profile" in marking
     assert "mistake_tags" in marking
-    assert "合法 question_type 枚举" in marking
+    assert "合法 question_type_code 枚举" in marking
     assert "mistakes.yaml schema" in marking
     assert "student_profile" in worksheet
     assert "mistake_tags" in worksheet
+    assert "question_type_code" in worksheet
     assert "recent_7_days_stats" in worksheet
     assert "recent_30_days_stats" in worksheet
     assert "worksheet.yaml schema" in worksheet

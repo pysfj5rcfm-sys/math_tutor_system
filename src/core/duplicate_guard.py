@@ -6,31 +6,31 @@ import sqlite3
 from collections import defaultdict
 from typing import Any
 
-from src.schemas.mistake_schema import DEFAULT_STUDENT_ID
+from src.core.rule_registry import load_rule_registry
 
 
 MISTAKE_HASH_FIELDS = [
     "student_id",
+    "subject_id",
+    "grade_at_time",
     "date",
-    "question_type",
-    "knowledge_point",
-    "mistake_tag",
-    "difficulty",
+    "question_type_code",
+    "knowledge_point_id",
+    "primary_mistake_tag_code",
+    "difficulty_code",
     "question_summary",
     "wrong_answer_summary",
     "correct_answer_summary",
 ]
 
 WORKSHEET_QUESTION_FIELDS = [
-    "question_type",
-    "knowledge_point",
-    "target_mistake_tag",
-    "difficulty",
+    "question_type_code",
+    "knowledge_point_id",
+    "target_mistake_tag_code",
+    "difficulty_code",
     "question",
     "answer",
     "explanation",
-    "requires_diagram",
-    "diagram_json",
 ]
 
 
@@ -51,22 +51,32 @@ def stable_hash(value: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def mistake_hash(row: dict[str, Any] | sqlite3.Row, default_student_id: str = DEFAULT_STUDENT_ID) -> str:
-    canonical = canonical_mistake(row, default_student_id=default_student_id)
-    return stable_hash(canonical)
+def mistake_hash(row: dict[str, Any] | sqlite3.Row, default_student_id: str = "daughter") -> str:
+    return stable_hash(canonical_mistake(row, default_student_id=default_student_id))
 
 
-def canonical_mistake(row: dict[str, Any] | sqlite3.Row, default_student_id: str = DEFAULT_STUDENT_ID) -> dict[str, Any]:
+def canonical_mistake(row: dict[str, Any] | sqlite3.Row, default_student_id: str = "daughter") -> dict[str, Any]:
+    registry = load_rule_registry()
+    context = registry.resolve_learning_context(_get(row, "student_id", default_student_id) or default_student_id, _get(row, "subject_id", None) or None)
     return {
-        field: normalize_value(_get(row, field, default_student_id if field == "student_id" else ""))
-        for field in MISTAKE_HASH_FIELDS
+        "student_id": normalize_value(_get(row, "student_id", default_student_id)),
+        "subject_id": normalize_value(_get(row, "subject_id", context.get("subject_id", ""))),
+        "grade_at_time": normalize_value(_get(row, "grade_at_time", context.get("grade_at_time", ""))),
+        "date": normalize_value(_get(row, "date", "")),
+        "question_type_code": normalize_value(_get(row, "question_type_code", "") or registry.canonicalize_question_type(_get(row, "question_type", "")) or ""),
+        "knowledge_point_id": normalize_value(_get(row, "knowledge_point_id", "")),
+        "primary_mistake_tag_code": normalize_value(_get(row, "primary_mistake_tag_code", "") or _get(row, "mistake_tag", "")),
+        "difficulty_code": normalize_value(_get(row, "difficulty_code", "") or registry.suggest_difficulty(_get(row, "difficulty", "")) or ""),
+        "question_summary": normalize_value(_get(row, "question_summary", "")),
+        "wrong_answer_summary": normalize_value(_get(row, "wrong_answer_summary", "")),
+        "correct_answer_summary": normalize_value(_get(row, "correct_answer_summary", "")),
     }
 
 
 def detect_duplicate_mistakes(
     conn: sqlite3.Connection,
     rows: list[dict[str, Any]],
-    default_student_id: str = DEFAULT_STUDENT_ID,
+    default_student_id: str = "daughter",
 ) -> dict[str, Any]:
     existing_by_hash: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for existing in _existing_mistake_rows(conn):
@@ -89,8 +99,8 @@ def detect_duplicate_mistakes(
                 "index": idx,
                 "hash": item_hash,
                 "date": _get(row, "date", ""),
-                "question_type": _get(row, "question_type", ""),
-                "mistake_tag": _get(row, "mistake_tag", ""),
+                "question_type_code": _get(row, "question_type_code", ""),
+                "primary_mistake_tag_code": _get(row, "primary_mistake_tag_code", ""),
                 "question_summary": _get(row, "question_summary", ""),
                 "existing_record_id": first_existing.get("id") if first_existing else None,
                 "existing": _duplicate_existing_summary(first_existing) if first_existing else None,
@@ -132,9 +142,11 @@ def worksheet_hash(payload_or_worksheet: dict[str, Any]) -> str:
 
 
 def canonical_worksheet(payload_or_worksheet: dict[str, Any]) -> dict[str, Any]:
+    registry = load_rule_registry()
     worksheet = payload_or_worksheet.get("worksheet", payload_or_worksheet)
     if not isinstance(worksheet, dict):
         worksheet = {}
+    context = registry.resolve_learning_context(worksheet.get("student_id") or "daughter", worksheet.get("subject_id") or None)
     sections = []
     for section in worksheet.get("sections") or []:
         if not isinstance(section, dict):
@@ -144,17 +156,25 @@ def canonical_worksheet(payload_or_worksheet: dict[str, Any]) -> dict[str, Any]:
             if not isinstance(question, dict):
                 continue
             questions.append({
-                field: normalize_value(question.get(field, False if field == "requires_diagram" else ""))
-                for field in WORKSHEET_QUESTION_FIELDS
+                "question_type_code": normalize_value(question.get("question_type_code") or _canonical_question_type(question.get("question_type"))),
+                "knowledge_point_id": normalize_value(question.get("knowledge_point_id", "")),
+                "target_mistake_tag_code": normalize_value(question.get("target_mistake_tag_code") or question.get("target_mistake_tag", "")),
+                "difficulty_code": normalize_value(question.get("difficulty_code") or _difficulty_code(question.get("difficulty"))),
+                "question": normalize_value(question.get("question", "")),
+                "answer": normalize_value(question.get("answer", "")),
+                "explanation": normalize_value(question.get("explanation", "")),
             })
         sections.append({
             "name": normalize_value(section.get("name", "")),
+            "layout": normalize_value(section.get("layout", "")),
             "questions": questions,
         })
     return {
         "title": normalize_value(worksheet.get("title", "")),
         "date": normalize_value(worksheet.get("date", "")),
-        "student_id": normalize_value(worksheet.get("student_id") or DEFAULT_STUDENT_ID),
+        "student_id": normalize_value(worksheet.get("student_id") or "daughter"),
+        "subject_id": normalize_value(worksheet.get("subject_id") or context.get("subject_id", "")),
+        "grade_at_time": normalize_value(worksheet.get("grade_at_time") or context.get("grade_at_time", "")),
         "sections": sections,
     }
 
@@ -191,9 +211,10 @@ def scan_duplicate_worksheet_groups(conn: sqlite3.Connection) -> list[dict[str, 
 def _existing_mistake_rows(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     rows = conn.execute(
         """
-        SELECT id, student_id, date, question_type, knowledge_point, mistake_tag,
-               difficulty, question_summary, wrong_answer_summary,
-               correct_answer_summary, status, source, created_at, updated_at
+        SELECT id, student_id, subject_id, grade_at_time, date, question_type_code,
+               knowledge_point_id, primary_mistake_tag_code, difficulty_code,
+               question_summary, wrong_answer_summary, correct_answer_summary,
+               status, source, record_hash, created_at, updated_at
         FROM mistakes
         ORDER BY id
         """
@@ -203,40 +224,41 @@ def _existing_mistake_rows(conn: sqlite3.Connection) -> list[dict[str, Any]]:
 
 def _existing_worksheet_payloads(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     worksheet_rows = conn.execute(
-        "SELECT id, student_id, date, title, status, created_at, updated_at FROM worksheets ORDER BY id"
+        "SELECT id, student_id, subject_id, grade_at_time, date, title, status, created_at, updated_at FROM worksheets ORDER BY id"
     ).fetchall()
     payloads = []
     for worksheet_row in worksheet_rows:
         items = conn.execute(
             """
-            SELECT section, question_type, knowledge_point, target_mistake_tag,
-                   difficulty, question, answer, explanation, requires_diagram,
-                   diagram_json, sort_order
+            SELECT section_name, section_layout, question_type_code, knowledge_point_id,
+                   target_mistake_tag_code, difficulty_code, question, answer,
+                   explanation
             FROM worksheet_items
             WHERE worksheet_id = ?
-            ORDER BY sort_order
+            ORDER BY id
             """,
             (worksheet_row["id"],),
         ).fetchall()
         sections: list[dict[str, Any]] = []
         by_section: dict[str, dict[str, Any]] = {}
         for item in items:
-            section_name = item["section"]
+            section_name = item["section_name"] or ""
             if section_name not in by_section:
-                by_section[section_name] = {"name": section_name, "questions": []}
+                by_section[section_name] = {
+                    "name": section_name,
+                    "layout": item["section_layout"] or "single_column",
+                    "questions": [],
+                }
                 sections.append(by_section[section_name])
-            question = {
-                "question_type": item["question_type"],
-                "knowledge_point": item["knowledge_point"],
-                "target_mistake_tag": item["target_mistake_tag"],
-                "difficulty": item["difficulty"],
+            by_section[section_name]["questions"].append({
+                "question_type_code": item["question_type_code"],
+                "knowledge_point_id": item["knowledge_point_id"],
+                "target_mistake_tag_code": item["target_mistake_tag_code"],
+                "difficulty_code": item["difficulty_code"],
                 "question": item["question"],
                 "answer": item["answer"],
-                "explanation": item["explanation"],
-                "requires_diagram": bool(item["requires_diagram"]),
-                "diagram_json": item["diagram_json"] or "",
-            }
-            by_section[section_name]["questions"].append(question)
+                "explanation": item["explanation"] or "",
+            })
         payloads.append({
             "id": worksheet_row["id"],
             "status": worksheet_row["status"],
@@ -246,6 +268,8 @@ def _existing_worksheet_payloads(conn: sqlite3.Connection) -> list[dict[str, Any
                 "title": worksheet_row["title"],
                 "date": worksheet_row["date"],
                 "student_id": worksheet_row["student_id"],
+                "subject_id": worksheet_row["subject_id"],
+                "grade_at_time": worksheet_row["grade_at_time"],
                 "sections": sections,
             },
         })
@@ -261,8 +285,8 @@ def _duplicate_existing_summary(row: dict[str, Any] | None) -> dict[str, Any] | 
         "question_summary": row.get("question_summary"),
         "status": row.get("status"),
         "source": row.get("source"),
-        "question_type": row.get("question_type"),
-        "mistake_tag": row.get("mistake_tag"),
+        "question_type_code": row.get("question_type_code"),
+        "primary_mistake_tag_code": row.get("primary_mistake_tag_code"),
         "created_at": row.get("created_at"),
     }
 
@@ -275,6 +299,8 @@ def _worksheet_summary(payload: dict[str, Any]) -> dict[str, Any]:
         "title": worksheet.get("title"),
         "date": worksheet.get("date"),
         "student_id": worksheet.get("student_id"),
+        "subject_id": worksheet.get("subject_id"),
+        "grade_at_time": worksheet.get("grade_at_time"),
         "status": payload.get("status"),
         "question_count": question_count,
         "created_at": payload.get("created_at"),
@@ -285,3 +311,11 @@ def _get(row: dict[str, Any] | sqlite3.Row, key: str, default: Any = "") -> Any:
     if isinstance(row, sqlite3.Row):
         return row[key] if key in row.keys() else default
     return row.get(key, default)
+
+
+def _canonical_question_type(value: Any) -> str:
+    return load_rule_registry().canonicalize_question_type(value) or ""
+
+
+def _difficulty_code(value: Any) -> str:
+    return load_rule_registry().suggest_difficulty(value) or ""

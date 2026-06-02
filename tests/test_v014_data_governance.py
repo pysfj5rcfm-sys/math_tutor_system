@@ -163,16 +163,16 @@ def test_batch_confirm_revoke_delete_and_filter(conn):
 
 
 def test_backup_and_exports_create_expected_files(conn, tmp_path):
-    db_path = tmp_path / "data" / "math_tutor.db"
+    db_path = tmp_path / "data" / "edu_tutor.db"
     init_db(db_path)
     backup = backup_database(db_path, tmp_path / "backups", now=datetime(2026, 5, 29, 8, 9, 10))
     assert backup["ok"] is True
-    assert backup["path"].name == "math_tutor_20260529_080910.db"
+    assert backup["path"].name == "edu_tutor_20260529_080910.db"
     assert backup["path"].exists()
 
     missing = backup_database(tmp_path / "missing.db", tmp_path / "backups")
     assert missing["ok"] is False
-    assert "数据库文件不存在" in missing["error"]
+    assert "database file does not exist" in missing["error"]
 
     import_mistakes_payload(conn, {"mistakes": [_mistake()]})
     import_worksheet_payload(conn, _worksheet())

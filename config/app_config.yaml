@@ -3,7 +3,7 @@ defaults:
   student_id: "daughter"
   created_by_user_id: "parent"
 database:
-  path: "data/math_tutor.db"
+  path: "data/edu_tutor.db"
 outputs:
   worksheets: "outputs/worksheets"
   answer_sheets: "outputs/answer_sheets"
