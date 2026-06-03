@@ -26,20 +26,23 @@ def test_marking_prompts_are_subject_scoped():
     chinese_prompt = build_marking_prompt({"student_id": "daughter"}, subject_id="chinese")
     english_prompt = build_marking_prompt({"student_id": "daughter"}, subject_id="english")
 
-    assert "math_g6_application_modeling" in math_prompt
-    assert "MATH_C3" in math_prompt
+    assert "math_g6a_percentage_word_problem_model" in math_prompt
+    assert "MATH_SIGN_RULE_ERROR" in math_prompt
+    assert "micro_skill" in math_prompt
+    assert "typical_question_forms" in math_prompt
+    assert "primary_priority" in math_prompt
     assert "CHN_EVD_1" not in math_prompt
     assert "ENG_GRAM_1" not in math_prompt
 
     assert "chinese_g6_text_evidence" in chinese_prompt
     assert "CHN_EVD_1" in chinese_prompt
     assert "ENG_GRAM_1" not in chinese_prompt
-    assert "MATH_C3" not in chinese_prompt
+    assert "MATH_SIGN_RULE_ERROR" not in chinese_prompt
 
     assert "english_g6_reading_detail" in english_prompt
     assert "ENG_GRAM_1" in english_prompt
     assert "CHN_EVD_1" not in english_prompt
-    assert "MATH_C3" not in english_prompt
+    assert "MATH_SIGN_RULE_ERROR" not in english_prompt
 
     for prompt in (math_prompt, chinese_prompt, english_prompt):
         _assert_clean(prompt)
@@ -51,9 +54,11 @@ def test_worksheet_prompts_are_subject_scoped():
     chinese_prompt = build_worksheet_prompt({"student_id": "daughter"}, stats, subject_id="chinese")
     english_prompt = build_worksheet_prompt({"student_id": "daughter"}, stats, subject_id="english")
 
-    assert "math_g6_equation_basic" in math_prompt
+    assert "math_g6a_one_step_equation_solving" in math_prompt
     assert "math_g6_default" in math_prompt
     assert "chinese_g6_text_evidence" not in math_prompt
+    assert "target_matrix" in math_prompt
+    assert "school training examples" in math_prompt
 
     assert "chinese_g6_text_evidence" in chinese_prompt
     assert "chinese_g6_default" in chinese_prompt
@@ -89,7 +94,7 @@ mistakes:
 """
     prompt = build_validation_repair_prompt("mistakes", {"raw_validation": {}, "readable_items": []}, chinese_yaml)
     assert "chinese_g6_text_evidence" in prompt
-    assert "math_g6_number_operations" not in prompt
+    assert "math_g6a_rational_add_different_sign" not in prompt
     assert "english_g6_reading_detail" not in prompt
     _assert_clean(prompt)
 
@@ -99,7 +104,7 @@ mistakes:
         "mistakes:\n  - student_id: daughter\n    grade_at_time: 6\n",
     )
     assert "not_injected_by_default" in missing_subject_prompt
-    assert "math_g6_number_operations" not in missing_subject_prompt
+    assert "math_g6a_rational_add_different_sign" not in missing_subject_prompt
     assert "config/knowledge_points.yaml" not in missing_subject_prompt
 
 

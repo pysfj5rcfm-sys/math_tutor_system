@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT_PATH = ROOT / "docs" / "REGISTRY_HEALTH_AUDIT_v0.1.7.3.md"
+REPORT_PATH = ROOT / "docs" / "REGISTRY_HEALTH_AUDIT_v0.1.8.1.md"
 
 SCAN_GLOBS = [
     "config/**/*.yaml",
@@ -81,7 +81,7 @@ def write_report(hits: list[Hit]) -> None:
     active_unfixed = [hit for hit in hits if hit.active and not hit.fixed]
     inactive = [hit for hit in hits if not hit.active]
     lines = [
-        "# Registry Health Audit v0.1.7.3",
+        "# Registry Health Audit v0.1.8.1",
         "",
         "Mode: no-legacy cutover.",
         "",
@@ -126,7 +126,12 @@ def _scan_paths() -> list[Path]:
 def _is_active(path: Path) -> bool:
     rel = path.relative_to(ROOT)
     if rel.parts[0] == "docs":
-        return rel.name in {"HANDOFF_v0.1.7.3.md", "MISTAKE_TAXONOMY_v0.1.7.3.md"}
+        return rel.name in {
+            "HANDOFF_v0.1.8.md",
+            "TARGET_MATRIX_PROTOCOL_v0.1.8.md",
+            "math_g6a_hujiao_knowledge_registry_review.md",
+            "math_mistake_tag_taxonomy_v018_review.md",
+        }
     return True
 
 
@@ -144,6 +149,12 @@ def _hit(category: str, path: Path, line_no: int, marker: str, line: str, active
 
 def _allowed_legacy_reference(path: Path, line: str, marker: str) -> bool:
     rel = path.relative_to(ROOT)
+    if rel.as_posix() == "src/core/schema_integrity.py" and marker in {
+        "config/knowledge_points.yaml",
+        "legacy_names",
+        "legacy_aliases",
+    }:
+        return True
     if marker == "legacy_names" and rel.as_posix() == "scripts/audit_registry_health.py":
         return True
     if "no_legacy" in line:
@@ -152,7 +163,14 @@ def _allowed_legacy_reference(path: Path, line: str, marker: str) -> bool:
         lowered = line.lower()
         if any(word in lowered for word in ("removed", "archived", "not present", "not loaded")):
             return True
-    if rel.name in {"HANDOFF_v0.1.7.3.md", "MISTAKE_TAXONOMY_v0.1.7.3.md"}:
+    if rel.name in {
+        "HANDOFF_v0.1.7.3.md",
+        "MISTAKE_TAXONOMY_v0.1.7.3.md",
+        "HANDOFF_v0.1.8.md",
+        "TARGET_MATRIX_PROTOCOL_v0.1.8.md",
+        "math_g6a_hujiao_knowledge_registry_review.md",
+        "math_mistake_tag_taxonomy_v018_review.md",
+    }:
         return True
     return False
 
@@ -161,7 +179,14 @@ def _allowed_bare_tag_reference(path: Path, line: str) -> bool:
     rel = path.relative_to(ROOT)
     if rel.as_posix() == "scripts/audit_registry_health.py":
         return True
-    if rel.name in {"HANDOFF_v0.1.7.3.md", "MISTAKE_TAXONOMY_v0.1.7.3.md"}:
+    if rel.name in {
+        "HANDOFF_v0.1.7.3.md",
+        "MISTAKE_TAXONOMY_v0.1.7.3.md",
+        "HANDOFF_v0.1.8.md",
+        "TARGET_MATRIX_PROTOCOL_v0.1.8.md",
+        "math_g6a_hujiao_knowledge_registry_review.md",
+        "math_mistake_tag_taxonomy_v018_review.md",
+    }:
         return True
     return False
 

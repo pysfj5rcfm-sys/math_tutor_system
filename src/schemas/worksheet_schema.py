@@ -13,7 +13,7 @@ WORKSHEET_SCHEMA_EXAMPLE = {
         "grade_at_time": 6,
         "term_at_time": "六年级上",
         "curriculum_version_at_time": "cn_k12_2022",
-        "textbook_version_at_time": "generic",
+        "textbook_version_at_time": "沪教版",
         "sections": [
             {
                 "name": "一、应用题建模",
@@ -21,8 +21,8 @@ WORKSHEET_SCHEMA_EXAMPLE = {
                 "questions": [
                     {
                         "question_type_code": "math_application",
-                        "knowledge_point_id": "math_g6_application_modeling",
-                        "target_mistake_tag_code": "MATH_MODEL_1",
+                        "knowledge_point_id": "math_g6a_percentage_word_problem_model",
+                        "target_mistake_tag_code": "MATH_QUANTITATIVE_RELATION_ERROR",
                         "difficulty_code": "medium",
                         "question": "题目",
                         "answer": "答案",

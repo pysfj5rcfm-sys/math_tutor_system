@@ -46,6 +46,7 @@ def build_worksheet_prompt(
         stats_30_yaml=yaml.safe_dump(stats.get("recent_30_days", []), allow_unicode=True, sort_keys=False),
         by_type_yaml=yaml.safe_dump(stats.get("mistake_tag_by_question_type", []), allow_unicode=True, sort_keys=False),
         by_knowledge_yaml=yaml.safe_dump(stats.get("mistake_tag_by_knowledge_point", []), allow_unicode=True, sort_keys=False),
+        target_matrix_yaml=yaml.safe_dump(stats.get("target_matrix", {"items": [], "message": "No target_matrix supplied."}), allow_unicode=True, sort_keys=False),
         constraints_yaml=yaml.safe_dump(constraints, allow_unicode=True, sort_keys=False),
         question_types_yaml=registry.render_question_types_for_prompt(resolved_subject_id),
         knowledge_points_yaml=registry.render_curriculum_scope_for_prompt(student_id, resolved_subject_id),

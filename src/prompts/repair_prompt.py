@@ -18,10 +18,10 @@ MISTAKES_SKELETON = """mistakes:
     grade_at_time: 6
     term_at_time: "grade_6_term_1"
     curriculum_version_at_time: "cn_k12_2022"
-    textbook_version_at_time: "generic"
+    textbook_version_at_time: "沪教版"
     question_type_code: "math_application"
-    knowledge_point_id: "math_g6_application_modeling"
-    primary_mistake_tag_code: "MATH_MODEL_1"
+    knowledge_point_id: "math_g6a_percentage_word_problem_model"
+    primary_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
     difficulty_code: "medium"
     question_summary: "..."
     wrong_answer_summary: "..."
@@ -39,14 +39,14 @@ WORKSHEET_SKELETON = """worksheet:
   grade_at_time: 6
   term_at_time: "grade_6_term_1"
   curriculum_version_at_time: "cn_k12_2022"
-  textbook_version_at_time: "generic"
+  textbook_version_at_time: "沪教版"
   sections:
     - name: "Application modeling"
       layout: "single_column"
       questions:
         - question_type_code: "math_application"
-          knowledge_point_id: "math_g6_application_modeling"
-          target_mistake_tag_code: "MATH_MODEL_1"
+          knowledge_point_id: "math_g6a_percentage_word_problem_model"
+          target_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
           difficulty_code: "medium"
           question: "..."
           answer: "..."

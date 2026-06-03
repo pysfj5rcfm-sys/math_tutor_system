@@ -1,60 +1,481 @@
+metadata:
+  subject_id: "math"
+  grade: 6
+  term: "六年级上"
+  textbook_version: "沪教版"
+  curriculum_version: "cn_k12_2022"
+  registry_name: "math_g6a_hujiao_knowledge_registry"
+  registry_version: "v0.1.8.1"
+  source: "沪教版六年级上数学知识点体系深度研究报告(2)"
+  status: "candidate_reviewed"
+
 curriculum_version: "cn_k12_2022"
 subject_id: "math"
 grade: 6
 stage_id: "primary"
-textbook_version: "generic"
-coverage_note: "代表性六年级数学规则骨架，不是完整教材库；校本材料待确认。"
+term: "六年级上"
+textbook_version: "沪教版"
+registry_name: "math_g6a_hujiao_knowledge_registry"
+registry_version: "v0.1.8.1"
+coverage_note: "沪教版六年级上数学 X 轴候选注册；学校训练方式不进入 registry，仅供 Prompt 检索样例时参考。"
 units:
-  - unit_id: "math_g6_numbers_algebra"
-    name: "数与代数"
+  - unit_id: "math_g6a_unit_rational_numbers"
+    unit_name: "有理数与数轴"
+    name: "有理数与数轴"
     domain: "number_algebra"
     term: "六年级上"
+    lessons:
+      - lesson_id: "math_g6a_lesson_rational_number_concept"
+        lesson_name: "有理数的意义"
+      - lesson_id: "math_g6a_lesson_number_line"
+        lesson_name: "数轴表示"
+      - lesson_id: "math_g6a_lesson_opposite_absolute_value"
+        lesson_name: "相反数与绝对值"
     knowledge_points:
-      - knowledge_point_id: "math_g6_number_operations"
-        name: "数与运算"
-        status: "active"
-        question_types: ["math_calculation", "fill_blank"]
-      - knowledge_point_id: "math_g6_fraction_decimal_percent"
-        name: "分数小数百分数综合"
-        status: "active"
-        question_types: ["math_calculation", "math_application"]
-      - knowledge_point_id: "math_g6_equation_basic"
-        name: "方程基础"
-        status: "active"
-        question_types: ["math_equation"]
-      - knowledge_point_id: "math_g6_algebra_expression"
-        name: "代数表达"
-        status: "active"
-        question_types: ["math_equation", "fill_blank"]
-      - knowledge_point_id: "math_g6_ratio_percent_intro"
-        name: "比、比例、百分比预备"
-        status: "pending_textbook_confirmation"
-        note: "待教材确认"
-        question_types: ["fill_blank", "math_application"]
-      - knowledge_point_id: "math_g6_negative_number_intro"
-        name: "负数 / 数轴预备"
-        status: "pending_textbook_confirmation"
-        note: "待教材确认"
-        question_types: ["fill_blank", "math_calculation"]
+      - knowledge_point_id: "math_g6a_rational_number_concept"
+        name: "有理数的意义"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数与数轴"
+        lesson: "有理数的意义"
+        micro_skill: "区分正数、负数、零和有理数集合中的位置。"
+        description: "理解有理数的分类、符号意义和现实情境中的正负表达。"
+        prerequisite: []
+        related_later: ["math_g6a_number_line_representation", "math_g6a_rational_add_different_sign"]
+        typical_question_forms: ["分类判断", "情境填空", "概念辨析"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_SIGN_RULE_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能区分概念不清与符号读题错误。"
+        training_value: "适合作为有理数运算前的概念底座。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
 
-  - unit_id: "math_g6_modeling_geometry_statistics"
-    name: "建模、几何与统计"
-    domain: "modeling_geometry_statistics"
+      - knowledge_point_id: "math_g6a_number_line_representation"
+        name: "数轴表示"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数与数轴"
+        lesson: "数轴表示"
+        micro_skill: "把有理数、相反数和绝对值信息定位到数轴。"
+        description: "理解原点、正方向、单位长度，并能在数轴上表示和比较有理数。"
+        prerequisite: ["math_g6a_rational_number_concept"]
+        related_later: ["math_g6a_opposite_absolute_value", "math_g6a_rational_add_different_sign"]
+        typical_question_forms: ["数轴标点", "大小比较", "读图填空"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_SIGN_RULE_ERROR"]
+        diagnostic_value: "能暴露符号、方向和表征转换的混合问题。"
+        training_value: "适合连接概念理解与异号运算前的量感训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_opposite_absolute_value"
+        name: "相反数与绝对值"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数与数轴"
+        lesson: "相反数与绝对值"
+        micro_skill: "识别相反数关系、绝对值大小与符号信息的边界。"
+        description: "掌握相反数、绝对值的定义，避免把绝对值直接等同于原数。"
+        prerequisite: ["math_g6a_rational_number_concept", "math_g6a_number_line_representation"]
+        related_later: ["math_g6a_rational_subtract_as_add_opposite"]
+        typical_question_forms: ["概念填空", "符号化简", "数轴距离判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_SIGN_RULE_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR"]
+        diagnostic_value: "能区分定义误解和符号化简错误。"
+        training_value: "为减法转化与方程移项中的符号处理做准备。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "math_calculation", "short_answer"]
+
+  - unit_id: "math_g6a_unit_rational_operations"
+    unit_name: "有理数运算"
+    name: "有理数运算"
+    domain: "number_algebra"
     term: "六年级上"
+    lessons:
+      - lesson_id: "math_g6a_lesson_rational_addition"
+        lesson_name: "有理数加法"
+      - lesson_id: "math_g6a_lesson_rational_subtraction"
+        lesson_name: "有理数减法"
+      - lesson_id: "math_g6a_lesson_rational_mixed_operations"
+        lesson_name: "有理数混合运算"
     knowledge_points:
-      - knowledge_point_id: "math_g6_application_modeling"
-        name: "应用题建模"
-        status: "active"
-        question_types: ["math_application", "math_reading_application"]
-      - knowledge_point_id: "math_g6_geometry_measurement"
-        name: "几何量感"
-        status: "active"
-        question_types: ["math_geometry_calculation"]
-      - knowledge_point_id: "math_g6_unit_conversion"
-        name: "单位换算"
-        status: "active"
-        question_types: ["math_unit_conversion"]
-      - knowledge_point_id: "math_g6_statistics_average"
-        name: "统计与平均数"
-        status: "active"
-        question_types: ["fill_blank", "math_application"]
+      - knowledge_point_id: "math_g6a_rational_add_same_sign"
+        name: "有理数同号相加"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数运算"
+        lesson: "有理数加法"
+        micro_skill: "同号两数相加时先保留共同符号，再把绝对值相加。"
+        description: "掌握同号加法的符号和绝对值处理规则。"
+        prerequisite: ["math_g6a_opposite_absolute_value"]
+        related_later: ["math_g6a_rational_add_different_sign", "math_g6a_rational_mixed_operations"]
+        typical_question_forms: ["口算", "递等式计算", "规则说明"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_SIGN_RULE_ERROR", "MATH_RULE_APPLICATION_ERROR", "MATH_CALCULATION_EXECUTION_ERROR"]
+        diagnostic_value: "能快速定位加法规则是否真正掌握。"
+        training_value: "适合短频快的符号规则巩固。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_calculation", "fill_blank"]
+
+      - knowledge_point_id: "math_g6a_rational_add_different_sign"
+        name: "有理数异号相加"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数运算"
+        lesson: "有理数加法"
+        micro_skill: "异号两数相加时比较绝对值并确定和的符号。"
+        description: "掌握异号加法的符号判定、绝对值相减和零和情形。"
+        prerequisite: ["math_g6a_opposite_absolute_value", "math_g6a_number_line_representation"]
+        related_later: ["math_g6a_rational_subtract_as_add_opposite", "math_g6a_one_step_equation_solving"]
+        typical_question_forms: ["计算题", "数轴解释", "错因辨析"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_SIGN_RULE_ERROR", "MATH_CONDITION_JUDGEMENT_ERROR", "MATH_CALCULATION_EXECUTION_ERROR"]
+        diagnostic_value: "对符号规则错误具有高诊断价值。"
+        training_value: "适合作为有理数运算专项训练的核心靶点。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_calculation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_rational_subtract_as_add_opposite"
+        name: "减法转化为加相反数"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数运算"
+        lesson: "有理数减法"
+        micro_skill: "把 a - b 稳定转化为 a + (-b)，并保持被减数不变。"
+        description: "理解有理数减法的转化规则，避免双重变号和漏变号。"
+        prerequisite: ["math_g6a_opposite_absolute_value", "math_g6a_rational_add_different_sign"]
+        related_later: ["math_g6a_rational_mixed_operations", "math_g6a_one_step_equation_solving"]
+        typical_question_forms: ["转化填空", "递等式计算", "错误改正"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_SIGN_RULE_ERROR", "MATH_SIGN_RULE_ERROR", "MATH_RULE_APPLICATION_ERROR"]
+        diagnostic_value: "能区分规则记忆错误与执行疏漏。"
+        training_value: "适合做有理数减法和移项前的台阶训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_calculation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_rational_mixed_operations"
+        name: "有理数混合运算"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "有理数运算"
+        lesson: "有理数混合运算"
+        micro_skill: "在含括号和多步运算中同步处理顺序、符号和计算。"
+        description: "综合运用有理数加减乘除、括号和运算顺序。"
+        prerequisite: ["math_g6a_rational_add_same_sign", "math_g6a_rational_subtract_as_add_opposite"]
+        related_later: ["math_g6a_letter_expression", "math_g6a_one_step_equation_solving"]
+        typical_question_forms: ["递等式计算", "简便计算", "过程纠错"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_ALGORITHM_PROCEDURE_ERROR", "MATH_SIGN_RULE_ERROR", "MATH_CALCULATION_EXECUTION_ERROR", "MATH_PROCESS_EXPRESSION_ERROR"]
+        diagnostic_value: "适合定位多步题中的首要错误机制。"
+        training_value: "适合作为计算稳定性和过程表达的综合训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_calculation", "short_answer"]
+
+  - unit_id: "math_g6a_unit_expression_equation"
+    unit_name: "代数式与一次方程"
+    name: "代数式与一次方程"
+    domain: "number_algebra"
+    term: "六年级上"
+    lessons:
+      - lesson_id: "math_g6a_lesson_letter_expression"
+        lesson_name: "用字母表示数"
+      - lesson_id: "math_g6a_lesson_equation_concept"
+        lesson_name: "方程与等量关系"
+      - lesson_id: "math_g6a_lesson_one_step_equation"
+        lesson_name: "一元一次方程初步"
+    knowledge_points:
+      - knowledge_point_id: "math_g6a_letter_expression"
+        name: "用字母表示数"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "代数式与一次方程"
+        lesson: "用字母表示数"
+        micro_skill: "把数量关系写成含字母的式子。"
+        description: "理解字母可表示未知数、变量或一般数量，并能按题意写代数式。"
+        prerequisite: ["math_g6a_rational_number_concept"]
+        related_later: ["math_g6a_equation_concept", "math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["列代数式", "代入求值", "数量关系填空"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_QUANTITATIVE_RELATION_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_PROCESS_EXPRESSION_ERROR"]
+        diagnostic_value: "能暴露数量关系抽取与符号表达的边界问题。"
+        training_value: "为方程和百分数应用题建模做准备。"
+        usage_status: "intro_active"
+        active: true
+        question_types: ["fill_blank", "short_answer", "math_application"]
+
+      - knowledge_point_id: "math_g6a_equation_concept"
+        name: "方程与等量关系"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "代数式与一次方程"
+        lesson: "方程与等量关系"
+        micro_skill: "判断等式、方程和等量关系是否对应。"
+        description: "理解方程是含未知数的等式，列方程前需建立左右含义一致的等量关系。"
+        prerequisite: ["math_g6a_letter_expression"]
+        related_later: ["math_g6a_one_step_equation_solving", "math_g6a_equation_word_problem"]
+        typical_question_forms: ["概念判断", "等量关系补全", "列方程前置题"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_EQUALITY_RELATION_ERROR", "MATH_CONCEPT_DEFINITION_ERROR", "MATH_QUANTITATIVE_RELATION_ERROR"]
+        diagnostic_value: "能区分概念不懂和关系提取失败。"
+        training_value: "适合方程应用题前的结构化训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_equation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_one_step_equation_solving"
+        name: "一元一次方程一步求解"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "代数式与一次方程"
+        lesson: "一元一次方程初步"
+        micro_skill: "用等式性质求解一步方程并保持左右两边等价。"
+        description: "掌握形如 x+a=b、ax=b、x/a=b 的一步方程求解。"
+        prerequisite: ["math_g6a_equation_concept", "math_g6a_rational_subtract_as_add_opposite"]
+        related_later: ["math_g6a_equation_word_problem"]
+        typical_question_forms: ["解方程", "回代检验", "步骤纠错"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_EQUALITY_RELATION_ERROR", "MATH_SIGN_RULE_ERROR", "MATH_PROCESS_EXPRESSION_ERROR", "GEN_CHECKING_OMISSION"]
+        diagnostic_value: "能定位等式性质、移项符号和过程表达的主错因。"
+        training_value: "适合建立方程解法的稳定步骤。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_equation", "math_calculation", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_equation_word_problem"
+        name: "方程应用题"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "代数式与一次方程"
+        lesson: "一元一次方程初步"
+        micro_skill: "从题意中抽取未知量和等量关系，列一步方程求解。"
+        description: "把文字条件转化为方程模型，并完整答题。"
+        prerequisite: ["math_g6a_equation_concept", "math_g6a_one_step_equation_solving"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["列方程解应用题", "等量关系补全", "方案解释"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_QUANTITATIVE_RELATION_ERROR", "MATH_MODEL_CONSTRUCTION_ERROR", "MATH_EQUALITY_RELATION_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "高价值定位应用题建模和等量关系问题。"
+        training_value: "适合与学校应用题训练样例做结构迁移。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "math_equation", "math_reading_application"]
+
+  - unit_id: "math_g6a_unit_ratio_percentage"
+    unit_name: "比、比例与百分数应用"
+    name: "比、比例与百分数应用"
+    domain: "number_algebra"
+    term: "六年级上"
+    lessons:
+      - lesson_id: "math_g6a_lesson_ratio_meaning"
+        lesson_name: "比的意义"
+      - lesson_id: "math_g6a_lesson_percentage_meaning"
+        lesson_name: "百分数意义"
+      - lesson_id: "math_g6a_lesson_percentage_model"
+        lesson_name: "百分数应用模型"
+    knowledge_points:
+      - knowledge_point_id: "math_g6a_ratio_meaning"
+        name: "比的意义"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "比、比例与百分数应用"
+        lesson: "比的意义"
+        micro_skill: "把两个数量之间的倍比关系表达为比。"
+        description: "理解比的前项、后项、比值和实际数量关系。"
+        prerequisite: ["math_g6a_letter_expression"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["写比", "求比值", "按比例解释"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_QUANTITATIVE_RELATION_ERROR", "MATH_UNIT_MEANING_ERROR"]
+        diagnostic_value: "能区分比值概念和数量关系提取错误。"
+        training_value: "适合百分数、比例应用前的基础复习。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["fill_blank", "math_application", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_percentage_meaning"
+        name: "百分数意义"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "比、比例与百分数应用"
+        lesson: "百分数意义"
+        micro_skill: "把百分数解释为以 100 为基准的比较关系。"
+        description: "理解百分数表示一个量是另一个量的百分之几，并能与分数、小数互化。"
+        prerequisite: ["math_g6a_ratio_meaning"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["百分数解释", "互化", "判断单位 1"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_UNIT_MEANING_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR"]
+        diagnostic_value: "能定位单位 1、表征互化和概念定义问题。"
+        training_value: "为百分数应用题建模提供概念底座。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "math_calculation", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_percentage_word_problem_model"
+        name: "百分数应用模型"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "比、比例与百分数应用"
+        lesson: "百分数应用模型"
+        micro_skill: "识别单位 1、比较量和百分率，建立应用题数量关系。"
+        description: "处理求百分率、求比较量、求单位 1 等基础百分数应用题。"
+        prerequisite: ["math_g6a_percentage_meaning", "math_g6a_letter_expression"]
+        related_later: ["math_g6a_equation_word_problem"]
+        typical_question_forms: ["百分数应用题", "单位 1 判断", "列式说明"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_QUANTITATIVE_RELATION_ERROR", "MATH_MODEL_CONSTRUCTION_ERROR", "MATH_METHOD_SELECTION_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "高价值定位百分数应用题中的数量关系与模型错误。"
+        training_value: "适合按 X/Y target matrix 检索学校应用题结构并生成变式。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "math_reading_application", "short_answer"]
+
+  - unit_id: "math_g6a_unit_geometry_data"
+    unit_name: "图形、量与数据"
+    name: "图形、量与数据"
+    domain: "geometry_statistics"
+    term: "六年级上"
+    lessons:
+      - lesson_id: "math_g6a_lesson_line_angle"
+        lesson_name: "线段与角"
+      - lesson_id: "math_g6a_lesson_circle_sector"
+        lesson_name: "圆与扇形初步"
+      - lesson_id: "math_g6a_lesson_data_unit"
+        lesson_name: "数据读取与计量"
+    knowledge_points:
+      - knowledge_point_id: "math_g6a_line_angle_basic"
+        name: "线段与角基础"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "图形、量与数据"
+        lesson: "线段与角"
+        micro_skill: "识别线段、射线、直线和角的基本表示。"
+        description: "掌握基本几何对象的名称、表示方法和简单关系。"
+        prerequisite: []
+        related_later: ["math_g6a_circle_sector_basic"]
+        typical_question_forms: ["图形识别", "符号表示", "角度判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_GEOMETRIC_PROPERTY_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_PROCESS_EXPRESSION_ERROR"]
+        diagnostic_value: "能发现几何语言和图形表示问题。"
+        training_value: "适合作为图形题表达规范训练。"
+        usage_status: "intro_active"
+        active: true
+        question_types: ["math_geometry_calculation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_circle_sector_basic"
+        name: "圆与扇形初步"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "图形、量与数据"
+        lesson: "圆与扇形初步"
+        micro_skill: "识别圆心、半径、直径、弧和扇形的基本关系。"
+        description: "建立圆和扇形的基础空间表征，暂不进入图形渲染。"
+        prerequisite: ["math_g6a_line_angle_basic"]
+        related_later: []
+        typical_question_forms: ["图形识别", "概念判断", "简单计算"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_GEOMETRIC_PROPERTY_ERROR", "MATH_SPATIAL_VISUALIZATION_ERROR", "MATH_CONCEPT_DEFINITION_ERROR"]
+        diagnostic_value: "能区分几何概念和空间表征困难。"
+        training_value: "适合纯文本几何描述与关系判断。"
+        usage_status: "reserved_inactive"
+        active: false
+        question_types: ["math_geometry_calculation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_data_table_graph_reading"
+        name: "数据表格与图形读取"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "图形、量与数据"
+        lesson: "数据读取与计量"
+        micro_skill: "从表格、统计图或文字材料中提取所需数据。"
+        description: "读取数据并判断题目要求、单位和比较关系。"
+        prerequisite: ["math_g6a_rational_number_concept"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["表格读数", "统计图读数", "信息匹配"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_DATA_GRAPH_READING_ERROR", "GEN_CONDITION_OMISSION", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能定位信息读取、表格解释和题意偏差。"
+        training_value: "适合应用题前置的信息提取训练。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["math_reading_application", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g6a_unit_conversion_measurement"
+        name: "计量单位与换算"
+        subject_id: "math"
+        grade: 6
+        term: "六年级上"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "图形、量与数据"
+        lesson: "数据读取与计量"
+        micro_skill: "判断量的含义、单位和换算方向。"
+        description: "在长度、面积、体积、质量等常见单位中进行意义判断和换算。"
+        prerequisite: ["math_g6a_rational_number_concept"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["单位选择", "单位换算", "应用题单位检查"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_UNIT_MEANING_ERROR", "MATH_UNIT_CONVERSION_ERROR", "MATH_ESTIMATION_NUMBER_SENSE_ERROR"]
+        diagnostic_value: "能区分量义错误和进率换算错误。"
+        training_value: "适合与应用题结果合理性检查联动训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_unit_conversion", "math_application", "short_answer"]

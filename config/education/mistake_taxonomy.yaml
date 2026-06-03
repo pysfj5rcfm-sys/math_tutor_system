@@ -1,441 +1,1105 @@
 mistake_tags:
-  - code: "GEN_R1"
-    category: "通用审题与阅读"
-    name: "读题遗漏"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "漏读条件、限制或问题要求。"
-    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
-    active: true
-
-  - code: "GEN_R2"
-    category: "通用审题与阅读"
-    name: "题意理解偏差"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "整体题意、问法或任务目标理解不准确。"
-    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
-    active: true
-
-  - code: "GEN_R3"
-    category: "通用审题与阅读"
-    name: "条件提取不完整"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "没有完整提取文本、题干或材料中的关键条件。"
-    default_question_types: ["math_application", "chinese_reading", "english_reading"]
-    active: true
-
-  - code: "GEN_R4"
-    category: "通用审题与阅读"
-    name: "关键词理解弱"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "对关键词、限定词、转折词或题目术语理解不足。"
-    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
-    active: true
-
-  - code: "GEN_M1"
-    category: "通用方法"
-    name: "方法选择不当"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "选择的解题、答题或表达方法与任务不匹配。"
-    default_question_types: ["short_answer", "math_application", "chinese_reading", "english_reading"]
-    active: true
-
-  - code: "GEN_M2"
-    category: "通用方法"
-    name: "多步骤拆解弱"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "多步骤任务无法拆成清晰的中间目标。"
-    default_question_types: ["math_application", "chinese_text_evidence", "english_reading", "short_answer"]
-    active: true
-
-  - code: "GEN_STEP_1"
-    category: "通用规范"
-    name: "步骤不规范"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "步骤顺序、分点或过程书写不符合当前任务要求。"
-    default_question_types: ["math_calculation", "math_equation", "short_answer"]
-    active: true
-
-  - code: "GEN_EXPR_1"
-    category: "通用表达"
-    name: "表达不完整"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "答案、理由、过程或结论表达不完整。"
-    default_question_types: ["short_answer", "chinese_text_evidence", "english_writing_short"]
-    active: true
-
-  - code: "GEN_CHECK_1"
-    category: "通用检查"
-    name: "缺少检验"
-    scope: "general"
-    subjects: ["math", "chinese", "english"]
-    description: "完成后没有回读、回代、核对或自我检查。"
-    default_question_types: ["math_calculation", "math_equation", "math_application", "short_answer"]
-    active: true
-
-  - code: "MATH_C1"
-    category: "数学计算"
-    name: "计算抄写错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "数字、符号、题干条件或中间结果抄写错误。"
-    default_question_types: ["math_calculation", "math_application"]
-    active: true
-
-  - code: "MATH_C2"
-    category: "数学计算"
-    name: "运算顺序错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "括号、先乘除后加减、递等式顺序处理错误。"
-    default_question_types: ["math_calculation"]
-    active: true
-
-  - code: "MATH_C3"
-    category: "数学计算"
-    name: "小数点 / 位数错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "小数点位置、位数对齐或进率位数处理错误。"
-    default_question_types: ["math_calculation", "math_unit_conversion"]
-    active: true
-
-  - code: "MATH_C4"
-    category: "数学计算"
-    name: "分数处理错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "通分、约分、分数乘除或分数小数百分数转化错误。"
-    default_question_types: ["math_calculation"]
-    active: true
-
-  - code: "MATH_F1"
-    category: "数学方程与建模"
-    name: "等量关系错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "列方程时左右两边含义不对应。"
-    default_question_types: ["math_equation", "math_application"]
-    active: true
-
-  - code: "MATH_F2"
-    category: "数学方程与建模"
-    name: "解方程步骤错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "移项、去括号、等式两边同乘除等步骤错误。"
-    default_question_types: ["math_equation"]
-    active: true
-
-  - code: "MATH_F3"
-    category: "数学方程与建模"
-    name: "方程格式不规范"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "等号、格式、过程或检验书写不规范。"
-    default_question_types: ["math_equation"]
-    active: true
-
-  - code: "MATH_U1"
-    category: "数学单位与量感"
-    name: "单位换算错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "长度、面积、体积、容积等单位进率和换算方向错误。"
-    default_question_types: ["math_unit_conversion", "math_geometry_calculation"]
-    active: true
-
-  - code: "MATH_G1"
-    category: "数学几何"
-    name: "几何图形 / 公式错误"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "图形识别、几何公式、面积周长体积关系处理错误。"
-    default_question_types: ["math_geometry_calculation"]
-    active: true
-
-  - code: "MATH_K1"
-    category: "数学概念"
-    name: "概念混淆"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "相近概念、定义或适用条件混淆。"
-    default_question_types: ["fill_blank", "math_application"]
-    active: true
-
-  - code: "MATH_K2"
-    category: "数学概念"
-    name: "知识点迁移失败"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "会做单一题型，但换情境后不能迁移使用。"
-    default_question_types: ["math_application", "short_answer"]
-    active: true
-
-  - code: "MATH_K3"
-    category: "数学概念"
-    name: "公式不会应用"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "知道公式，但不能把题目条件对应到公式变量。"
-    default_question_types: ["math_geometry_calculation", "math_application"]
-    active: true
-
-  - code: "MATH_MODEL_1"
-    category: "数学建模"
-    name: "等量关系找不到"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "无法根据题意建立等量关系。"
-    default_question_types: ["math_equation", "math_application"]
-    active: true
-
-  - code: "MATH_CHECK_1"
-    category: "数学检查"
-    name: "未检验答案"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "完成后未回代、估算或检查合理性。"
-    default_question_types: ["math_calculation", "math_application"]
-    active: true
-
-  - code: "MATH_EXPR_1"
-    category: "数学表达"
-    name: "过程表达不完整"
-    scope: "subject_specific"
-    subjects: ["math"]
-    description: "步骤、单位、答句或关键解释缺失。"
-    default_question_types: ["math_equation", "math_application", "short_answer"]
-    active: true
-
-  - code: "CHN_SUM_1"
-    category: "语文阅读"
-    name: "概括空泛"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "只抄句子或抓不住重点。"
-    default_question_types: ["chinese_summary"]
-    active: true
-
-  - code: "CHN_EVD_1"
-    category: "语文阅读"
-    name: "文本证据不足"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "观点缺少文本依据或引用不准确。"
-    default_question_types: ["chinese_text_evidence", "short_answer"]
-    active: true
-
-  - code: "CHN_Q_1"
-    category: "语文审题"
-    name: "审题偏移"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "问什么答什么不稳定。"
-    default_question_types: ["chinese_reading", "short_answer"]
-    active: true
-
-  - code: "CHN_STRUCT_1"
-    category: "语文表达"
-    name: "答题结构不规范"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "不分点、不完整或答题结构混乱。"
-    default_question_types: ["chinese_text_evidence", "short_answer"]
-    active: true
-
-  - code: "CHN_POE_1"
-    category: "语文古诗文"
-    name: "古诗文词义不稳"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "字词、句意或语境理解弱。"
-    default_question_types: ["chinese_poetry"]
-    active: true
-
-  - code: "CHN_COMP_1"
-    category: "语文作文"
-    name: "作文结构松"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "段落、过渡、开头或结尾组织弱。"
-    default_question_types: ["chinese_composition_outline", "chinese_composition_fragment"]
-    active: true
-
-  - code: "CHN_COMP_2"
-    category: "语文作文"
-    name: "作文细节不足"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "内容空泛，缺少动作、心理、环境或细节描写。"
-    default_question_types: ["chinese_composition_fragment"]
-    active: true
-
-  - code: "CHN_LANG_1"
-    category: "语文表达"
-    name: "语言表达不准确"
-    scope: "subject_specific"
-    subjects: ["chinese"]
-    description: "病句、搭配、语序或用词不准确。"
-    default_question_types: ["chinese_language_expression", "chinese_revision"]
-    active: true
-
-  - code: "ENG_VOC_1"
-    category: "英语词汇"
-    name: "词汇回忆不稳"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "认识但写不出或用不准。"
-    default_question_types: ["english_vocabulary"]
-    active: true
-
-  - code: "ENG_CHUNK_1"
-    category: "英语词块"
-    name: "搭配错误"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "介词、动词短语或常用搭配错误。"
-    default_question_types: ["english_vocabulary", "english_sentence_rewrite"]
-    active: true
-
-  - code: "ENG_GRAM_1"
-    category: "英语语法"
-    name: "时态错误"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "时态选择、动词形式或时间线表达错误。"
-    default_question_types: ["english_grammar", "english_sentence_rewrite"]
-    active: true
-
-  - code: "ENG_GRAM_2"
-    category: "英语语法"
-    name: "主谓一致错误"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "主语和谓语在人称或数上不一致。"
-    default_question_types: ["english_grammar", "english_sentence_rewrite"]
-    active: true
-
-  - code: "ENG_GRAM_3"
-    category: "英语语法"
-    name: "介词 / 冠词错误"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "介词、冠词或固定结构使用错误。"
-    default_question_types: ["english_grammar", "fill_blank"]
-    active: true
-
-  - code: "ENG_READ_1"
-    category: "英语阅读"
-    name: "阅读定位不准"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "细节题凭感觉，不能回到文本定位。"
-    default_question_types: ["english_reading"]
-    active: true
-
-  - code: "ENG_READ_2"
-    category: "英语阅读"
-    name: "推断过度"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "推断超出文本证据。"
-    default_question_types: ["english_reading"]
-    active: true
-
-  - code: "ENG_LISTEN_1"
-    category: "英语听写"
-    name: "听写音形不连通"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "听懂但写不出，音形连接弱。"
-    default_question_types: ["english_listening_dictation"]
-    active: true
-
-  - code: "ENG_WRITE_1"
-    category: "英语写作"
-    name: "句式单一"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "写作中句式重复、表达变化少。"
-    default_question_types: ["english_writing_short"]
-    active: true
-
-  - code: "ENG_WRITE_2"
-    category: "英语写作"
-    name: "语法影响写作"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "语法错误影响句子表达与文章质量。"
-    default_question_types: ["english_writing_short"]
-    active: true
-
-  - code: "ENG_SPEAK_1"
-    category: "英语口语"
-    name: "复述不完整"
-    scope: "subject_specific"
-    subjects: ["english"]
-    description: "口头复述漏信息、顺序乱或表达不完整。"
-    default_question_types: ["english_speaking_prompt"]
-    active: true
-
-  - code: "PHY_F1"
-    category: "物理公式与建模"
-    name: "物理公式选错"
-    scope: "subject_specific"
-    subjects: ["physics"]
-    description: "不能根据物理情境选择正确公式。"
-    default_question_types: ["physics_calculation"]
-    active: true
-
-  - code: "PHY_U1"
-    category: "物理单位"
-    name: "物理单位换算错误"
-    scope: "subject_specific"
-    subjects: ["physics"]
-    description: "物理量单位换算或代入前单位统一错误。"
-    default_question_types: ["physics_calculation"]
-    active: true
-
-  - code: "PHY_E1"
-    category: "物理实验"
-    name: "实验变量控制错误"
-    scope: "subject_specific"
-    subjects: ["physics"]
-    description: "没有区分自变量、因变量和控制变量。"
-    default_question_types: ["physics_experiment"]
-    active: true
-
-  - code: "CHEM_F1"
-    category: "化学符号"
-    name: "化学式书写错误"
-    scope: "subject_specific"
-    subjects: ["chemistry"]
-    description: "元素符号、化合价、角标或物质式书写错误。"
-    default_question_types: ["chem_formula_writing"]
-    active: true
-
-  - code: "CHEM_E1"
-    category: "化学方程式"
-    name: "化学方程式未配平"
-    scope: "subject_specific"
-    subjects: ["chemistry"]
-    description: "反应物、生成物或系数未正确配平。"
-    default_question_types: ["chem_equation_balancing"]
-    active: true
-
-  - code: "CHEM_EXP1"
-    category: "化学实验"
-    name: "实验现象与结论混淆"
-    scope: "subject_specific"
-    subjects: ["chemistry"]
-    description: "混淆观察现象、实验结论和原因解释。"
-    default_question_types: ["chem_experiment"]
-    active: true
+- code: GEN_R1
+  category: 通用审题与阅读
+  name: 读题遗漏
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 漏读条件、限制或问题要求。
+  default_question_types:
+  - math_application
+  - chinese_reading
+  - english_reading
+  - short_answer
+  active: true
+- code: GEN_R2
+  category: 通用审题与阅读
+  name: 题意理解偏差
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 整体题意、问法或任务目标理解不准确。
+  default_question_types:
+  - math_application
+  - chinese_reading
+  - english_reading
+  - short_answer
+  active: true
+- code: GEN_R3
+  category: 通用审题与阅读
+  name: 条件提取不完整
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 没有完整提取文本、题干或材料中的关键条件。
+  default_question_types:
+  - math_application
+  - chinese_reading
+  - english_reading
+  active: true
+- code: GEN_R4
+  category: 通用审题与阅读
+  name: 关键词理解弱
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 对关键词、限定词、转折词或题目术语理解不足。
+  default_question_types:
+  - math_application
+  - chinese_reading
+  - english_reading
+  - short_answer
+  active: true
+- code: GEN_M1
+  category: 通用方法
+  name: 方法选择不当
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 选择的解题、答题或表达方法与任务不匹配。
+  default_question_types:
+  - short_answer
+  - math_application
+  - chinese_reading
+  - english_reading
+  active: true
+- code: GEN_M2
+  category: 通用方法
+  name: 多步骤拆解弱
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 多步骤任务无法拆成清晰的中间目标。
+  default_question_types:
+  - math_application
+  - chinese_text_evidence
+  - english_reading
+  - short_answer
+  active: true
+- code: GEN_STEP_1
+  category: 通用规范
+  name: 步骤不规范
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 步骤顺序、分点或过程书写不符合当前任务要求。
+  default_question_types:
+  - math_calculation
+  - math_equation
+  - short_answer
+  active: true
+- code: GEN_EXPR_1
+  category: 通用表达
+  name: 表达不完整
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 答案、理由、过程或结论表达不完整。
+  default_question_types:
+  - short_answer
+  - chinese_text_evidence
+  - english_writing_short
+  active: true
+- code: GEN_CHECK_1
+  category: 通用检查
+  name: 缺少检验
+  scope: general
+  subjects:
+  - chinese
+  - english
+  description: 完成后没有回读、回代、核对或自我检查。
+  default_question_types:
+  - math_calculation
+  - math_equation
+  - math_application
+  - short_answer
+  active: true
+- code: MATH_CONCEPT_DEFINITION_ERROR
+  name: 概念定义错误
+  subject_id: math
+  category: concept_definition
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 对数学对象本身的定义、意义或本质关系理解错误。
+  description: 对数学对象本身的定义、意义或本质关系理解错误。
+  use_when: 对象本身解释不清，换表征或情境后仍不会。
+  do_not_use_when: 概念懂了只是规则套错或计算执行失误。
+  typical_knowledge_points:
+  - math_g6a_opposite_absolute_value
+  - math_g6a_ratio_meaning
+  - math_g6a_equation_concept
+  typical_symptoms:
+  - 术语会背但不会解释
+  - 题型稍变就掉线
+  next_training_strategy: 用例子和反例重建定义，要求口头重述概念。
+  severity: high
+  active: true
+  allowed_secondary: false
+  conflict_with: []
+  primary_priority: 95
+  default_question_types: &id001
+  - fill_blank
+  - short_answer
+  - math_application
+- code: MATH_PREREQUISITE_CONCEPT_GAP
+  name: 前置概念缺口
+  subject_id: math
+  category: concept_definition
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 当前知识点出错的根因在更早的前置概念未建立。
+  description: 当前知识点出错的根因在更早的前置概念未建立。
+  use_when: 回到前置小题仍不会，当前错法可追溯到旧知缺口。
+  do_not_use_when: 只是本节规则用错或只是题目没读懂。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_ratio_meaning
+  - math_g6a_one_step_equation_solving
+  typical_symptoms:
+  - 新知接不上旧知
+  - 特别依赖机械程序
+  next_training_strategy: 回溯一到两层 prerequisite，补桥接题后再回主知识点。
+  severity: high
+  active: true
+  allowed_secondary: false
+  conflict_with: []
+  primary_priority: 93
+  default_question_types: *id001
+- code: MATH_RULE_APPLICATION_ERROR
+  name: 规则应用错误
+  subject_id: math
+  category: rule_application
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 法则、性质、判定标准、通用规则或变形规则用错。
+  description: 法则、性质、判定标准、通用规则或变形规则用错。
+  use_when: 概念基本知道，但落到比例性质、约分、通分、判定等规则时出错。
+  do_not_use_when: 规则没错只是算错，或对象本身没理解。
+  typical_knowledge_points:
+  - math_g6a_rational_add_same_sign
+  - math_g6a_rational_subtract_as_add_opposite
+  - math_g6a_ratio_meaning
+  typical_symptoms:
+  - 会背口诀但不知边界
+  - 规则过度泛化
+  next_training_strategy: 做规则适用与不适用对照题，先说规则再下笔。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 82
+  default_question_types:
+  - math_calculation
+  - math_equation
+- code: MATH_ALGORITHM_PROCEDURE_ERROR
+  name: 算法步骤错误
+  subject_id: math
+  category: rule_application
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 所选程序大方向对，但步骤顺序、局部程序或变形路径错乱。
+  description: 所选程序大方向对，但步骤顺序、局部程序或变形路径错乱。
+  use_when: 步骤顺序错误或中间步骤缺失导致程序不成立。
+  do_not_use_when: 根本选错方法或只是最后数值算错。
+  typical_knowledge_points:
+  - math_g6a_rational_mixed_operations
+  - math_g6a_one_step_equation_solving
+  typical_symptoms:
+  - 会做局部动作不会连成链
+  - 跳步后不可检查
+  next_training_strategy: 短期使用步骤模板，每一步注明依据。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 74
+  default_question_types:
+  - math_calculation
+  - math_equation
+- code: MATH_CALCULATION_EXECUTION_ERROR
+  name: 运算执行错误
+  subject_id: math
+  category: calculation_execution
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 思路、规则和方法基本正确，但数值执行层面出错。
+  description: 思路、规则和方法基本正确，但数值执行层面出错。
+  use_when: 符号、规则、方法基本正确，错误发生在通分、约分、四则算或代入后的数值执行。
+  do_not_use_when: 规则本身错，或核心在审题、建模、单位。
+  typical_knowledge_points:
+  - math_g6a_rational_add_different_sign
+  - math_g6a_rational_mixed_operations
+  typical_symptoms:
+  - 漏算
+  - 错位
+  - 订正后能改但隔天不稳
+  next_training_strategy: 低负担高频复现，拆短计算链，隔天同型抽测。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 58
+  default_question_types:
+  - math_calculation
+- code: MATH_SIGN_RULE_ERROR
+  name: 符号规则错误
+  subject_id: math
+  category: sign_symbol
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 正负号、相反数、括号、去括号、变号等符号规则处理错误。
+  description: 正负号、相反数、括号、去括号、变号等符号规则处理错误。
+  use_when: 整数异号加减、减法转加相反数、去括号等场景中核心问题是变号。
+  do_not_use_when: 符号正确只是数值算错，或本质是绝对值等概念未建立。
+  typical_knowledge_points:
+  - math_g6a_rational_add_different_sign
+  - math_g6a_rational_subtract_as_add_opposite
+  typical_symptoms:
+  - 遇到负号和括号就乱
+  - 同题内多次变号不一致
+  next_training_strategy: 先判符号再算值，做正负对照题，解释每次变号理由。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 80
+  default_question_types:
+  - math_calculation
+  - math_equation
+- code: MATH_SYMBOL_NOTATION_ERROR
+  name: 符号记号错误
+  subject_id: math
+  category: sign_symbol
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 等号、括号、变量、运算符号、数学书写语法使用不当。
+  description: 等号、括号、变量、运算符号、数学书写语法使用不当。
+  use_when: 等号连写不合法，代入时括号、字母、负号写法改变数学意义。
+  do_not_use_when: 只是字迹不工整但意义未变，或根因在概念和方法。
+  typical_knowledge_points:
+  - math_g6a_letter_expression
+  - math_g6a_equation_concept
+  typical_symptoms:
+  - 把等号当箭头
+  - 括号遗漏
+  next_training_strategy: 合法与非法写法对照，建立书写红线清单。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 63
+  default_question_types:
+  - math_equation
+  - short_answer
+- code: MATH_EQUALITY_RELATION_ERROR
+  name: 等量关系理解错误
+  subject_id: math
+  category: sign_symbol
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 把等号当成结果标记，而不是两边等值关系。
+  description: 把等号当成结果标记，而不是两边等值关系。
+  use_when: 不会保持等量关系，方程概念和等式变形持续出错。
+  do_not_use_when: 只是某一步变号错，或书写不规范但等量理解没问题。
+  typical_knowledge_points:
+  - math_g6a_equation_concept
+  - math_g6a_one_step_equation_solving
+  - math_g6a_equation_word_problem
+  typical_symptoms:
+  - 只盯一边算
+  - 列式两侧不对应
+  next_training_strategy: 用平衡类任务重建等量观，解释左右各代表什么。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 86
+  default_question_types:
+  - math_equation
+  - math_application
+- code: MATH_CONDITION_JUDGEMENT_ERROR
+  name: 条件判断错误
+  subject_id: math
+  category: condition_judgement
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 需要先比较、分类、判边界或判前提，但学生没判或判错。
+  description: 需要先比较、分类、判边界或判前提，但学生没判或判错。
+  use_when: 异号相加前未比绝对值，边界值、特殊值或分类条件判定错。
+  do_not_use_when: 条件根本没读到，或条件读对但模型搭错。
+  typical_knowledge_points:
+  - math_g6a_rational_add_different_sign
+  - math_g6a_opposite_absolute_value
+  typical_symptoms:
+  - 直接算不先判
+  - 边界值最容易错
+  next_training_strategy: 把先判断再运算写入模板，专练边界值。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 76
+  default_question_types: *id001
+- code: GEN_CONDITION_OMISSION
+  name: 漏读关键条件
+  subject_id: general
+  category: reading_comprehension
+  scope: general
+  subjects:
+  - math
+  definition: 题目中的关键限制、数量或条件被漏掉。
+  description: 题目中的关键限制、数量或条件被漏掉。
+  use_when: 补读条件后学生能立即改正，错因明确是没看到。
+  do_not_use_when: 条件读到了但不会用，或核心问题在建模计算。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_unit_conversion_measurement
+  typical_symptoms:
+  - 至少至多被忽略
+  - 无盖当有盖
+  next_training_strategy: 划线审题，先复述条件再做题，做一字条件变化对照题。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 90
+  default_question_types: &id002
+  - math_application
+  - math_reading_application
+- code: GEN_READING_KEYWORD_MISUNDERSTANDING
+  name: 审题关键词误解
+  subject_id: general
+  category: reading_comprehension
+  scope: general
+  subjects:
+  - math
+  definition: 对题目中的关系词、限制词或数量表达语义理解错误。
+  description: 对题目中的关系词、限制词或数量表达语义理解错误。
+  use_when: 增加到/增加了、占/比、剩余/总量等词义读偏。
+  do_not_use_when: 关键词理解无误但不会建模，或只是没读到某个数字。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_ratio_meaning
+  typical_symptoms:
+  - 一改措辞就全错
+  - 机械映射运算
+  next_training_strategy: 关键词-关系图谱训练，同结构不同措辞对照。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 89
+  default_question_types: *id002
+- code: MATH_REPRESENTATION_TRANSFER_ERROR
+  name: 表征转化错误
+  subject_id: math
+  category: representation_transfer
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 文字、数轴、图示、表格、算式之间不能稳定互译。
+  description: 文字、数轴、图示、表格、算式之间不能稳定互译。
+  use_when: 见图不会列式、见式不会解释图，数轴、图示、式子之间转写失败。
+  do_not_use_when: 表征已经建对，问题只在后续运算或漏读条件。
+  typical_knowledge_points:
+  - math_g6a_number_line_representation
+  - math_g6a_letter_expression
+  - math_g6a_percentage_meaning
+  typical_symptoms:
+  - 一换表示方式就不会
+  - 不同表征下答案不一致
+  next_training_strategy: 同一对象做多表征往返，先翻译不求解。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 84
+  default_question_types: *id001
+- code: MATH_QUANTITATIVE_RELATION_ERROR
+  name: 数量关系提取错误
+  subject_id: math
+  category: modeling_relation
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 相等、差、倍、比、部分-整体、单位率等关系没有识别出来。
+  description: 相等、差、倍、比、部分-整体、单位率等关系没有识别出来。
+  use_when: 加性比较和乘性比较混淆，比、分数、除法、百分率之间角色抓错。
+  do_not_use_when: 关系识别对了但模型没搭好，或只是漏读条件。
+  typical_knowledge_points:
+  - math_g6a_ratio_meaning
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_equation_word_problem
+  typical_symptoms:
+  - 关系词一变就失真
+  - 列式对象不对应
+  next_training_strategy: 先做关系分类题，同题只改关系词做最小对比。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 88
+  default_question_types: *id002
+- code: MATH_MODEL_CONSTRUCTION_ERROR
+  name: 模型构造错误
+  subject_id: math
+  category: modeling_relation
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 从情境到算式、方程、比例式或结构模型的搭建本身错误。
+  description: 从情境到算式、方程、比例式或结构模型的搭建本身错误。
+  use_when: 关系大致看见了，但写不成正确算式、方程或比例式。
+  do_not_use_when: 模型正确只是后面算错，或核心问题在漏读。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_equation_word_problem
+  typical_symptoms:
+  - 式子不守题意
+  - 未知量设定混乱
+  next_training_strategy: 先说清模型每一项代表什么，模型元素必须回指题目文字。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 87
+  default_question_types:
+  - math_application
+  - math_reading_application
+  - math_equation
+- code: MATH_METHOD_SELECTION_ERROR
+  name: 方法选择错误
+  subject_id: math
+  category: method_formula_selection
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 在多种可行路径中选了不合适的方法。
+  description: 在多种可行路径中选了不合适的方法。
+  use_when: 该用比例却硬做差，该先设未知量却反复试数。
+  do_not_use_when: 方法选对只是执行错误，或题目几乎只有一种直接路径。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_equation_word_problem
+  typical_symptoms:
+  - 能做但特别绕
+  - 一变式就崩
+  next_training_strategy: 同题比较方法负担，先选法再作答。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 72
+  default_question_types: *id002
+- code: MATH_FORMULA_SELECTION_ERROR
+  name: 公式选择错误
+  subject_id: math
+  category: method_formula_selection
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 选错公式、性质或通用关系式。
+  description: 选错公式、性质或通用关系式。
+  use_when: 相邻公式或性质混用，看到数字就套最近练过的公式。
+  do_not_use_when: 公式选对但代入错，或根因在概念不懂公式含义。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_ratio_meaning
+  typical_symptoms:
+  - 相近公式互串
+  - 只记壳不记量义
+  next_training_strategy: 做选公式不计算题，解释公式中每个量的意义。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 66
+  default_question_types:
+  - math_application
+  - math_reading_application
+  - math_geometry_calculation
+  - fill_blank
+- code: MATH_FORMULA_APPLICATION_ERROR
+  name: 公式代入错误
+  subject_id: math
+  category: method_formula_selection
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 公式或关系式选对了，但代入位置、对象或量义错位。
+  description: 公式或关系式选对了，但代入位置、对象或量义错位。
+  use_when: 参数和值对应错误，已知量代入位置颠倒。
+  do_not_use_when: 根本选错公式，或只是代入后四则算错。
+  typical_knowledge_points:
+  - math_g6a_percentage_word_problem_model
+  - math_g6a_letter_expression
+  typical_symptoms:
+  - 公式写对代进去就错
+  - 已知未知角色弄反
+  next_training_strategy: 代入前给字母贴中文义，代入后读回一句话。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 61
+  default_question_types:
+  - math_application
+  - math_reading_application
+  - math_equation
+- code: MATH_MULTI_STEP_PLANNING_ERROR
+  name: 多步骤拆解错误
+  subject_id: math
+  category: method_formula_selection
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 知道任务不止一步，但不会合理拆步、排序或维持中间目标。
+  description: 知道任务不止一步，但不会合理拆步、排序或维持中间目标。
+  use_when: 多步题中途丢目标，会局部动作但不会串成主链。
+  do_not_use_when: 题目本身一步到位，或根因是模型搭错。
+  typical_knowledge_points:
+  - math_g6a_rational_mixed_operations
+  - math_g6a_percentage_word_problem_model
+  typical_symptoms:
+  - 做一步忘一步
+  - 中间量不知道代表什么
+  next_training_strategy: 先写步骤计划，中间量强制命名。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 71
+  default_question_types:
+  - math_application
+  - math_reading_application
+  - math_calculation
+- code: MATH_UNIT_MEANING_ERROR
+  name: 单位意义错误
+  subject_id: math
+  category: unit_measurement
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 不理解单位所表示的量、对象或单位份额。
+  description: 不理解单位所表示的量、对象或单位份额。
+  use_when: 面积、长度、体积、容积、百分率、单价等量义混淆。
+  do_not_use_when: 量义懂了只是换算失误，或只是最后忘写单位。
+  typical_knowledge_points:
+  - math_g6a_unit_conversion_measurement
+  - math_g6a_percentage_meaning
+  typical_symptoms:
+  - 数字会算量说不清
+  - 面积和长度混用
+  next_training_strategy: 先问 1 个单位表示什么，数字和单位拆开重读。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 79
+  default_question_types: &id003
+  - math_unit_conversion
+  - math_application
+- code: MATH_UNIT_CONVERSION_ERROR
+  name: 单位换算错误
+  subject_id: math
+  category: unit_measurement
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 单位间倍数、进率、方向或转换链处理错误。
+  description: 单位间倍数、进率、方向或转换链处理错误。
+  use_when: 长度、面积、体积、百分数互化换算出错，进率方向反了。
+  do_not_use_when: 不知道自己在换什么量，或只是最终没写单位。
+  typical_knowledge_points:
+  - math_g6a_unit_conversion_measurement
+  - math_g6a_percentage_meaning
+  typical_symptoms:
+  - 变大变小方向错
+  - 平方进率按线性处理
+  next_training_strategy: 先判结果应变大还是变小，同一量多单位排序。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 62
+  default_question_types: *id003
+- code: MATH_UNIT_LABEL_ERROR
+  name: 单位标注错误
+  subject_id: math
+  category: unit_measurement
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 最终答案或关键中间量的单位漏写、写错或与求解对象不匹配。
+  description: 最终答案或关键中间量的单位漏写、写错或与求解对象不匹配。
+  use_when: 数值可能对，但单位错、漏或答句对象和单位不一致。
+  do_not_use_when: 单位意义本身没懂，或只是普通答句格式问题。
+  typical_knowledge_points:
+  - math_g6a_unit_conversion_measurement
+  - math_g6a_percentage_word_problem_model
+  typical_symptoms:
+  - 只写数字
+  - 照抄题目原单位
+  next_training_strategy: 末尾固定做量、单位、对象检查。
+  severity: low
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 34
+  default_question_types: *id003
+- code: MATH_GEOMETRIC_PROPERTY_ERROR
+  name: 几何属性错误
+  subject_id: math
+  category: geometry_spatial
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 对图形属性、构成关系或几何量关系理解错误。
+  description: 对图形属性、构成关系或几何量关系理解错误。
+  use_when: 按外观认图而不是按属性，根据条件选用性质时出错。
+  do_not_use_when: 主要问题是空间想象不足，或性质对了只是算错。
+  typical_knowledge_points:
+  - math_g6a_line_angle_basic
+  - math_g6a_circle_sector_basic
+  typical_symptoms:
+  - 同图异属性分不清
+  - 棱面点关系混乱
+  next_training_strategy: 同性质异图形对照，先判性质再求值。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 77
+  default_question_types: &id004
+  - math_geometry_calculation
+  - fill_blank
+- code: MATH_SPATIAL_VISUALIZATION_ERROR
+  name: 空间想象错误
+  subject_id: math
+  category: geometry_spatial
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 难以在脑中保持、旋转、分层或结构化空间对象。
+  description: 难以在脑中保持、旋转、分层或结构化空间对象。
+  use_when: 展开图、立体、分层计数等任务持续出错。
+  do_not_use_when: 几何性质本身没学懂，或只是图画得不美观。
+  typical_knowledge_points:
+  - math_g6a_circle_sector_basic
+  - math_g6a_line_angle_basic
+  typical_symptoms:
+  - 平面和立体转化断裂
+  - 层与列数看不清
+  next_training_strategy: 实物与文字图形双通道训练，强调分层与结构。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 59
+  default_question_types: *id004
+- code: MATH_DATA_GRAPH_READING_ERROR
+  name: 图表读取错误
+  subject_id: math
+  category: data_graph_reading
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 对图表的刻度、表头、轴、映射关系或读数阶段处理错误。
+  description: 对图表的刻度、表头、轴、映射关系或读数阶段处理错误。
+  use_when: 读错刻度、对应项、表头或轴，错误发生在取数阶段。
+  do_not_use_when: 数据读对了只是结论判断错，或任务核心不是图表读取。
+  typical_knowledge_points:
+  - math_g6a_data_table_graph_reading
+  typical_symptoms:
+  - 读到的数就错
+  - 忽略间隔和单位
+  next_training_strategy: 先只读数不推断，做刻度变化型纠错题。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 57
+  default_question_types:
+  - math_reading_application
+  - fill_blank
+- code: MATH_PROCESS_EXPRESSION_ERROR
+  name: 过程表达不完整
+  subject_id: math
+  category: process_expression
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 步骤不成链、依据不明、推理过度跳跃，导致不可检查。
+  description: 步骤不成链、依据不明、推理过度跳跃，导致不可检查。
+  use_when: 老师无法从过程判断学生是否真的会，关键中间量或依据缺失。
+  do_not_use_when: 核心问题是非法记号，或真正根因是概念、建模、规则。
+  typical_knowledge_points:
+  - math_g6a_one_step_equation_solving
+  - math_g6a_rational_mixed_operations
+  typical_symptoms:
+  - 只写答案
+  - 过程断裂
+  next_training_strategy: 短期完整书写模板，关键步必须口头解释。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 46
+  default_question_types:
+  - math_equation
+  - math_application
+  - short_answer
+- code: MATH_MATHEMATICAL_LANGUAGE_ERROR
+  name: 数学语言使用错误
+  subject_id: math
+  category: process_expression
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 术语、表述或数学叙述用得不准，影响理解或交流。
+  description: 术语、表述或数学叙述用得不准，影响理解或交流。
+  use_when: 相反数、绝对值、倍数、比例等术语混用。
+  do_not_use_when: 只是审题关键词理解错，或表达不优雅但数学意义未失真。
+  typical_knowledge_points:
+  - math_g6a_rational_number_concept
+  - math_g6a_ratio_meaning
+  - math_g6a_equation_concept
+  typical_symptoms:
+  - 术语替换随意
+  - 会认不会说
+  next_training_strategy: 术语、例子、反例配对，要求一句话准确定义。
+  severity: medium
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 49
+  default_question_types: *id001
+- code: MATH_ESTIMATION_NUMBER_SENSE_ERROR
+  name: 估算与数感错误
+  subject_id: math
+  category: checking_estimation
+  scope: subject_specific
+  subjects:
+  - math
+  definition: 缺乏大小、范围、量级和合理性判断，无法用估算支撑解题和检验。
+  description: 缺乏大小、范围、量级和合理性判断，无法用估算支撑解题和检验。
+  use_when: 结果明显离谱但无察觉，不会用基准数、数轴或常见分率做快速判断。
+  do_not_use_when: 前面根因已明确是计算或规则，或只是没做最后检查。
+  typical_knowledge_points:
+  - math_g6a_number_line_representation
+  - math_g6a_percentage_word_problem_model
+  typical_symptoms:
+  - 大小感和位置感断裂
+  - 量级错也不警觉
+  next_training_strategy: 先估后算，固定加入范围判断题。
+  severity: high
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 65
+  default_question_types:
+  - math_application
+  - math_reading_application
+  - math_calculation
+- code: GEN_CHECKING_OMISSION
+  name: 缺少检验
+  subject_id: general
+  category: checking_estimation
+  scope: general
+  subjects:
+  - math
+  definition: 前面主链大体正确，但未做代回、估算、边界核对或完整性检查。
+  description: 前面主链大体正确，但未做代回、估算、边界核对或完整性检查。
+  use_when: 若检查一下大概率能发现错误，主因不在理解而在监控缺失。
+  do_not_use_when: 前面主因已经是概念、建模、规则或阅读问题，或学生检查了但不会判断。
+  typical_knowledge_points:
+  - math_g6a_one_step_equation_solving
+  - math_g6a_percentage_word_problem_model
+  typical_symptoms:
+  - 不代回不估算
+  - 交卷前不回看
+  next_training_strategy: 固定两种检验法，把检验写成显式步骤。
+  severity: low
+  active: true
+  allowed_secondary: true
+  conflict_with: []
+  primary_priority: 18
+  default_question_types:
+  - math_equation
+  - math_application
+- code: CHN_SUM_1
+  category: 语文阅读
+  name: 概括空泛
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 只抄句子或抓不住重点。
+  default_question_types:
+  - chinese_summary
+  active: true
+- code: CHN_EVD_1
+  category: 语文阅读
+  name: 文本证据不足
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 观点缺少文本依据或引用不准确。
+  default_question_types:
+  - chinese_text_evidence
+  - short_answer
+  active: true
+- code: CHN_Q_1
+  category: 语文审题
+  name: 审题偏移
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 问什么答什么不稳定。
+  default_question_types:
+  - chinese_reading
+  - short_answer
+  active: true
+- code: CHN_STRUCT_1
+  category: 语文表达
+  name: 答题结构不规范
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 不分点、不完整或答题结构混乱。
+  default_question_types:
+  - chinese_text_evidence
+  - short_answer
+  active: true
+- code: CHN_POE_1
+  category: 语文古诗文
+  name: 古诗文词义不稳
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 字词、句意或语境理解弱。
+  default_question_types:
+  - chinese_poetry
+  active: true
+- code: CHN_COMP_1
+  category: 语文作文
+  name: 作文结构松
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 段落、过渡、开头或结尾组织弱。
+  default_question_types:
+  - chinese_composition_outline
+  - chinese_composition_fragment
+  active: true
+- code: CHN_COMP_2
+  category: 语文作文
+  name: 作文细节不足
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 内容空泛，缺少动作、心理、环境或细节描写。
+  default_question_types:
+  - chinese_composition_fragment
+  active: true
+- code: CHN_LANG_1
+  category: 语文表达
+  name: 语言表达不准确
+  scope: subject_specific
+  subjects:
+  - chinese
+  description: 病句、搭配、语序或用词不准确。
+  default_question_types:
+  - chinese_language_expression
+  - chinese_revision
+  active: true
+- code: ENG_VOC_1
+  category: 英语词汇
+  name: 词汇回忆不稳
+  scope: subject_specific
+  subjects:
+  - english
+  description: 认识但写不出或用不准。
+  default_question_types:
+  - english_vocabulary
+  active: true
+- code: ENG_CHUNK_1
+  category: 英语词块
+  name: 搭配错误
+  scope: subject_specific
+  subjects:
+  - english
+  description: 介词、动词短语或常用搭配错误。
+  default_question_types:
+  - english_vocabulary
+  - english_sentence_rewrite
+  active: true
+- code: ENG_GRAM_1
+  category: 英语语法
+  name: 时态错误
+  scope: subject_specific
+  subjects:
+  - english
+  description: 时态选择、动词形式或时间线表达错误。
+  default_question_types:
+  - english_grammar
+  - english_sentence_rewrite
+  active: true
+- code: ENG_GRAM_2
+  category: 英语语法
+  name: 主谓一致错误
+  scope: subject_specific
+  subjects:
+  - english
+  description: 主语和谓语在人称或数上不一致。
+  default_question_types:
+  - english_grammar
+  - english_sentence_rewrite
+  active: true
+- code: ENG_GRAM_3
+  category: 英语语法
+  name: 介词 / 冠词错误
+  scope: subject_specific
+  subjects:
+  - english
+  description: 介词、冠词或固定结构使用错误。
+  default_question_types:
+  - english_grammar
+  - fill_blank
+  active: true
+- code: ENG_READ_1
+  category: 英语阅读
+  name: 阅读定位不准
+  scope: subject_specific
+  subjects:
+  - english
+  description: 细节题凭感觉，不能回到文本定位。
+  default_question_types:
+  - english_reading
+  active: true
+- code: ENG_READ_2
+  category: 英语阅读
+  name: 推断过度
+  scope: subject_specific
+  subjects:
+  - english
+  description: 推断超出文本证据。
+  default_question_types:
+  - english_reading
+  active: true
+- code: ENG_LISTEN_1
+  category: 英语听写
+  name: 听写音形不连通
+  scope: subject_specific
+  subjects:
+  - english
+  description: 听懂但写不出，音形连接弱。
+  default_question_types:
+  - english_listening_dictation
+  active: true
+- code: ENG_WRITE_1
+  category: 英语写作
+  name: 句式单一
+  scope: subject_specific
+  subjects:
+  - english
+  description: 写作中句式重复、表达变化少。
+  default_question_types:
+  - english_writing_short
+  active: true
+- code: ENG_WRITE_2
+  category: 英语写作
+  name: 语法影响写作
+  scope: subject_specific
+  subjects:
+  - english
+  description: 语法错误影响句子表达与文章质量。
+  default_question_types:
+  - english_writing_short
+  active: true
+- code: ENG_SPEAK_1
+  category: 英语口语
+  name: 复述不完整
+  scope: subject_specific
+  subjects:
+  - english
+  description: 口头复述漏信息、顺序乱或表达不完整。
+  default_question_types:
+  - english_speaking_prompt
+  active: true
+- code: PHY_F1
+  category: 物理公式与建模
+  name: 物理公式选错
+  scope: subject_specific
+  subjects:
+  - physics
+  description: 不能根据物理情境选择正确公式。
+  default_question_types:
+  - physics_calculation
+  active: true
+- code: PHY_U1
+  category: 物理单位
+  name: 物理单位换算错误
+  scope: subject_specific
+  subjects:
+  - physics
+  description: 物理量单位换算或代入前单位统一错误。
+  default_question_types:
+  - physics_calculation
+  active: true
+- code: PHY_E1
+  category: 物理实验
+  name: 实验变量控制错误
+  scope: subject_specific
+  subjects:
+  - physics
+  description: 没有区分自变量、因变量和控制变量。
+  default_question_types:
+  - physics_experiment
+  active: true
+- code: CHEM_F1
+  category: 化学符号
+  name: 化学式书写错误
+  scope: subject_specific
+  subjects:
+  - chemistry
+  description: 元素符号、化合价、角标或物质式书写错误。
+  default_question_types:
+  - chem_formula_writing
+  active: true
+- code: CHEM_E1
+  category: 化学方程式
+  name: 化学方程式未配平
+  scope: subject_specific
+  subjects:
+  - chemistry
+  description: 反应物、生成物或系数未正确配平。
+  default_question_types:
+  - chem_equation_balancing
+  active: true
+- code: CHEM_EXP1
+  category: 化学实验
+  name: 实验现象与结论混淆
+  scope: subject_specific
+  subjects:
+  - chemistry
+  description: 混淆观察现象、实验结论和原因解释。
+  default_question_types:
+  - chem_experiment
+  active: true

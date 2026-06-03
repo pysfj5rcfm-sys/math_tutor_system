@@ -8,7 +8,7 @@ from src.db import create_tables, init_db, seed_mistake_tags
 
 
 OLD_BARE_TAGS = {"C1", "C2", "C3", "F3", "R4", "M2", "U1", "G1"}
-NEW_TAGS = {"MATH_C3", "MATH_F3", "GEN_R4", "GEN_M2", "CHN_EVD_1", "ENG_GRAM_1"}
+NEW_TAGS = {"MATH_SIGN_RULE_ERROR", "MATH_EQUALITY_RELATION_ERROR", "GEN_R4", "GEN_M2", "CHN_EVD_1", "ENG_GRAM_1"}
 
 
 def test_db_seed_uses_no_legacy_namespaced_tags(conn: sqlite3.Connection):
@@ -36,7 +36,7 @@ def test_init_db_sets_registry_meta_without_changing_schema(tmp_path: Path):
     assert meta["schema_version"] == "0.1.6"
     assert meta["project_name"] == "edu_tutor_system"
     assert meta["db_name"] == "edu_tutor.db"
-    assert meta["registry_version"] == "0.1.7.3"
+    assert meta["registry_version"] == "0.1.8.1"
     assert meta["registry_mode"] == "no_legacy"
     assert NEW_TAGS <= codes
     assert OLD_BARE_TAGS.isdisjoint(codes)

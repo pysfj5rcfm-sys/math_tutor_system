@@ -1,4 +1,4 @@
-YAML parsed, but it failed edu_tutor_system v0.1.7.3 validation.
+YAML parsed, but it failed edu_tutor_system v0.1.8 validation.
 
 source_type: {{ source_type }}
 
@@ -43,12 +43,12 @@ Repair rules:
 - Use canonical fields only: question_type_code, knowledge_point_id, primary_mistake_tag_code, target_mistake_tag_code, difficulty_code.
 - Do not output old free-text fields as the recommended schema.
 - Do not invent code/id values outside the registry.
-- v0.1.7.3 supports plain text only; do not output visuals, render_blocks, diagram, formula_block, chemical_equation_block, or physics_diagram.
+- v0.1.8 supports plain text only; do not output visuals, render_blocks, diagram, formula_block, chemical_equation_block, or physics_diagram.
 - Output YAML only. No Markdown fences.
 - mistakes output must start with `mistakes:`.
 - worksheet output must start with `worksheet:`.
 
-Current v0.1.7.3 mistakes.yaml canonical structure:
+Current v0.1.8 mistakes.yaml canonical structure:
 ```yaml
 mistakes:
   - date: "2026-06-03"
@@ -57,10 +57,10 @@ mistakes:
     grade_at_time: 6
     term_at_time: "六年级上"
     curriculum_version_at_time: "cn_k12_2022"
-    textbook_version_at_time: "generic"
+    textbook_version_at_time: "沪教版"
     question_type_code: "math_application"
-    knowledge_point_id: "math_g6_application_modeling"
-    primary_mistake_tag_code: "MATH_MODEL_1"
+    knowledge_point_id: "math_g6a_percentage_word_problem_model"
+    primary_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
     difficulty_code: "medium"
     question_summary: "..."
     wrong_answer_summary: "..."
@@ -69,7 +69,7 @@ mistakes:
     source: "GPT marking"
 ```
 
-Current v0.1.7.3 worksheet.yaml canonical structure:
+Current v0.1.8 worksheet.yaml canonical structure:
 ```yaml
 worksheet:
   title: "六年级数学专项训练"
@@ -79,14 +79,14 @@ worksheet:
   grade_at_time: 6
   term_at_time: "六年级上"
   curriculum_version_at_time: "cn_k12_2022"
-  textbook_version_at_time: "generic"
+  textbook_version_at_time: "沪教版"
   sections:
     - name: "一、应用题建模"
       layout: "single_column"
       questions:
         - question_type_code: "math_application"
-          knowledge_point_id: "math_g6_application_modeling"
-          target_mistake_tag_code: "MATH_MODEL_1"
+          knowledge_point_id: "math_g6a_percentage_word_problem_model"
+          target_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
           difficulty_code: "medium"
           question: "..."
           answer: "..."

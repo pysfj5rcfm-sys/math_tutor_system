@@ -29,17 +29,19 @@ def _load(name: str) -> dict:
 def test_v0173_mistake_samples_preview_success(conn):
     for name in (
         "uat_v0173_math_g6_mistakes.yaml",
+        "uat_v018_math_g6a_xy_mistakes.yaml",
         "uat_v0173_chinese_g6_mistakes.yaml",
         "uat_v0173_english_g6_mistakes.yaml",
     ):
         preview = preview_mistakes_payload(conn, _load(name))
         assert preview["valid"], (name, preview["validation"])
-        assert preview["will_import_count"] == 2
+        assert preview["will_import_count"] >= 2
 
 
 def test_v0173_worksheet_samples_preview_success(conn):
     for name in (
         "uat_v0173_math_g6_worksheet.yaml",
+        "uat_v018_math_g6a_xy_worksheet.yaml",
         "uat_v0173_chinese_g6_worksheet.yaml",
         "uat_v0173_english_g6_worksheet.yaml",
     ):
@@ -84,10 +86,10 @@ def test_old_field_names_are_not_accepted_as_no_legacy_input(conn):
 def test_display_resolver_and_filter_contract():
     assert knowledge_point_display("chinese_g6_text_evidence", "chinese", 6) == "文本证据 (chinese_g6_text_evidence)"
     assert knowledge_point_display("english_g6_reading_detail", "english", 6) == "阅读细节定位 (english_g6_reading_detail)"
-    assert knowledge_point_display("math_g6_number_operations", "math", 6) == "数与运算 (math_g6_number_operations)"
+    assert knowledge_point_display("math_g6a_rational_add_different_sign", "math", 6) == "有理数异号相加 (math_g6a_rational_add_different_sign)"
     assert knowledge_point_display("old_unknown", "math", 6) == "Unknown(old_unknown)"
     assert question_type_display("chinese_reading") == "阅读理解 (chinese_reading)"
-    assert mistake_tag_display("MATH_C3") == "小数点 / 位数错误 (MATH_C3)"
+    assert mistake_tag_display("MATH_SIGN_RULE_ERROR") == "符号规则错误 (MATH_SIGN_RULE_ERROR)"
     assert difficulty_display("basic") == "基础 (basic)"
 
     option = make_filter_option("knowledge_point_id", "chinese_g6_text_evidence", {"subject_id": "chinese", "grade_at_time": 6})
@@ -150,6 +152,6 @@ def test_duplicate_detection_uses_display_contract(conn):
 
     assert duplicate_preview["duplicate_count"] == 2
     duplicate = duplicate_preview["duplicate_scan"]["duplicates"][0]
-    assert duplicate["knowledge_point_id"] == "math_g6_application_modeling"
-    assert duplicate["knowledge_point_display"] == "应用题建模 (math_g6_application_modeling)"
-    assert duplicate["mistake_tag_display"] == "等量关系找不到 (MATH_MODEL_1)"
+    assert duplicate["knowledge_point_id"] == "math_g6a_percentage_word_problem_model"
+    assert duplicate["knowledge_point_display"] == "百分数应用模型 (math_g6a_percentage_word_problem_model)"
+    assert duplicate["mistake_tag_display"] == "数量关系提取错误 (MATH_QUANTITATIVE_RELATION_ERROR)"

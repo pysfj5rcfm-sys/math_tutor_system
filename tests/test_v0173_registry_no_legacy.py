@@ -19,7 +19,7 @@ def test_registry_no_longer_loads_legacy_knowledge_points_file():
     assert not (ROOT / "config" / "knowledge_points.yaml").exists()
     assert not hasattr(registry, "get_legacy_knowledge_points")
     assert not hasattr(registry, "render_legacy_knowledge_points_for_prompt")
-    assert "math_g6_number_operations" in registry.get_curriculum_knowledge_point_codes()
+    assert "math_g6a_rational_add_different_sign" in registry.get_curriculum_knowledge_point_codes()
     assert registry.get_all_knowledge_point_codes() == registry.get_curriculum_knowledge_point_codes()
 
 
@@ -47,9 +47,9 @@ def test_namespaced_mistake_taxonomy_replaces_old_bare_tags():
     registry = load_rule_registry()
     active_codes = {tag["code"] for tag in registry.get_mistake_tags(active_only=True)}
 
-    assert {"MATH_C3", "MATH_F3", "GEN_R4", "GEN_M2", "CHN_EVD_1", "ENG_GRAM_1"} <= active_codes
+    assert {"MATH_SIGN_RULE_ERROR", "MATH_EQUALITY_RELATION_ERROR", "GEN_R4", "GEN_M2", "CHN_EVD_1", "ENG_GRAM_1"} <= active_codes
     assert OLD_BARE_TAGS.isdisjoint(active_codes)
-    assert "GEN_R4" in {tag["code"] for tag in registry.get_mistake_tags_for_subject("math")}
+    assert "GEN_READING_KEYWORD_MISUNDERSTANDING" in {tag["code"] for tag in registry.get_mistake_tags_for_subject("math")}
     assert "GEN_R4" in {tag["code"] for tag in registry.get_mistake_tags_for_subject("chinese")}
     assert "CHN_EVD_1" not in {tag["code"] for tag in registry.get_mistake_tags_for_subject("english")}
     assert "ENG_GRAM_1" not in {tag["code"] for tag in registry.get_mistake_tags_for_subject("chinese")}
@@ -69,7 +69,8 @@ def test_subject_difficulty_policy_shape_has_no_unknown_difficulty_warning():
 def test_alias_mappings_are_subject_scoped_and_clean():
     registry = load_rule_registry()
 
-    assert registry.resolve_alias("mistake_tag_aliases", "小数点错误", "math").target == "MATH_C3"
+    assert registry.resolve_alias("mistake_tag_aliases", "符号规则错误", "math").target == "MATH_SIGN_RULE_ERROR"
+    assert registry.resolve_alias("mistake_tag_aliases", "等量关系理解错误", "math").target == "MATH_EQUALITY_RELATION_ERROR"
     assert registry.resolve_alias("mistake_tag_aliases", "文本证据不足", "chinese").target == "CHN_EVD_1"
     assert registry.resolve_alias("mistake_tag_aliases", "时态错误", "english").target == "ENG_GRAM_1"
     assert registry.resolve_alias("question_type_aliases", "阅读理解", "chinese").target == "chinese_reading"

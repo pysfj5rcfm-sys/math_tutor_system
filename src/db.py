@@ -12,7 +12,7 @@ from src.core.rule_registry import RuleRegistry, load_rule_registry
 SCHEMA_VERSION = "0.1.6"
 PROJECT_NAME = "edu_tutor_system"
 DB_NAME = "edu_tutor.db"
-REGISTRY_VERSION = "0.1.7.3"
+REGISTRY_VERSION = "0.1.8.1"
 REGISTRY_MODE = "no_legacy"
 
 
