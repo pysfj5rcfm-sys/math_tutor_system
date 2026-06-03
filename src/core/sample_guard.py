@@ -4,7 +4,7 @@ from typing import Any
 
 
 FILE_MARKERS = ("uat_", "sample_", "invalid_")
-SOURCE_MARKERS = ("uat", "sample", "测试")
+SOURCE_MARKERS = ("uat", "sample", "测试", "样例")
 SAMPLE_WARNING_MESSAGE = (
     "这是测试 / 样例数据，不建议导入正式学习库。"
     "如果只是验收功能，请使用临时数据库或先备份数据库。"
@@ -26,12 +26,12 @@ def detect_sample_data_warning(
     for source in _source_values(payload):
         source_text = str(source)
         lowered = source_text.lower()
-        if any(marker in lowered for marker in SOURCE_MARKERS) or "测试" in source_text:
-            reasons.append(f"source 字段疑似测试数据：{source_text}")
+        if any(marker in lowered for marker in SOURCE_MARKERS) or "测试" in source_text or "样例" in source_text:
+            reasons.append(f"source 字段疑似测试数据: {source_text}")
 
     if text and not payload:
         lowered_text = text.lower()
-        if any(f"source:" in lowered_text and marker in lowered_text for marker in SOURCE_MARKERS):
+        if any("source:" in lowered_text and marker in lowered_text for marker in SOURCE_MARKERS):
             reasons.append("YAML 文本中的 source 字段疑似测试数据")
 
     return {

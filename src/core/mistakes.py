@@ -121,13 +121,13 @@ def confirm_mistakes_import(
     valid_rows = list(preview.get("valid_rows") or [])
     duplicate_scan = preview.get("duplicate_scan") or {}
     duplicate_indices = set(duplicate_scan.get("duplicate_indices") or [])
-    if duplicate_strategy in {"cancel", "取消导入"}:
+    if duplicate_strategy == "cancel":
         rows_to_import: list[dict[str, Any]] = []
         skipped_duplicate_count = len(duplicate_indices)
-    elif duplicate_strategy in {"import_all", "仍然导入全部"}:
+    elif duplicate_strategy == "import_all":
         rows_to_import = valid_rows
         skipped_duplicate_count = 0
-    elif duplicate_strategy in {"only_new", "skip_duplicates", "skip_all_duplicates", "只导入非重复", "跳过全部重复"}:
+    elif duplicate_strategy in {"only_new", "skip_duplicates", "skip_all_duplicates"}:
         rows_to_import = [row for idx, row in enumerate(valid_rows) if idx not in duplicate_indices]
         skipped_duplicate_count = len(duplicate_indices)
     else:

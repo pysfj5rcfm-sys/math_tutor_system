@@ -13,10 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class MockProvider(LLMProvider):
     def extract_mistakes(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-        return yaml.safe_load((ROOT / "samples" / "sample_mistakes.yaml").read_text(encoding="utf-8"))
+        return yaml.safe_load((ROOT / "samples" / "uat_v0173_math_g6_mistakes.yaml").read_text(encoding="utf-8"))
 
     def generate_worksheet(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
-        return yaml.safe_load((ROOT / "samples" / "sample_worksheet.yaml").read_text(encoding="utf-8"))
+        return yaml.safe_load((ROOT / "samples" / "uat_v0173_math_g6_worksheet.yaml").read_text(encoding="utf-8"))
 
     def generate_weekly_review(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         return {"review": "mock weekly review"}

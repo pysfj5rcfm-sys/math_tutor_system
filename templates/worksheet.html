@@ -19,14 +19,14 @@
 </head>
 <body>
   <h1>{{ worksheet.title }}</h1>
-  <div class="meta">姓名：________　日期：{{ worksheet.date }}</div>
+  <div class="meta">Name: ________ Date: {{ worksheet.date }}</div>
   {% for section in sections %}
     <h2>{{ section.name }}</h2>
     <div class="section {{ section.layout }}">
       {% for item in section.questions %}
         <div class="item">
           <div><span class="number">{{ loop.index }}.</span>{{ item.question }}</div>
-          {% if item.requires_diagram %}<div class="diagram-note">图形信息预留，v0.1 不渲染复杂图形。</div>{% endif %}
+          {% if item.requires_diagram %}<div class="diagram-note">Plain-text placeholder: v0.1.x does not render diagrams.</div>{% endif %}
           <div class="work-space {{ 'short' if section.layout == 'two_columns' else 'long' }}"></div>
         </div>
       {% endfor %}

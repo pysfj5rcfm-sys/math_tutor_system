@@ -9,7 +9,7 @@ from typing import Any
 
 import yaml
 
-from src.core.display import difficulty_display, knowledge_point_display, mistake_tag_display, question_type_display
+from src.core.display_contract import format_export_row
 from src.core.paths import DEFAULT_DB_PATH, ROOT
 
 
@@ -186,15 +186,7 @@ def _items_for_worksheet(conn: sqlite3.Connection, worksheet_id: int) -> list[di
 
 
 def _add_mistake_displays(row: dict[str, Any]) -> None:
-    row["question_type_display"] = question_type_display(row.get("question_type_code"))
-    row["knowledge_point_display"] = knowledge_point_display(
-        row.get("knowledge_point_id"),
-        row.get("subject_id"),
-        row.get("grade_at_time"),
-        row.get("curriculum_version_at_time"),
-    )
-    row["mistake_tag_display"] = mistake_tag_display(row.get("primary_mistake_tag_code"))
-    row["difficulty_display"] = difficulty_display(row.get("difficulty_code"))
+    row.update(format_export_row(row))
 
 
 def _worksheet_item_export(item: dict[str, Any], worksheet: dict[str, Any]) -> dict[str, Any]:
@@ -202,21 +194,13 @@ def _worksheet_item_export(item: dict[str, Any], worksheet: dict[str, Any]) -> d
         "student_id": worksheet.get("student_id"),
         "subject_id": worksheet.get("subject_id"),
         "grade_at_time": worksheet.get("grade_at_time"),
+        "curriculum_version_at_time": worksheet.get("curriculum_version_at_time"),
         "question_type_code": item.get("question_type_code"),
-        "question_type_display": question_type_display(item.get("question_type_code")),
         "knowledge_point_id": item.get("knowledge_point_id"),
-        "knowledge_point_display": knowledge_point_display(
-            item.get("knowledge_point_id"),
-            worksheet.get("subject_id"),
-            worksheet.get("grade_at_time"),
-            worksheet.get("curriculum_version_at_time"),
-        ),
         "target_mistake_tag_code": item.get("target_mistake_tag_code"),
-        "mistake_tag_display": mistake_tag_display(item.get("target_mistake_tag_code")),
         "difficulty_code": item.get("difficulty_code"),
-        "difficulty_display": difficulty_display(item.get("difficulty_code")),
         "question": item.get("question"),
         "answer": item.get("answer"),
         "explanation": item.get("explanation"),
     }
-    return row
+    return format_export_row(row)

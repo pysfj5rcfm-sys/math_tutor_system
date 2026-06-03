@@ -3,27 +3,22 @@ difficulty_levels:
     name: "基础"
     order: 1
     active: true
-    description: "基础巩固题。"
-    legacy_names:
-      - "基础"
+    description: "巩固基础概念、基本步骤和低负荷训练。"
+
   - code: "medium"
     name: "中等"
     order: 2
     active: true
-    description: "校内中等难度题。"
-    legacy_names:
-      - "中等"
+    description: "校内常规难度，要求独立完成与清楚表达。"
+
   - code: "advanced"
     name: "提高"
     order: 3
     active: true
-    description: "略高于基础的提高题。"
-    legacy_names:
-      - "提高"
+    description: "略高于基础要求，包含迁移、综合或表达升级。"
+
   - code: "challenge"
-    name: "浅奥"
+    name: "挑战"
     order: 4
     active: true
-    description: "少量浅层拓展题，不作为默认大量训练。"
-    legacy_names:
-      - "浅奥"
+    description: "少量拓展题，不作为默认大比例训练。"

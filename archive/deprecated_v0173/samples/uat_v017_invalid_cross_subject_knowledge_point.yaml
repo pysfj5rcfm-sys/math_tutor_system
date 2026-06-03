@@ -1,0 +1,13 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "chinese"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-03"
+    question_type_code: "chinese_reading"
+    knowledge_point_id: "english_g6_reading_detail"
+    primary_mistake_tag_code: "CHN_EVD_1"
+    difficulty_code: "medium"
+    question_summary: "语文记录中错误使用英语知识点 id，应在 preview 中 warning 并置空。"
+    source: "uat_v017_fixture"

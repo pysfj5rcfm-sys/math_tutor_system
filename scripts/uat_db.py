@@ -3,10 +3,15 @@ from __future__ import annotations
 import argparse
 import shutil
 import sqlite3
+import sys
 from datetime import datetime
 from pathlib import Path
 
-from src.core.paths import DEFAULT_DB_PATH, LEGACY_DB_PATH, ROOT
+ROOT_PATH = Path(__file__).resolve().parents[1]
+if str(ROOT_PATH) not in sys.path:
+    sys.path.insert(0, str(ROOT_PATH))
+
+from src.core.paths import DEFAULT_DB_PATH, ROOT
 from src.core.schema_integrity import check_schema_integrity
 from src.db import init_db
 
@@ -15,7 +20,7 @@ UAT_BACKUP_DIR = ROOT / "backups" / "uat_v016"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="v0.1.6 UAT DB helper for edu_tutor_system")
+    parser = argparse.ArgumentParser(description="v0.1.7 UAT DB helper for edu_tutor_system")
     parser.add_argument("command", choices=["init", "restore", "status"])
     args = parser.parse_args()
     if args.command == "init":
@@ -30,8 +35,6 @@ def init_uat_db() -> None:
     if DEFAULT_DB_PATH.exists():
         backup_current()
         DEFAULT_DB_PATH.unlink()
-    if LEGACY_DB_PATH.exists():
-        print(f"legacy DB detected and left untouched: {LEGACY_DB_PATH}")
     init_db(DEFAULT_DB_PATH)
     print(f"initialized clean UAT DB: {DEFAULT_DB_PATH}")
 
@@ -48,8 +51,6 @@ def restore_latest() -> None:
 def print_status() -> None:
     init_db(DEFAULT_DB_PATH)
     print(f"current_db_path: {DEFAULT_DB_PATH}")
-    if LEGACY_DB_PATH.exists():
-        print(f"legacy_db_path: {LEGACY_DB_PATH} (deprecated, not runtime)")
     with sqlite3.connect(DEFAULT_DB_PATH) as conn:
         conn.row_factory = sqlite3.Row
         meta = {row["key"]: row["value"] for row in conn.execute("SELECT key, value FROM schema_meta").fetchall()}

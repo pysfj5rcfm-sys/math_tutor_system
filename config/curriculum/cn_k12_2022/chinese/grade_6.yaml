@@ -1,0 +1,58 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "chinese"
+grade: 6
+stage_id: "primary"
+textbook_version: "generic"
+coverage_note: "代表性六年级语文规则骨架，不是完整教材库；校本材料待确认。"
+units:
+  - unit_id: "chinese_g6_reading"
+    name: "阅读理解与答题规范"
+    domain: "reading"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "chinese_g6_reading_summary"
+        name: "阅读概括"
+        status: "active"
+        question_types: ["chinese_reading", "chinese_summary"]
+      - knowledge_point_id: "chinese_g6_reading_inference"
+        name: "阅读推断"
+        status: "active"
+        question_types: ["chinese_reading", "short_answer"]
+      - knowledge_point_id: "chinese_g6_text_evidence"
+        name: "文本证据"
+        status: "active"
+        question_types: ["chinese_text_evidence", "short_answer"]
+      - knowledge_point_id: "chinese_g6_answer_structure"
+        name: "答题规范"
+        status: "active"
+        question_types: ["chinese_text_evidence", "short_answer"]
+      - knowledge_point_id: "chinese_g6_reading_stamina"
+        name: "阅读耐力"
+        status: "active"
+        question_types: ["chinese_reading"]
+
+  - unit_id: "chinese_g6_expression"
+    name: "古诗文、语言表达与作文"
+    domain: "expression"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "chinese_g6_poetry_intro"
+        name: "古诗文启蒙"
+        status: "active"
+        question_types: ["chinese_poetry", "fill_blank"]
+      - knowledge_point_id: "chinese_g6_classical_intro"
+        name: "文言启蒙"
+        status: "active"
+        question_types: ["chinese_poetry", "short_answer"]
+      - knowledge_point_id: "chinese_g6_composition_structure"
+        name: "作文结构"
+        status: "active"
+        question_types: ["chinese_composition_outline", "chinese_composition_fragment"]
+      - knowledge_point_id: "chinese_g6_composition_detail"
+        name: "作文细节"
+        status: "active"
+        question_types: ["chinese_composition_fragment"]
+      - knowledge_point_id: "chinese_g6_language_expression"
+        name: "语言表达"
+        status: "active"
+        question_types: ["chinese_language_expression", "chinese_revision"]

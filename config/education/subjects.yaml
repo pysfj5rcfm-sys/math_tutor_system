@@ -3,30 +3,42 @@ subjects:
     name: "数学"
     active: true
     supported_now: true
+
+  - subject_id: "chinese"
+    name: "语文"
+    active: true
+    supported_now: true
+
+  - subject_id: "english"
+    name: "英语"
+    active: true
+    supported_now: true
+
   - subject_id: "physics"
     name: "物理"
     active: true
     supported_now: true
+
   - subject_id: "chemistry"
     name: "化学"
     active: true
     supported_now: true
-  - subject_id: "chinese"
-    name: "语文"
+
+  - subject_id: "science"
+    name: "科学观察"
     active: true
     supported_now: false
-  - subject_id: "english"
-    name: "英语"
-    active: true
-    supported_now: false
+
   - subject_id: "biology"
     name: "生物"
     active: true
     supported_now: false
+
   - subject_id: "geography"
     name: "地理"
     active: true
     supported_now: false
+
   - subject_id: "history"
     name: "历史"
     active: true

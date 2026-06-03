@@ -21,8 +21,8 @@ def test_prompt_generation_contains_required_context(conn):
     confirm_record(conn, "mistakes", 1)
     profile = load_student_profile()
     stats = stats_summary(conn, today=date(2026, 5, 27))
-    marking = build_marking_prompt(profile, tags_as_dicts())
-    worksheet = build_worksheet_prompt(profile, stats, tags_as_dicts())
+    marking = build_marking_prompt(profile, tags_as_dicts(), subject_id="math")
+    worksheet = build_worksheet_prompt(profile, stats, tags_as_dicts(), subject_id="math")
     assert "student_profile" in marking
     assert "mistake_tags" in marking
     assert "合法 question_type_code 枚举" in marking

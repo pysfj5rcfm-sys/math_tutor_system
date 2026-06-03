@@ -5,10 +5,6 @@ from typing import Any
 from src.core.rule_registry import RuleRegistry, RuleRegistryError, load_rule_registry
 
 
-LEGACY_MISTAKE_FIELDS = {"question_type", "knowledge_point", "mistake_tag", "difficulty"}
-LEGACY_WORKSHEET_FIELDS = {"question_type", "knowledge_point", "target_mistake_tag", "difficulty"}
-
-
 def resolve_context(
     payload: dict[str, Any],
     row: dict[str, Any],
@@ -17,6 +13,8 @@ def resolve_context(
     registry = registry or load_rule_registry()
     student_id = row.get("student_id") or payload.get("student_id")
     subject_id = row.get("subject_id") or payload.get("subject_id")
+    if not subject_id:
+        subject_id = _infer_subject_from_ambiguous_fields(payload, row, registry)
     context = registry.resolve_learning_context(student_id=student_id, subject_id=subject_id)
     for source in (payload, row):
         if source.get("student_id"):
@@ -57,7 +55,7 @@ def normalize_mistake_row(
     normalized = _base_row(row, context)
     _normalize_question_type(normalized, row, context, registry, errors, warnings, index)
     _normalize_knowledge_point(normalized, row, context, registry, warnings, index)
-    _normalize_mistake_tag(normalized, row, context, registry, errors, warnings, index, "primary_mistake_tag_code", "mistake_tag")
+    _normalize_mistake_tag(normalized, row, context, registry, errors, warnings, index, "primary_mistake_tag_code")
     _normalize_difficulty(normalized, row, registry, errors, warnings, index)
 
     if not normalized.get("date"):
@@ -125,7 +123,7 @@ def normalize_worksheet_payload(
             item_errors: list[dict[str, Any]] = []
             _normalize_question_type(item, question, context, registry, item_errors, warnings, item_index)
             _normalize_knowledge_point(item, question, context, registry, warnings, item_index)
-            _normalize_mistake_tag(item, question, context, registry, item_errors, warnings, item_index, "target_mistake_tag_code", "target_mistake_tag")
+            _normalize_mistake_tag(item, question, context, registry, item_errors, warnings, item_index, "target_mistake_tag_code")
             _normalize_difficulty(item, question, registry, item_errors, warnings, item_index)
             if not item.get("question"):
                 item_errors.append(_item("empty_question", "question must not be empty", item_index))
@@ -172,9 +170,11 @@ def _normalize_question_type(
     warnings: list[dict[str, Any]],
     index: int | None,
 ) -> None:
-    raw = source.get("question_type_code") or source.get("question_type")
-    code = _match_question_type(raw, context["subject_id"], registry)
-    if not code:
+    raw = source.get("question_type_code")
+    code, ambiguous = _match_question_type(raw, context["subject_id"], registry)
+    if ambiguous:
+        errors.append(_item("ambiguous_question_type_alias", "question_type alias is ambiguous without a matching subject scope; use subject_id or canonical question_type_code", index))
+    elif not code:
         errors.append(_item("invalid_question_type", "question_type_code is not supported in current subject scope", index))
     else:
         target["question_type_code"] = code
@@ -188,7 +188,7 @@ def _normalize_knowledge_point(
     warnings: list[dict[str, Any]],
     index: int | None,
 ) -> None:
-    raw = source.get("knowledge_point_id") or source.get("knowledge_point")
+    raw = source.get("knowledge_point_id")
     if raw in (None, ""):
         target["knowledge_point_id"] = None
         return
@@ -206,7 +206,12 @@ def _normalize_knowledge_point(
         if text in _accepted_knowledge_point_values(item)
     ]
     if not matches:
-        alias = registry.suggest_knowledge_point(text)
+        alias_result = registry.resolve_alias("knowledge_point_aliases", text, context["subject_id"])
+        if alias_result.ambiguous:
+            target["knowledge_point_id"] = None
+            warnings.append(_item("ambiguous_knowledge_point", "knowledge_point alias is ambiguous; use canonical knowledge_point_id", index))
+            return
+        alias = alias_result.target
         if alias:
             matches = [item for item in points if alias in _accepted_knowledge_point_values(item)]
     unique = _unique_by(matches, "knowledge_point_id")
@@ -230,11 +235,12 @@ def _normalize_mistake_tag(
     warnings: list[dict[str, Any]],
     index: int | None,
     target_field: str,
-    legacy_field: str,
 ) -> None:
-    raw = source.get(target_field) or source.get(legacy_field)
-    code = _match_mistake_tag(raw, context["subject_id"], registry)
-    if not code:
+    raw = source.get(target_field)
+    code, ambiguous = _match_mistake_tag(raw, context["subject_id"], registry)
+    if ambiguous:
+        errors.append(_item("ambiguous_mistake_tag_alias", f"{target_field} alias is ambiguous; use canonical code", index))
+    elif not code:
         errors.append(_item("invalid_mistake_tag", f"{target_field} must be valid for the current subject", index))
     else:
         target[target_field] = code
@@ -248,7 +254,7 @@ def _normalize_difficulty(
     warnings: list[dict[str, Any]],
     index: int | None,
 ) -> None:
-    raw = source.get("difficulty_code") or source.get("difficulty")
+    raw = source.get("difficulty_code")
     code = registry.suggest_difficulty(raw)
     if not code or code not in registry.get_difficulty_codes():
         errors.append(_item("invalid_difficulty", "difficulty_code is not supported", index))
@@ -256,29 +262,50 @@ def _normalize_difficulty(
         target["difficulty_code"] = code
 
 
-def _match_question_type(value: Any, subject_id: str, registry: RuleRegistry) -> str | None:
+def _match_question_type(value: Any, subject_id: str, registry: RuleRegistry) -> tuple[str | None, bool]:
     if value in (None, ""):
-        return None
+        return None, False
     text = str(value).strip()
-    alias = registry.suggest_question_type(text)
+    alias_result = registry.resolve_alias("question_type_aliases", text, subject_id)
+    if alias_result.ambiguous:
+        return None, True
+    alias = alias_result.target
     candidates = [text, alias] if alias else [text]
     for item in registry.get_question_types_for_subject(subject_id):
-        accepted = {str(v) for v in [item.get("code"), item.get("name"), item.get("display_name"), *(item.get("legacy_names") or [])] if v}
+        accepted = {str(v) for v in [item.get("code"), item.get("name"), item.get("display_name")] if v}
         if any(candidate in accepted for candidate in candidates if candidate):
-            return str(item["code"])
-    return None
+            return str(item["code"]), False
+    return None, False
 
 
-def _match_mistake_tag(value: Any, subject_id: str, registry: RuleRegistry) -> str | None:
+def _match_mistake_tag(value: Any, subject_id: str, registry: RuleRegistry) -> tuple[str | None, bool]:
     if value in (None, ""):
-        return None
+        return None, False
     text = str(value).strip()
-    alias = registry.suggest_mistake_tag(text)
+    alias_result = registry.resolve_alias("mistake_tag_aliases", text, subject_id)
+    if alias_result.ambiguous:
+        return None, True
+    alias = alias_result.target
     candidates = [text, alias] if alias else [text]
     for item in registry.get_mistake_tags_for_subject(subject_id):
         accepted = {str(v) for v in [item.get("code"), item.get("name")] if v}
         if any(candidate in accepted for candidate in candidates if candidate):
-            return str(item["code"])
+            return str(item["code"]), False
+    return None, False
+
+
+def _infer_subject_from_ambiguous_fields(payload: dict[str, Any], row: dict[str, Any], registry: RuleRegistry) -> str | None:
+    for alias_key, fields in (
+        ("question_type_aliases", ("question_type_code",)),
+        ("knowledge_point_aliases", ("knowledge_point_id",)),
+        ("mistake_tag_aliases", ("primary_mistake_tag_code", "target_mistake_tag_code")),
+    ):
+        for source in (payload, row):
+            for field in fields:
+                if source.get(field):
+                    result = registry.resolve_alias(alias_key, source.get(field), None)
+                    if result.ambiguous:
+                        raise RuleRegistryError(f"Ambiguous alias without subject_id: {source.get(field)}")
     return None
 
 

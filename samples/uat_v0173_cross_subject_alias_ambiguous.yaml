@@ -1,0 +1,16 @@
+mistakes:
+  - student_id: "daughter"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "阅读理解"
+    knowledge_point_id: "阅读推断"
+    primary_mistake_tag_code: "关键词理解弱"
+    difficulty_code: "medium"
+    question_summary: "缺少 subject_id 时，同名别名不应静默猜测学科。"
+    wrong_answer_summary: "略"
+    correct_answer_summary: "应提示 alias ambiguous。"
+    training_needed: true
+    source: "uat_v0173_fixture"

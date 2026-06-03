@@ -82,7 +82,7 @@ def confirm_worksheet_import(
 
     duplicate_scan = preview.get("duplicate_scan") or {}
     is_duplicate = bool(duplicate_scan.get("is_duplicate"))
-    if duplicate_strategy in {"cancel", "取消导入"}:
+    if duplicate_strategy == "cancel":
         report_dict.update({
             "imported_count": 0,
             "duplicate_count": duplicate_scan.get("duplicate_count", 0),
@@ -90,7 +90,7 @@ def confirm_worksheet_import(
             "skipped_count": int(report_dict.get("skipped_count", 0)) + (1 if is_duplicate else 0),
         })
         return report_dict, None
-    if is_duplicate and duplicate_strategy in {"skip_duplicate", "跳过导入", "跳过重复"}:
+    if is_duplicate and duplicate_strategy == "skip_duplicate":
         report_dict.update({
             "imported_count": 0,
             "duplicate_count": duplicate_scan.get("duplicate_count", 0),
@@ -98,7 +98,7 @@ def confirm_worksheet_import(
             "skipped_count": int(report_dict.get("skipped_count", 0)) + 1,
         })
         return report_dict, None
-    if duplicate_strategy not in {"skip_duplicate", "import_all", "仍然导入", "仍然导入全部"}:
+    if duplicate_strategy not in {"skip_duplicate", "import_all"}:
         raise ValueError(f"Unsupported duplicate strategy: {duplicate_strategy}")
 
     report = _report_from_dict(report_dict)

@@ -79,7 +79,7 @@ def _check_columns(conn: sqlite3.Connection, report: dict[str, list[dict[str, An
             continue
         columns = _columns(conn, table)
         for column in sorted(forbidden & columns):
-            _add(report, "errors", "legacy_column_present", f"{table}.{column}")
+            _add(report, "errors", "forbidden_old_column_present", f"{table}.{column}")
     for table, required in REQUIRED_COLUMNS.items():
         if table not in _tables(conn):
             continue
@@ -94,6 +94,7 @@ def _check_domain_values(conn: sqlite3.Connection, report: dict[str, list[dict[s
     except RuleRegistryError as exc:
         _add(report, "errors", "registry_load_failed", str(exc))
         return
+    _check_alias_ambiguity(registry, report)
     students = {item["student_id"] for item in registry.get_students(active_only=False)}
     subjects = {item["subject_id"] for item in registry.get_subjects(active_only=False)}
     difficulties = set(registry.get_difficulty_codes(active_only=True))
@@ -195,6 +196,34 @@ def _check_sample_confirmed(conn: sqlite3.Connection, report: dict[str, list[dic
     ).fetchone()[0]
     if count:
         _add(report, "warnings", "sample_data_confirmed", int(count))
+
+
+def _check_alias_ambiguity(registry: Any, report: dict[str, list[dict[str, Any]]]) -> None:
+    for alias_key, section in (registry.alias_mappings or {}).items():
+        if not isinstance(section, dict):
+            continue
+        targets_by_alias: dict[str, set[str]] = {}
+        for scope, aliases in _iter_alias_scopes(section):
+            if scope == "__global__":
+                continue
+            for alias, target in aliases.items():
+                targets_by_alias.setdefault(str(alias), set()).add(str(target))
+        for alias, targets in sorted(targets_by_alias.items()):
+            if len(targets) > 1:
+                _add(report, "warnings", "ambiguous_subject_scoped_alias", f"{alias_key}.{alias} -> {sorted(targets)}")
+
+
+def _iter_alias_scopes(section: dict[str, Any]) -> list[tuple[str, dict[str, str]]]:
+    result: list[tuple[str, dict[str, str]]] = []
+    global_aliases: dict[str, str] = {}
+    for alias, target in section.items():
+        if isinstance(target, dict):
+            result.append((str(alias), {str(k): str(v) for k, v in target.items()}))
+        else:
+            global_aliases[str(alias)] = str(target)
+    if global_aliases:
+        result.insert(0, ("__global__", global_aliases))
+    return result
 
 
 def _tables(conn: sqlite3.Connection) -> set[str]:

@@ -7,7 +7,12 @@ from src.prompts.worksheet_prompt import build_worksheet_prompt
 
 
 def test_worksheet_prompt_contains_v012_yaml_rules(conn):
-    prompt = build_worksheet_prompt(load_student_profile(), stats_summary(conn, today=date(2026, 5, 27)), tags_as_dicts())
+    prompt = build_worksheet_prompt(
+        load_student_profile(),
+        stats_summary(conn, today=date(2026, 5, 27)),
+        tags_as_dicts(),
+        subject_id="math",
+    )
     assert "worksheet 下字段缩进 2 个空格" in prompt
     assert "sections 列表项缩进 4 个空格" in prompt
     assert "questions 列表项缩进 8 个空格" in prompt

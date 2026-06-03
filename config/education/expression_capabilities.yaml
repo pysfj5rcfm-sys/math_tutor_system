@@ -1,59 +1,54 @@
 expression_capabilities:
   - capability_id: "plain_text"
-    name: "纯文字"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
+    name: "纯文本"
+    subjects: ["math", "chinese", "english", "physics", "chemistry"]
     active: true
     implemented: true
+
   - capability_id: "math_formula"
     name: "数学公式"
-    subjects:
-      - "math"
-      - "physics"
+    subjects: ["math", "physics"]
     active: true
     implemented: false
+
   - capability_id: "math_geometry_diagram"
     name: "数学几何图"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     implemented: false
+
   - capability_id: "coordinate_graph"
     name: "坐标图像"
-    subjects:
-      - "math"
-      - "physics"
+    subjects: ["math", "physics"]
     active: true
     implemented: false
+
   - capability_id: "physics_formula"
     name: "物理公式"
-    subjects:
-      - "physics"
+    subjects: ["physics"]
     active: true
     implemented: false
+
   - capability_id: "physics_diagram"
     name: "物理图示"
-    subjects:
-      - "physics"
+    subjects: ["physics"]
     active: true
     implemented: false
+
   - capability_id: "chemical_formula"
     name: "化学式"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     implemented: false
+
   - capability_id: "chemical_equation"
     name: "化学方程式"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     implemented: false
+
   - capability_id: "chemical_structure"
     name: "简单结构式"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     implemented: false

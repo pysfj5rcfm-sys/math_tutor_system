@@ -1,197 +1,162 @@
 # edu_tutor_system
 
-Formerly math_tutor_system.
+Current version: v0.1.7.3
 
-Local-first K12 multi-student, multi-grade, multi-subject tutoring system for curriculum-aware mistake tracking, worksheet generation, data governance, and future subject rendering.
+Positioning: Clean Registry Rebuild & No-Legacy Cutover.
 
-## v0.1.6 Positioning
+`edu_tutor_system` is a local-first tutoring data system for plain-text K12 mistake records, worksheet YAML validation, prompt generation, duplicate checks, backup, export, and schema integrity checks.
 
-v0.1.6 is **Clean Schema Cutover & Cross-subject Text Exam Validation**.
+## Active Scope
 
-This version intentionally stops carrying old runtime data and old schema fields forward:
+- Active student: `daughter` / 陈照雨
+- Current grade: 6
+- Current term: 六年级上
+- Active subjects: `math`, `chinese`, `english`
+- Curriculum version: `cn_k12_2022`
+- Textbook version: `generic` until real school materials confirm otherwise
+- School context: 上海市闵行区，上宝中学
 
-- Default runtime DB is now `data/edu_tutor.db`.
-- Legacy runtime DB `data/math_tutor.db` is deprecated and archived before first clean cutover.
-- Old mistakes / worksheets / worksheet_items data is not migrated.
-- The clean DB stores canonical code / id fields only.
-- The import layer still accepts Chinese names and legacy input fields, but preview normalizes them before confirm.
-- v0.1.6 still does not call any API, does not do OCR, does not generate PDF, and does not render math geometry / physics diagrams / chemical formulas.
+The current registry is a representative Grade 6 three-subject skeleton for real use and UAT. It is not a complete textbook database and does not claim any unpublished school-specific content.
 
-## Database
+## No-Legacy Cutover
 
-Initialize:
+v0.1.7.3 removes historical runtime compatibility from the active registry path.
 
-```bash
-python -m src.db
-```
+- Active knowledge point source of truth: `config/curriculum/cn_k12_2022/{subject}/grade_*.yaml`
+- `config/knowledge_points.yaml` has been removed from active runtime and archived under `archive/deprecated_v0173/`
+- Root-level old registry files were archived and are not loaded by `RuleRegistry`
+- `legacy_names` was removed from question type and difficulty configs
+- `alias_mappings.yaml` was rebuilt as subject-scoped aliases only
+- Old bare mistake tags such as `C3`, `F3`, `R4`, `M2`, `U1`, and `G1` are no longer active canonical codes
+- The database is rebuilt from the clean schema and seeded only with active namespaced tags
 
-Behavior:
+Active mistake tags now use namespaces such as `GEN_R4`, `MATH_C3`, `CHN_EVD_1`, and `ENG_GRAM_1`.
 
-- Ensures `data/` and output folders exist.
-- If `data/math_tutor.db` exists and `data/edu_tutor.db` does not, backs it up to `backups/pre_v016_clean_cutover/YYYYMMDD_HHMMSS/math_tutor.db`.
-- Creates `data/edu_tutor.db` with clean v0.1.6 schema.
-- Writes `schema_meta`:
-  - `project_name=edu_tutor_system`
-  - `schema_version=0.1.6`
-  - `db_name=edu_tutor.db`
-- Seeds `mistake_tags` from `config/education/mistake_taxonomy.yaml`.
-- Is idempotent and does not clear existing `edu_tutor.db` data.
+## Plain Text Boundary
 
-## Canonical Schema
+v0.1.7.3 is still not v0.2.
 
-Removed DB columns:
+The system does not implement Subject Rendering Layer, visuals, render blocks, diagrams, SVG rendering, formula rendering, chemical equation rendering, PDF generation, OCR, API calls, Agent SDK integration, server features, cloud sync, or SaaS permissions.
 
-- `question_type`
-- `knowledge_point`
-- `mistake_tag`
-- `target_mistake_tag`
-- `difficulty`
+Prompt templates explicitly ask GPT to output plain-text YAML only and not invent visual/rendering fields.
 
-Canonical fields:
+## Registry Files
 
-- mistakes: `question_type_code`, `knowledge_point_id`, `primary_mistake_tag_code`, `difficulty_code`
-- worksheet_items: `question_type_code`, `knowledge_point_id`, `target_mistake_tag_code`, `difficulty_code`
+Active registry:
 
-Difficulty codes:
+- `config/students/daughter.yaml`
+- `config/education/subjects.yaml`
+- `config/education/grades.yaml`
+- `config/education/stages.yaml`
+- `config/education/question_types.yaml`
+- `config/education/mistake_taxonomy.yaml`
+- `config/education/difficulty_levels.yaml`
+- `config/alias_mappings.yaml`
+- `config/worksheet_policy.yaml`
+- `config/curriculum/cn_k12_2022/math/grade_6.yaml`
+- `config/curriculum/cn_k12_2022/chinese/grade_6.yaml`
+- `config/curriculum/cn_k12_2022/english/grade_6.yaml`
 
-- `basic` = 基础
-- `medium` = 中等
-- `advanced` = 提高
-- `challenge` = 浅奥
+Archived historical files:
 
-## Normalize Input
+- `archive/deprecated_v0173/config/`
+- `archive/deprecated_v0173/samples/`
+- `archive/deprecated_v0173/tests/`
 
-Recommended mistakes YAML uses canonical fields:
+Archived files are not scanned as active runtime sources.
 
-```yaml
-mistakes:
-  - student_id: "daughter"
-    subject_id: "physics"
-    grade_at_time: 8
-    term_at_time: "八年级上"
-    curriculum_version_at_time: "cn_k12_2022"
-    date: "2026-06-01"
-    question_type_code: "physics_calculation"
-    knowledge_point_id: "physics_g8_speed"
-    primary_mistake_tag_code: "PHY_F1"
-    difficulty_code: "basic"
-    question_summary: "速度公式应用错误"
-```
+## Prompt Generation
 
-Legacy input aliases are accepted only at import-preview time:
+Prompt generation is subject-scoped by default.
 
-- `question_type`
-- `knowledge_point`
-- `mistake_tag`
-- `target_mistake_tag`
-- `difficulty`
+Required scope:
 
-Preview normalizes them inside current `student_id + subject_id + grade_at_time + curriculum_version_at_time` scope. Confirm import writes only canonical fields.
+- `student_id`
+- `subject_id`
+- `grade_at_time`
+- `curriculum_version_at_time`
 
-## Display And Export
+For `daughter`, `subject_id` must be selected because the active student has three active subjects. The system does not generate a default all-subject giant prompt.
 
-UI display uses `src/core/display.py`:
+Subject prompts inject only:
 
-- `应用题 (math_application)`
-- `速度 (physics_g8_speed)`
-- `物理公式选错 (PHY_F1)`
-- `基础 (basic)`
+- the selected subject's question types
+- the selected subject and grade curriculum knowledge points
+- general tags plus selected subject tags
+- the selected subject worksheet policy
+- the selected subject difficulty guidance
+- the active student profile
 
-Exports include both code and display columns, for example:
+Prompt files saved under `outputs/prompts/` are written as UTF-8 and include subject id in the filename.
 
-- `question_type_code`
-- `question_type_display`
+## Display And Filter Contract
+
+Business UI and export formatting use `src/core/display_contract.py`.
+
+Filter option contract:
+
+- value: canonical code/id
+- label: Chinese name plus canonical code/id
+
+Examples:
+
+- `chinese_g6_text_evidence` -> `文本证据 (chinese_g6_text_evidence)`
+- `english_g6_reading_detail` -> `阅读细节定位 (english_g6_reading_detail)`
+- `MATH_C3` -> `小数点 / 位数错误 (MATH_C3)`
+
+DataFrames and exports separate canonical fields from display fields:
+
 - `knowledge_point_id`
 - `knowledge_point_display`
-- `primary_mistake_tag_code`
+- `question_type_code`
+- `question_type_display`
+- `primary_mistake_tag_code` or `target_mistake_tag_code`
 - `mistake_tag_display`
 - `difficulty_code`
 - `difficulty_display`
 
-Exports no longer output old field names except as explicit `*_display` fields.
+## Samples
 
-## UAT Samples
+v0.1.7.3 UAT fixtures:
 
-Canonical v0.1.6 samples:
+- `samples/uat_v0173_math_g6_mistakes.yaml`
+- `samples/uat_v0173_math_g6_worksheet.yaml`
+- `samples/uat_v0173_chinese_g6_mistakes.yaml`
+- `samples/uat_v0173_chinese_g6_worksheet.yaml`
+- `samples/uat_v0173_english_g6_mistakes.yaml`
+- `samples/uat_v0173_english_g6_worksheet.yaml`
+- `samples/uat_v0173_cross_subject_alias_ambiguous.yaml`
+- `samples/uat_v0173_invalid_cross_subject_knowledge_point.yaml`
 
-- `samples/uat_v016_math_g6_mistakes.yaml`
-- `samples/uat_v016_math_g7_mistakes.yaml`
-- `samples/uat_v016_physics_g8_mistakes.yaml`
-- `samples/uat_v016_chemistry_g9_mistakes.yaml`
-- `samples/uat_v016_math_g6_worksheet.yaml`
-- `samples/uat_v016_math_g7_worksheet.yaml`
-- `samples/uat_v016_physics_g8_worksheet.yaml`
-- `samples/uat_v016_chemistry_g9_worksheet.yaml`
+Samples are fixtures only. They are not automatically imported and are not default learning statistics.
 
-UAT students are inactive and do not affect default active student `daughter`:
+## Database
 
-- `config/students/uat_student_math_g6.yaml`
-- `config/students/uat_student_math_g7.yaml`
-- `config/students/uat_student_physics_g8.yaml`
-- `config/students/uat_student_chemistry_g9.yaml`
+Runtime DB:
 
-## UAT DB Helper
+- `data/edu_tutor.db`
 
-```bash
-python scripts/uat_db.py status
-python scripts/uat_db.py init
-python scripts/uat_db.py restore
-```
+Clean schema remains v0.1.6. v0.1.7.3 changes registry configuration and seed data, not table structure.
 
-`init` backs up current `data/edu_tutor.db`, deletes it, and rebuilds a clean UAT DB. UAT sample data must still be imported through YAML preview -> confirm.
+Expected `schema_meta`:
 
-## Schema Integrity
+- `schema_version = 0.1.6`
+- `project_name = edu_tutor_system`
+- `db_name = edu_tutor.db`
+- `registry_version = 0.1.7.3`
+- `registry_mode = no_legacy`
 
-Programmatic use:
+## Validation Commands
 
-```python
-from src.core.schema_integrity import check_schema_integrity
-report = check_schema_integrity()
-```
+Use the available Python interpreter for the environment:
 
-The report contains `errors`, `warnings`, and `info`, including DB path, schema meta, legacy-column checks, canonical-field checks, domain validation, orphan worksheet items, duplicate hashes, and confirmed sample-data warnings.
-
-## Public APIs Kept
-
-These import paths remain stable:
-
-- `preview_mistakes_payload`
-- `confirm_mistakes_import`
-- `preview_worksheet_payload`
-- `confirm_worksheet_import`
-
-## Streamlit
-
-Run:
-
-```bash
-streamlit run src/app.py
-```
-
-Home shows `edu_tutor_system v0.1.6`, DB path, schema version, and clean schema cutover status. Data management uses `data/edu_tutor.db` for backup/export and can show schema integrity.
-
-## Tests
-
-```bash
+```powershell
+python -m src.db
 python -m pytest
 python -c "import src.app; print('APP_IMPORT_OK')"
+python scripts/uat_db.py status
+python scripts/audit_registry_health.py
 ```
 
-## Docs
+If the shell does not expose `python`, run the same commands with the full interpreter path.
 
-- `docs/SCHEMA_AUDIT_v0.1.6.md`
-- `docs/HANDOFF_v0.1.6.md`
-
-## v0.2 Boundary
-
-v0.2 may build on this clean schema for Subject Rendering Layer:
-
-- visuals
-- math_geometry
-- formula_block
-- physics_formula
-- physics_diagram
-- chemical_formula
-- chemical_equation
-
-v0.1.6 deliberately does not implement those renderers.

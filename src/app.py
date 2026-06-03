@@ -32,7 +32,7 @@ from src.core.data_governance import (
     scan_mistake_duplicates,
     scan_worksheet_duplicates,
 )
-from src.core.display import enrich_mistake_display_rows
+from src.core.display_contract import format_mistake_row_for_display, make_filter_option
 from src.core.import_preview import (
     confirm_mistakes_dry_run,
     confirm_worksheet_dry_run,
@@ -45,7 +45,7 @@ from src.core.parse_report import format_parse_error, save_parse_report
 from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.core.sample_guard import detect_sample_data_warning
 from src.core.stats import stats_summary
-from src.core.student_profile import load_active_student_profile, load_student_profile
+from src.core.student_profile import load_active_student_profile
 from src.core.validation_report import format_validation_report, save_validation_report
 from src.core.worksheets import get_worksheet_bundle
 from src.core.yaml_utils import YamlParseResult
@@ -155,15 +155,31 @@ def _mistake_filter_controls(conn, key_prefix: str) -> dict:
     cols = st.columns(4)
     source = cols[0].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
     mistake_tag = cols[1].selectbox("primary_mistake_tag_code", ["全部"] + registry.get_mistake_tag_codes(), key=f"{key_prefix}_tag")
-    question_type = cols[2].selectbox("question_type_code", ["全部"] + registry.get_question_type_canonical_codes(), key=f"{key_prefix}_type")
-    knowledge_point = cols[3].selectbox("knowledge_point_id", ["全部"] + registry.get_knowledge_point_codes(), key=f"{key_prefix}_knowledge")
+    question_type_codes = registry.get_question_type_canonical_codes()
+    knowledge_point_codes = [
+        item["knowledge_point_id"]
+        for item in registry.get_curriculum_knowledge_points()
+        if item.get("knowledge_point_id")
+    ]
+    question_type = cols[2].selectbox(
+        "question_type_code",
+        ["全部"] + question_type_codes,
+        key=f"{key_prefix}_type",
+        format_func=lambda value: "全部" if value == "全部" else make_filter_option("question_type_code", value)["label"],
+    )
+    knowledge_point = cols[3].selectbox(
+        "knowledge_point_id",
+        ["全部"] + knowledge_point_codes,
+        key=f"{key_prefix}_knowledge",
+        format_func=lambda value: "全部" if value == "全部" else make_filter_option("knowledge_point_id", value)["label"],
+    )
     cols = st.columns(3)
     difficulty = cols[0].selectbox("difficulty_code", ["全部"] + registry.get_difficulty_codes(), key=f"{key_prefix}_difficulty")
     date_from = cols[1].text_input("date from", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_from")
     date_to = cols[2].text_input("date to", value="", placeholder="YYYY-MM-DD", key=f"{key_prefix}_date_to")
     missing_context = sorted({"subject_id", "grade_at_time", "term_at_time"} - existing_columns)
     if missing_context:
-        st.caption("兼容提示：mistakes 表暂缺 " + "、".join(missing_context) + "；页面使用 active student 默认上下文显示，v0.1.6 需要 schema hardening。")
+        st.caption("兼容提示：mistakes 表暂缺 " + "、".join(missing_context) + "；页面使用 active student 默认上下文显示。")
     return {
         "student_id": None if student_id == "全部" else student_id,
         "subject_id": None if subject_id == "全部" else subject_id,
@@ -191,7 +207,7 @@ def _select_mistake_ids(rows: list[dict], key: str) -> list[int]:
 
 
 def _mistake_table_rows(rows: list[dict]) -> list[dict]:
-    rows = enrich_mistake_display_rows(rows)
+    rows = [format_mistake_row_for_display(row) for row in rows]
     columns = [
         "id",
         "student_id",
@@ -283,8 +299,8 @@ def _show_validation_report(source_type: str, report: dict, original_text: str) 
 
 
 def page_home() -> None:
-    st.title("edu_tutor_system v0.1.6")
-    st.caption("Formerly math_tutor_system.")
+    st.title("edu_tutor_system v0.1.7")
+    st.caption("Clean no-legacy registry mode.")
     st.write("K12 多学生、多年级、多学科本地优先教培系统：本地负责学生画像、课程范围、错因管理、YAML 校验、Prompt 生成、HTML 排版、备份和导出。")
     try:
         registry = load_rule_registry()
@@ -305,7 +321,7 @@ def page_home() -> None:
     except RuleRegistryError as exc:
         st.error("Rule Registry 配置加载失败")
         st.code(str(exc), language="text")
-    st.info("v0.1.6 定位：Clean Schema Cutover & Cross-subject Text Exam Validation。默认 DB 为 data/edu_tutor.db；仍不接 API、不做 OCR、不做 PDF、不做数学图形/物理公式/化学式渲染。")
+    st.info("v0.1.7 定位：Grade 6 Three-subject Rule Registry Initialization。默认 DB 为 data/edu_tutor.db；仍不接 API、不做 OCR、不做 PDF、不做数学图形/物理公式/化学式渲染。")
 
 
 def page_profile() -> None:
@@ -316,9 +332,6 @@ def page_profile() -> None:
     st.code(yaml.safe_dump(active, allow_unicode=True, sort_keys=False), language="yaml")
     st.subheader("all students")
     st.dataframe(registry.get_students(active_only=False), use_container_width=True)
-    with st.expander("兼容层：config/student_profile.yaml"):
-        st.caption("v0.1.6 推荐使用 config/students/*.yaml；旧 student_profile.yaml 仅保留读取兼容。")
-        st.code(yaml.safe_dump(load_student_profile(), allow_unicode=True, sort_keys=False), language="yaml")
 
 
 def page_tags() -> None:
@@ -360,13 +373,25 @@ def page_rule_registry() -> None:
     st.subheader("grades")
     st.dataframe(registry.get_grades(), use_container_width=True)
 
-    st.subheader("knowledge_points")
-    st.dataframe(registry.get_knowledge_points(active_only=False), use_container_width=True)
-
     active_student = registry.get_active_student()
     default_subject = registry.get_default_subject_for_student(active_student["student_id"])
-    st.subheader("当前学生对应知识点范围")
-    st.dataframe(registry.get_knowledge_points_for_student(active_student["student_id"], default_subject), use_container_width=True)
+    active_subjects = active_student.get("active_subjects") or active_student.get("default_subjects") or [default_subject]
+    st.subheader("Active Student Scope / 当前学生规则范围")
+    st.write({
+        "student_id": active_student.get("student_id"),
+        "display_name": active_student.get("display_name"),
+        "current_grade": active_student.get("current_grade"),
+        "current_term": active_student.get("current_term"),
+        "active_subjects": active_subjects,
+        "curriculum_version": active_student.get("curriculum_version"),
+        "textbook_version": active_student.get("textbook_version"),
+    })
+    for subject_id in active_subjects:
+        with st.expander(f"{subject_id} grade {active_student.get('current_grade')} curriculum knowledge points", expanded=subject_id == default_subject):
+            st.dataframe(registry.get_knowledge_points_for_student(active_student["student_id"], subject_id), use_container_width=True)
+
+    st.subheader("Global Curriculum Registry / 全局课程知识点")
+    st.dataframe(registry.get_curriculum_knowledge_points(), use_container_width=True)
 
     st.subheader("difficulty_levels")
     st.dataframe(registry.get_difficulty_levels(active_only=False), use_container_width=True)
@@ -394,7 +419,6 @@ def page_rule_registry() -> None:
             "default_question_types": tag.get("default_question_types", []),
             "scope": tag.get("scope", ""),
             "subjects": tag.get("subjects", []),
-            "legacy_compatible": tag.get("legacy_compatible", False),
             "active": tag.get("active", True),
         })
     st.dataframe(tag_rows, use_container_width=True)
@@ -405,7 +429,14 @@ def page_rule_registry() -> None:
     st.subheader("expression_capabilities")
     st.dataframe(registry.expression_capabilities, use_container_width=True)
 
-    st.subheader("curriculum scope")
+    st.subheader("Registry Source Debug / 数据源说明")
+    st.write([
+        "config/curriculum/cn_k12_2022/math/grade_6.yaml",
+        "config/curriculum/cn_k12_2022/chinese/grade_6.yaml",
+        "config/curriculum/cn_k12_2022/english/grade_6.yaml",
+    ])
+
+    st.subheader("default subject curriculum scope")
     st.code(registry.render_curriculum_scope_for_prompt(active_student["student_id"], default_subject), language="yaml")
 
     st.subheader("alias_mappings")
@@ -433,7 +464,7 @@ def page_rule_registry() -> None:
 def page_import_mistakes() -> None:
     st.header("mistakes.yaml 导入与校验")
     st.caption("先校验 / 预览，再确认导入。parse fail 或 business validation error 都不会写库。")
-    sample_name, sample = _sample_picker("mistakes", "sample_mistakes.yaml")
+    sample_name, sample = _sample_picker("mistakes", "uat_v0173_math_g6_mistakes.yaml")
     text = st.text_area("YAML", value=sample, height=320)
     text_hash = _text_hash(text)
     if st.button("校验 / 预览 mistakes.yaml"):
@@ -519,38 +550,56 @@ def page_stats() -> None:
 
 def page_marking_prompt() -> None:
     st.header("生成批改用 Prompt")
-    active_student = load_active_student_profile()
+    registry = load_rule_registry()
+    active_student = registry.get_active_student()
+    students = registry.get_students(active_only=False)
+    student_ids = [str(item["student_id"]) for item in students]
+    student_id = st.selectbox("student_id", student_ids, index=student_ids.index(active_student["student_id"]) if active_student["student_id"] in student_ids else 0)
+    student = registry.get_student(student_id)
+    active_subjects = student.get("active_subjects") or student.get("default_subjects") or [registry.get_default_subject_for_student(student_id)]
+    subject_id = st.selectbox("subject_id", active_subjects, index=0)
+    context = registry.resolve_learning_context(student_id, subject_id)
     with _conn() as conn:
         stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
-    registry = load_rule_registry()
-    context = registry.resolve_learning_context(active_student["student_id"])
-    st.caption(f"当前范围：{context['student_id']} / {context['stage_name']} / {context['grade_display_name']} / {context['subject_id']} / {context['curriculum_version_at_time']}")
-    prompt = build_marking_prompt(active_student, confirmed_stats=stats)
+    st.write({"Prompt Scope": context})
+    st.caption(f"规则来源：config/curriculum/{context['curriculum_version_at_time']}/{subject_id}/grade_{context['grade_at_time']}.yaml；config/education/question_types.yaml；config/education/mistake_taxonomy.yaml")
+    prompt = build_marking_prompt(student, subject_id=subject_id, confirmed_stats=stats)
     st.text_area("Prompt", prompt, height=420)
+    with st.expander("All subjects overview / debug（仅调试，不建议复制给 GPT 出题或批改）", expanded=False):
+        st.write({"active_subjects": active_subjects})
     if st.button("保存到 outputs/prompts"):
-        path = save_marking_prompt(prompt)
+        path = save_marking_prompt(prompt, student_id=student_id, subject_id=subject_id, grade_at_time=context["grade_at_time"])
         st.success(f"已保存：{path}")
 
 
 def page_worksheet_prompt() -> None:
     st.header("生成出题用 Prompt")
-    active_student = load_active_student_profile()
+    registry = load_rule_registry()
+    active_student = registry.get_active_student()
+    students = registry.get_students(active_only=False)
+    student_ids = [str(item["student_id"]) for item in students]
+    student_id = st.selectbox("student_id", student_ids, index=student_ids.index(active_student["student_id"]) if active_student["student_id"] in student_ids else 0, key="worksheet_prompt_student")
+    student = registry.get_student(student_id)
+    active_subjects = student.get("active_subjects") or student.get("default_subjects") or [registry.get_default_subject_for_student(student_id)]
+    subject_id = st.selectbox("subject_id", active_subjects, index=0, key="worksheet_prompt_subject")
+    context = registry.resolve_learning_context(student_id, subject_id)
     with _conn() as conn:
         stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
-    registry = load_rule_registry()
-    context = registry.resolve_learning_context(active_student["student_id"])
-    st.caption(f"当前范围：{context['student_id']} / {context['stage_name']} / {context['grade_display_name']} / {context['subject_id']} / {context['curriculum_version_at_time']}")
-    prompt = build_worksheet_prompt(active_student, stats)
+    st.write({"Prompt Scope": context})
+    st.caption(f"规则来源：config/curriculum/{context['curriculum_version_at_time']}/{subject_id}/grade_{context['grade_at_time']}.yaml；config/education/question_types.yaml；config/education/mistake_taxonomy.yaml；config/worksheet_policy.yaml")
+    prompt = build_worksheet_prompt(student, stats, subject_id=subject_id)
     st.text_area("Prompt", prompt, height=420)
+    with st.expander("All subjects overview / debug（仅调试，不建议复制给 GPT 出题）", expanded=False):
+        st.write({"active_subjects": active_subjects})
     if st.button("保存到 outputs/prompts"):
-        path = save_worksheet_prompt(prompt)
+        path = save_worksheet_prompt(prompt, student_id=student_id, subject_id=subject_id, grade_at_time=context["grade_at_time"])
         st.success(f"已保存：{path}")
 
 
 def page_import_worksheet() -> None:
     st.header("worksheet.yaml 导入与校验")
     st.caption("先校验 / 预览，再确认导入。parse fail 或 business validation error 都不会写库。")
-    sample_name, sample = _sample_picker("worksheet", "sample_worksheet.yaml")
+    sample_name, sample = _sample_picker("worksheet", "uat_v0173_math_g6_worksheet.yaml")
     text = st.text_area("YAML", value=sample, height=360)
     text_hash = _text_hash(text)
     if st.button("校验 / 预览 worksheet.yaml"):
@@ -613,7 +662,7 @@ def page_export_student() -> None:
     with _conn() as conn:
         ids = _worksheet_ids(conn)
         if not ids:
-            st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 sample_worksheet.yaml。")
+            st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 v0.1.7.3 UAT worksheet。")
             return
         selected = st.selectbox("worksheet_id", ids)
         if selected and st.button("生成学生卷 HTML"):
@@ -626,7 +675,7 @@ def page_export_answer() -> None:
     with _conn() as conn:
         ids = _worksheet_ids(conn)
         if not ids:
-            st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 sample_worksheet.yaml。")
+            st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 v0.1.7.3 UAT worksheet。")
             return
         selected = st.selectbox("worksheet_id", ids)
         if selected and st.button("生成答案页 HTML"):
@@ -744,10 +793,11 @@ def page_extension_notes() -> None:
     st.markdown(
         """
         - v0.1.5：Teaching Domain Model，K12 多学生、多年级、多学科配置骨架。
-        - v0.1.6：Clean Schema Cutover & Cross-subject Text Exam Validation。
+        - edu_tutor_system v0.1.6：Clean Schema Cutover & Cross-subject Text Exam Validation。
+        - v0.1.7：Grade 6 Three-subject Rule Registry Initialization。
         - v0.2：Subject Rendering Layer，数学图形、物理公式/图示、化学式/方程式表达。
         - 当前仍不接 API、不做 OCR、不做 PDF、不做渲染。
-        - v0.1.6 已切换到 canonical schema；v0.2 才进入 Subject Rendering Layer。
+        - v0.1.7 已初始化六年级数学 / 语文 / 英语三科 Rule Registry；v0.2 才进入 Subject Rendering Layer。
         """
     )
 
@@ -805,7 +855,7 @@ PAGES = {
 
 
 def main() -> None:
-    st.set_page_config(page_title="edu_tutor_system v0.1.6", layout="wide")
+    st.set_page_config(page_title="edu_tutor_system v0.1.7", layout="wide")
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

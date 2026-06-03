@@ -1,163 +1,224 @@
 question_types:
   - code: "multiple_choice"
-    name: "选择"
+    name: "选择题"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
+    subjects: ["math", "chinese", "english", "physics", "chemistry"]
     active: true
     default_layout: "single_column"
+
   - code: "fill_blank"
-    name: "填空"
+    name: "填空题"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
+    subjects: ["math", "chinese", "english", "physics", "chemistry"]
     active: true
     default_layout: "single_column"
+
   - code: "judgement"
-    name: "判断"
+    name: "判断题"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
+    subjects: ["math", "chinese", "english", "physics", "chemistry"]
     active: true
     default_layout: "single_column"
+
   - code: "short_answer"
-    name: "简答"
+    name: "简答题"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
+    subjects: ["math", "chinese", "english", "physics", "chemistry"]
     active: true
     default_layout: "single_column"
-  - code: "other"
-    name: "其它"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    active: true
-    default_layout: "single_column"
+
   - code: "math_calculation"
-    name: "递等式计算"
+    name: "计算题"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "two_columns"
-    legacy_names:
-      - "递等式计算"
-      - "计算题"
+
   - code: "math_equation"
     name: "方程"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "two_columns"
-    legacy_names:
-      - "方程"
+
   - code: "math_unit_conversion"
     name: "单位换算"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "single_column"
-    legacy_names:
-      - "单位换算"
+
   - code: "math_geometry_calculation"
     name: "几何计算"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "single_column"
-    legacy_names:
-      - "几何计算"
-      - "几何题"
-  - code: "math_geometry_drawing"
-    name: "几何画图"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    active: true
-    default_layout: "single_column"
-    legacy_names:
-      - "几何画图"
+
   - code: "math_application"
     name: "应用题"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "single_column"
-    legacy_names:
-      - "应用题"
-      - "文字题"
-  - code: "math_reading"
+
+  - code: "math_reading_application"
     name: "阅读理解型数学题"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["math"]
     active: true
     default_layout: "single_column"
-    legacy_names:
-      - "阅读理解型数学题"
-  - code: "math_comprehensive"
-    name: "综合题"
+
+  - code: "chinese_reading"
+    name: "阅读理解"
     scope: "subject_specific"
-    subjects:
-      - "math"
+    subjects: ["chinese"]
     active: true
     default_layout: "single_column"
-    legacy_names:
-      - "综合题"
+
+  - code: "chinese_summary"
+    name: "概括题"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_text_evidence"
+    name: "文本证据题"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_poetry"
+    name: "古诗文"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_language_expression"
+    name: "语言表达"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_composition_outline"
+    name: "作文提纲"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_composition_fragment"
+    name: "作文片段"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "chinese_revision"
+    name: "修改题"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_vocabulary"
+    name: "词汇"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_grammar"
+    name: "语法"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_reading"
+    name: "阅读理解"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_listening_dictation"
+    name: "听写"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_sentence_rewrite"
+    name: "句型改写"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_writing_short"
+    name: "短写作"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_cloze"
+    name: "完形 / 选词"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
+  - code: "english_speaking_prompt"
+    name: "口头表达"
+    scope: "subject_specific"
+    subjects: ["english"]
+    active: true
+    default_layout: "single_column"
+
   - code: "physics_calculation"
     name: "物理计算"
     scope: "subject_specific"
-    subjects:
-      - "physics"
+    subjects: ["physics"]
     active: true
     default_layout: "single_column"
+
   - code: "physics_experiment"
     name: "实验探究"
     scope: "subject_specific"
-    subjects:
-      - "physics"
+    subjects: ["physics"]
     active: true
     default_layout: "single_column"
+
   - code: "physics_graph_analysis"
     name: "图像分析"
     scope: "subject_specific"
-    subjects:
-      - "physics"
+    subjects: ["physics"]
     active: true
     default_layout: "single_column"
+
   - code: "chem_formula_writing"
     name: "化学式书写"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     default_layout: "single_column"
+
   - code: "chem_equation_balancing"
     name: "化学方程式配平"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     default_layout: "single_column"
+
   - code: "chem_experiment"
     name: "实验探究"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     active: true
     default_layout: "single_column"

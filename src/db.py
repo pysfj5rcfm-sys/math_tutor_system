@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-import shutil
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from src.core.paths import DEFAULT_DB_PATH, LEGACY_DB_PATH, OUTPUT_DIRS, PRE_V016_BACKUP_DIR, ROOT
+from src.core.paths import DEFAULT_DB_PATH, OUTPUT_DIRS
 from src.core.rule_registry import RuleRegistry, load_rule_registry
 
 
 SCHEMA_VERSION = "0.1.6"
 PROJECT_NAME = "edu_tutor_system"
 DB_NAME = "edu_tutor.db"
+REGISTRY_VERSION = "0.1.7.3"
+REGISTRY_MODE = "no_legacy"
 
 
 def now_iso() -> str:
@@ -30,7 +31,6 @@ def get_connection(db_path: str | Path = DEFAULT_DB_PATH) -> sqlite3.Connection:
 
 def init_db(db_path: str | Path = DEFAULT_DB_PATH) -> None:
     ensure_output_dirs()
-    ensure_pre_v016_legacy_backup(db_path)
     with get_connection(db_path) as conn:
         create_tables(conn)
         seed_schema_meta(conn)
@@ -40,21 +40,6 @@ def init_db(db_path: str | Path = DEFAULT_DB_PATH) -> None:
 def ensure_output_dirs() -> None:
     for path in OUTPUT_DIRS:
         path.mkdir(parents=True, exist_ok=True)
-
-
-def ensure_pre_v016_legacy_backup(db_path: str | Path = DEFAULT_DB_PATH) -> Path | None:
-    """Archive the old v0.1.x runtime DB before the clean cutover creates edu_tutor.db."""
-    target_db = Path(db_path)
-    if target_db.resolve() != DEFAULT_DB_PATH.resolve():
-        return None
-    if not LEGACY_DB_PATH.exists() or DEFAULT_DB_PATH.exists():
-        return None
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_dir = PRE_V016_BACKUP_DIR / stamp
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    target = backup_dir / LEGACY_DB_PATH.name
-    shutil.copy2(LEGACY_DB_PATH, target)
-    return target
 
 
 def create_tables(conn: sqlite3.Connection) -> None:
@@ -214,6 +199,8 @@ def seed_schema_meta(conn: sqlite3.Connection) -> None:
         "project_name": PROJECT_NAME,
         "schema_version": SCHEMA_VERSION,
         "db_name": DB_NAME,
+        "registry_version": REGISTRY_VERSION,
+        "registry_mode": REGISTRY_MODE,
     }
     conn.executemany(
         """

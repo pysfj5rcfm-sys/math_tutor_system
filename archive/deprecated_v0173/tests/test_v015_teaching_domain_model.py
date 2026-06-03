@@ -111,8 +111,8 @@ def test_registry_filtering_and_prompt_scope():
 def test_prompts_include_v015_scope_and_rendering_boundaries(conn):
     registry = load_rule_registry()
     student = registry.get_active_student()
-    marking = build_marking_prompt(student, confirmed_stats={"recent_7_days": []})
-    worksheet = build_worksheet_prompt(student, {"recent_7_days": [], "recent_30_days": []})
+    marking = build_marking_prompt(student, subject_id="math", confirmed_stats={"recent_7_days": []})
+    worksheet = build_worksheet_prompt(student, {"recent_7_days": [], "recent_30_days": []}, subject_id="math")
 
     assert "daughter" in marking
     assert "六年级上" in marking

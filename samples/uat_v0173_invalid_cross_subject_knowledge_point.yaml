@@ -1,0 +1,17 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "chinese"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "chinese_reading"
+    knowledge_point_id: "english_g6_reading_detail"
+    primary_mistake_tag_code: "CHN_Q_1"
+    difficulty_code: "medium"
+    question_summary: "语文 context 下不应接受英语知识点。"
+    wrong_answer_summary: "略"
+    correct_answer_summary: "应提示 knowledge point unknown in current scope。"
+    training_needed: true
+    source: "uat_v0173_fixture"

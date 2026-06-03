@@ -1,0 +1,12 @@
+mistakes:
+  - student_id: "daughter"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    date: "2026-06-03"
+    question_type: "阅读理解"
+    knowledge_point: "阅读推断"
+    mistake_tag: "关键词理解弱"
+    difficulty: "中等"
+    question_summary: "缺少 subject_id 时，阅读理解别名应保持多义，不静默猜测。"
+    source: "uat_v017_fixture"

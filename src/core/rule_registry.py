@@ -18,12 +18,18 @@ class RuleRegistryError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class AliasResolution:
+    target: str | None
+    ambiguous: bool = False
+    matches: list[dict[str, str]] | None = None
+
+
+@dataclass(frozen=True)
 class RuleRegistry:
     question_types: list[dict[str, Any]]
-    knowledge_points: list[dict[str, Any]]
     difficulty_levels: list[dict[str, Any]]
     mistake_tags: list[dict[str, Any]]
-    alias_mappings: dict[str, dict[str, str]]
+    alias_mappings: dict[str, Any]
     worksheet_policy: dict[str, Any]
     students: list[dict[str, Any]]
     subjects: list[dict[str, Any]]
@@ -44,7 +50,13 @@ class RuleRegistry:
         return [item["code"] for item in self.get_question_types(active_only)]
 
     def get_knowledge_point_codes(self, active_only: bool = True) -> list[str]:
-        values = [item["code"] for item in self.get_knowledge_points(active_only)]
+        return self.get_curriculum_knowledge_point_codes()
+
+    def get_all_knowledge_point_codes(self, active_only: bool = True) -> list[str]:
+        return self.get_curriculum_knowledge_point_codes()
+
+    def get_curriculum_knowledge_point_codes(self) -> list[str]:
+        values: list[str] = []
         for item in self._curriculum_knowledge_points():
             values.append(str(item.get("knowledge_point_id", "")))
             values.append(str(item.get("name", "")))
@@ -60,7 +72,11 @@ class RuleRegistry:
         return _filter_active(self.question_types, active_only)
 
     def get_knowledge_points(self, active_only: bool = True) -> list[dict[str, Any]]:
-        return _filter_active(self.knowledge_points, active_only)
+        return self.get_curriculum_knowledge_points()
+
+    def get_curriculum_knowledge_points(self) -> list[dict[str, Any]]:
+        """Active v0.1.7+ knowledge point source of truth from config/curriculum/**/grade_*.yaml."""
+        return self._curriculum_knowledge_points()
 
     def get_difficulty_levels(self, active_only: bool = True) -> list[dict[str, Any]]:
         return _filter_active(sorted(self.difficulty_levels, key=lambda item: item.get("order", 0)), active_only)
@@ -162,7 +178,6 @@ class RuleRegistry:
         for item in self.get_knowledge_points_for_context(subject_id, grade, curriculum_version):
             values.append(str(item.get("knowledge_point_id", "")))
             values.append(str(item.get("name", "")))
-        values.extend(self._legacy_knowledge_point_values_for_subject(subject_id))
         return _unique([value for value in values if value])
 
     def get_knowledge_points_for_context(
@@ -193,16 +208,13 @@ class RuleRegistry:
             for item in scoped_points
             if text in {str(item.get("knowledge_point_id", "")), str(item.get("name", ""))}
         ]
-        alias = self.suggest_knowledge_point(text)
+        alias = self.suggest_knowledge_point(text, subject_id)
         if alias and not matches:
             matches.extend([
                 item
                 for item in scoped_points
                 if alias in {str(item.get("knowledge_point_id", "")), str(item.get("name", ""))}
             ])
-        legacy_values = set(self._legacy_knowledge_point_values_for_subject(subject_id))
-        if not matches and (text in legacy_values or (alias and alias in legacy_values)):
-            matches.append({"knowledge_point_id": alias or text, "name": alias or text, "source": "legacy_compatibility"})
         unique_matches = _unique_matches(matches)
         return {
             "valid": bool(unique_matches),
@@ -282,11 +294,11 @@ class RuleRegistry:
             "grade_display_name": self.get_grade_display_name(grade),
         }
 
-    def suggest_question_type(self, value: Any) -> str | None:
-        return self._suggest("question_type_aliases", value)
+    def suggest_question_type(self, value: Any, subject_id: str | None = None) -> str | None:
+        return self.resolve_alias("question_type_aliases", value, subject_id).target
 
-    def suggest_knowledge_point(self, value: Any) -> str | None:
-        return self._suggest("knowledge_point_aliases", value)
+    def suggest_knowledge_point(self, value: Any, subject_id: str | None = None) -> str | None:
+        return self.resolve_alias("knowledge_point_aliases", value, subject_id).target
 
     def suggest_difficulty(self, value: Any) -> str | None:
         text = "" if value is None else str(value).strip()
@@ -296,13 +308,48 @@ class RuleRegistry:
         if alias:
             return alias
         for item in self.get_difficulty_levels(active_only=False):
-            accepted = [item.get("code", ""), item.get("name", ""), *(item.get("legacy_names") or [])]
+            accepted = [item.get("code", ""), item.get("name", "")]
             if text in {str(v) for v in accepted if v}:
                 return str(item.get("code"))
         return None
 
-    def suggest_mistake_tag(self, value: Any) -> str | None:
-        return self._suggest("mistake_tag_aliases", value)
+    def suggest_mistake_tag(self, value: Any, subject_id: str | None = None) -> str | None:
+        return self.resolve_alias("mistake_tag_aliases", value, subject_id).target
+
+    def resolve_alias(self, alias_key: str, value: Any, subject_id: str | None = None) -> AliasResolution:
+        if value is None:
+            return AliasResolution(None, False, [])
+        text = str(value).strip()
+        if not text:
+            return AliasResolution(None, False, [])
+        section = self.alias_mappings.get(alias_key, {})
+        if not isinstance(section, dict):
+            return AliasResolution(None, False, [])
+
+        matches: list[dict[str, str]] = []
+        for scope, aliases in _iter_alias_scopes(section):
+            if text not in aliases:
+                continue
+            if scope == "__global__" or subject_id is None or scope == subject_id:
+                matches.append({"scope": scope, "target": aliases[text]})
+
+        if subject_id is not None:
+            scoped = [item for item in matches if item["scope"] == subject_id]
+            global_matches = [item for item in matches if item["scope"] == "__global__"]
+            preferred = scoped or global_matches
+            targets = _unique([item["target"] for item in preferred])
+            if len(targets) == 1:
+                return AliasResolution(targets[0], False, preferred)
+            if len(targets) > 1:
+                return AliasResolution(None, True, preferred)
+            return AliasResolution(None, False, [])
+
+        targets = _unique([item["target"] for item in matches])
+        if len(targets) == 1:
+            return AliasResolution(targets[0], False, matches)
+        if len(targets) > 1:
+            return AliasResolution(None, True, matches)
+        return AliasResolution(None, False, [])
 
     def suggest_field_value(self, field: str, value: Any) -> str | None:
         if field == "question_type":
@@ -318,28 +365,56 @@ class RuleRegistry:
         return None
 
     def render_student_profile_for_prompt(self, student_id: str | None = None) -> str:
-        student = self.get_student(student_id) if student_id else self.get_active_student()
+        student = dict(self.get_student(student_id) if student_id else self.get_active_student())
         context = self.resolve_learning_context(str(student["student_id"]))
         return yaml.safe_dump({"student": student, "resolved_context": context}, allow_unicode=True, sort_keys=False)
 
     def render_curriculum_scope_for_prompt(self, student_id: str, subject_id: str | None = None) -> str:
         context = self.resolve_learning_context(student_id, subject_id)
-        curriculum = self.get_curriculum_for(
+        return self.render_curriculum_scope_for_context(
             context["subject_id"],
             context["grade_at_time"],
             context["curriculum_version_at_time"],
+            student_id=context["student_id"],
+            term=context["term_at_time"],
+            stage_id=context["stage_id"],
+            stage_name=context["stage_name"],
+            grade_display_name=context["grade_display_name"],
+        )
+
+    def render_curriculum_scope_for_context(
+        self,
+        subject_id: str,
+        grade: int | str,
+        curriculum_version: str = "cn_k12_2022",
+        student_id: str | None = None,
+        term: str | None = None,
+        stage_id: str | None = None,
+        stage_name: str | None = None,
+        grade_display_name: str | None = None,
+    ) -> str:
+        grade_int = int(grade)
+        if stage_id is None or stage_name is None:
+            stage = self.get_stage_for_grade(grade_int)
+            stage_id = str(stage.get("stage_id", ""))
+            stage_name = str(stage.get("name", ""))
+        curriculum = self.get_curriculum_for(
+            subject_id,
+            grade_int,
+            curriculum_version,
         )
         scope = {
-            "student_id": context["student_id"],
-            "subject_id": context["subject_id"],
-            "grade": context["grade_at_time"],
-            "grade_display_name": context["grade_display_name"],
-            "term": context["term_at_time"],
-            "stage_id": context["stage_id"],
-            "stage_name": context["stage_name"],
-            "curriculum_version": context["curriculum_version_at_time"],
+            "student_id": student_id or "",
+            "subject_id": subject_id,
+            "grade": grade_int,
+            "grade_display_name": grade_display_name or self.get_grade_display_name(grade_int),
+            "term": term or "",
+            "stage_id": stage_id,
+            "stage_name": stage_name,
+            "curriculum_version": curriculum_version,
             "textbook_version": curriculum.get("textbook_version", "generic"),
             "coverage_note": curriculum.get("coverage_note", ""),
+            "source_of_truth": f"config/curriculum/{curriculum_version}/{subject_id}/grade_{grade_int}.yaml",
             "units": curriculum.get("units", []),
         }
         return yaml.safe_dump(scope, allow_unicode=True, sort_keys=False)
@@ -351,7 +426,11 @@ class RuleRegistry:
         return yaml.safe_dump(items, allow_unicode=True, sort_keys=False)
 
     def render_knowledge_points_for_prompt(self) -> str:
-        return yaml.safe_dump(self.get_knowledge_points(), allow_unicode=True, sort_keys=False)
+        payload = {
+            "source_of_truth": "config/curriculum/cn_k12_2022/{subject}/grade_*.yaml",
+            "knowledge_points": self.get_curriculum_knowledge_points(),
+        }
+        return yaml.safe_dump(payload, allow_unicode=True, sort_keys=False)
 
     def render_difficulty_levels_for_prompt(self) -> str:
         return yaml.safe_dump(self.get_difficulty_levels(), allow_unicode=True, sort_keys=False)
@@ -364,11 +443,42 @@ class RuleRegistry:
         items = self.get_expression_capabilities_for_subject(subject_id) if subject_id else _filter_active(self.expression_capabilities, True)
         return yaml.safe_dump(items, allow_unicode=True, sort_keys=False)
 
-    def render_alias_mappings_for_prompt(self) -> str:
-        return yaml.safe_dump(self.alias_mappings, allow_unicode=True, sort_keys=False)
+    def render_alias_mappings_for_prompt(self, subject_id: str | None = None) -> str:
+        if subject_id is None:
+            return yaml.safe_dump(self.alias_mappings, allow_unicode=True, sort_keys=False)
+        scoped: dict[str, Any] = {}
+        for alias_key, section in self.alias_mappings.items():
+            if not isinstance(section, dict):
+                scoped[alias_key] = section
+                continue
+            filtered: dict[str, Any] = {}
+            for alias, target in section.items():
+                if isinstance(target, dict):
+                    if alias == subject_id:
+                        filtered[alias] = target
+                elif _alias_target_applies_to_subject(self, alias_key, str(target), subject_id):
+                    filtered[alias] = target
+            scoped[alias_key] = filtered
+        return yaml.safe_dump(scoped, allow_unicode=True, sort_keys=False)
 
-    def render_worksheet_policies_for_prompt(self) -> str:
-        return yaml.safe_dump(self.worksheet_policy, allow_unicode=True, sort_keys=False)
+    def render_worksheet_policies_for_prompt(
+        self,
+        subject_id: str | None = None,
+        grade: int | str | None = None,
+    ) -> str:
+        policy = _policy_for_prompt(self.worksheet_policy)
+        if subject_id is not None or grade is not None:
+            policies = policy.get("policies") or {}
+            if isinstance(policies, dict):
+                filtered: dict[str, Any] = {}
+                for policy_id, item in policies.items():
+                    if subject_id is not None and item.get("subject_id") != subject_id:
+                        continue
+                    if grade is not None and item.get("grade") not in (None, int(grade)):
+                        continue
+                    filtered[policy_id] = item
+                policy["policies"] = filtered
+        return yaml.safe_dump(policy, allow_unicode=True, sort_keys=False)
 
     def list_policies(self) -> list[str]:
         policies = self.worksheet_policy.get("policies", {})
@@ -386,7 +496,6 @@ class RuleRegistry:
         warnings: list[str] = []
 
         _validate_items("question_types", self.question_types, errors)
-        _validate_items("knowledge_points", self.knowledge_points, errors)
         _validate_items("difficulty_levels", self.difficulty_levels, errors)
         _validate_items("mistake_tags", self.mistake_tags, errors)
 
@@ -420,9 +529,10 @@ class RuleRegistry:
             if not isinstance(section, dict):
                 errors.append(f"alias_mappings.{alias_key} must be a mapping")
                 continue
-            for alias, target in section.items():
-                if target not in valid_targets:
-                    errors.append(f"alias_mappings.{alias_key}.{alias} targets unknown or inactive value: {target}")
+            for scope, aliases in _iter_alias_scopes(section):
+                for alias, target in aliases.items():
+                    if target not in valid_targets:
+                        errors.append(f"alias_mappings.{alias_key}.{scope}.{alias} targets unknown or inactive value: {target}")
 
         policies = self.worksheet_policy.get("policies", {})
         if not isinstance(policies, dict):
@@ -444,8 +554,9 @@ class RuleRegistry:
                     if not isinstance(section, dict):
                         errors.append(f"{prefix} must be a mapping")
                         continue
-                    if section.get("question_type") not in active_question_types:
-                        errors.append(f"{prefix}.question_type references inactive or unknown question_type: {section.get('question_type')}")
+                    question_type_code = section.get("question_type_code") or section.get("question_type")
+                    if question_type_code not in active_question_types:
+                        errors.append(f"{prefix}.question_type_code references inactive or unknown question_type: {question_type_code}")
                     if section.get("layout") not in VALID_LAYOUTS:
                         errors.append(f"{prefix}.layout must be one of {sorted(VALID_LAYOUTS)}")
                     min_count = section.get("min_count")
@@ -455,11 +566,21 @@ class RuleRegistry:
                     elif min_count > max_count:
                         errors.append(f"{prefix}.min_count must be <= max_count")
 
-        difficulty_policy = self.worksheet_policy.get("difficulty_policy", {})
-        if isinstance(difficulty_policy, dict):
-            for difficulty in difficulty_policy:
-                if difficulty not in active_difficulties:
-                    warnings.append(f"worksheet_policy.difficulty_policy contains inactive or unknown difficulty: {difficulty}")
+        subject_difficulty_policy = self.worksheet_policy.get("subject_difficulty_policy", {})
+        subject_ids = {item.get("subject_id") for item in self.subjects}
+        if isinstance(subject_difficulty_policy, dict):
+            for subject_id, policy in subject_difficulty_policy.items():
+                if subject_id not in subject_ids:
+                    warnings.append(f"worksheet_policy.subject_difficulty_policy contains inactive or unknown subject: {subject_id}")
+                    continue
+                if not isinstance(policy, dict):
+                    errors.append(f"worksheet_policy.subject_difficulty_policy.{subject_id} must be a mapping")
+                    continue
+                for difficulty, weight in policy.items():
+                    if difficulty not in active_difficulties:
+                        warnings.append(f"worksheet_policy.subject_difficulty_policy.{subject_id} contains inactive or unknown difficulty: {difficulty}")
+                    if not isinstance(weight, (int, float)) or weight < 0:
+                        errors.append(f"worksheet_policy.subject_difficulty_policy.{subject_id}.{difficulty} must be a non-negative number")
 
         for section_result in (self.validate_student_config(), self.validate_education_config(), self.validate_curriculum_config()):
             errors.extend(section_result["errors"])
@@ -573,7 +694,7 @@ class RuleRegistry:
     def _suggest(self, alias_key: str, value: Any) -> str | None:
         if value is None:
             return None
-        return self.alias_mappings.get(alias_key, {}).get(str(value).strip())
+        return self.resolve_alias(alias_key, value).target
 
     def _curriculum_knowledge_points(self) -> list[dict[str, Any]]:
         result: list[dict[str, Any]] = []
@@ -598,14 +719,6 @@ class RuleRegistry:
                 })
         return result
 
-    def _legacy_knowledge_point_values_for_subject(self, subject_id: str) -> list[str]:
-        values: list[str] = []
-        for item in self.get_knowledge_points(active_only=True):
-            item_subject = item.get("subject")
-            if item_subject in (None, "", subject_id):
-                values.append(str(item.get("code", "")))
-        return _unique([value for value in values if value])
-
 
 def load_rule_registry(config_dir: str | Path = DEFAULT_CONFIG_DIR, force_reload: bool = False) -> RuleRegistry:
     path = Path(config_dir).resolve()
@@ -619,7 +732,6 @@ def _load_rule_registry_cached(config_dir: str) -> RuleRegistry:
     path = Path(config_dir)
     registry = RuleRegistry(
         question_types=_load_question_types(path),
-        knowledge_points=_load_section(path, "knowledge_points.yaml", "knowledge_points", list),
         difficulty_levels=_load_difficulty_levels(path),
         mistake_tags=_load_mistake_tags(path),
         alias_mappings=_load_alias_mappings(path),
@@ -669,12 +781,34 @@ def _unique_matches(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def _question_type_accepted_values(item: dict[str, Any]) -> list[str]:
     values = [item.get("code", ""), item.get("name", ""), item.get("display_name", "")]
-    values.extend(item.get("legacy_names") or [])
     return _unique([value for value in values if value])
 
 
 def _with_accepted_inputs(item: dict[str, Any]) -> dict[str, Any]:
     return {**item, "accepted_inputs": _question_type_accepted_values(item)}
+
+
+def _policy_for_prompt(policy: dict[str, Any]) -> dict[str, Any]:
+    result = yaml.safe_load(yaml.safe_dump(policy, allow_unicode=True)) or {}
+    for item in (result.get("policies") or {}).values():
+        for section in item.get("sections") or []:
+            if section.get("question_type_code"):
+                section.pop("question_type", None)
+    return result
+
+
+def _alias_target_applies_to_subject(registry: RuleRegistry, alias_key: str, target: str, subject_id: str) -> bool:
+    if alias_key == "question_type_aliases":
+        return target in {item.get("code") for item in registry.get_question_types_for_subject(subject_id)}
+    if alias_key == "knowledge_point_aliases":
+        return target in {
+            item.get("knowledge_point_id")
+            for item in registry.get_curriculum_knowledge_points()
+            if item.get("subject_id") == subject_id
+        }
+    if alias_key == "mistake_tag_aliases":
+        return target in {item.get("code") for item in registry.get_mistake_tags_for_subject(subject_id)}
+    return True
 
 
 def _applies_to_subject(item: dict[str, Any], subject_id: str, field: str) -> bool:
@@ -685,45 +819,64 @@ def _applies_to_subject(item: dict[str, Any], subject_id: str, field: str) -> bo
 
 
 def _student_matches(student: dict[str, Any], student_id: str) -> bool:
-    return student.get("student_id") == student_id or student_id in (student.get("legacy_student_ids") or [])
+    return student.get("student_id") == student_id
 
 
 def _curriculum_key(curriculum_version: str, subject_id: str, grade: int) -> str:
     return f"{curriculum_version}:{subject_id}:{grade}"
 
 
-def _load_alias_mappings(config_dir: Path) -> dict[str, dict[str, str]]:
+def _load_alias_mappings(config_dir: Path) -> dict[str, Any]:
     data = _load_yaml_file(config_dir / "alias_mappings.yaml", dict)
-    result: dict[str, dict[str, str]] = {}
+    result: dict[str, Any] = {}
     for key in ("question_type_aliases", "knowledge_point_aliases", "difficulty_aliases", "mistake_tag_aliases"):
         section = data.get(key, {})
         if section is None:
             section = {}
         if not isinstance(section, dict):
             raise RuleRegistryError(f"alias_mappings.yaml: {key} must be a mapping")
-        result[key] = {str(alias): str(target) for alias, target in section.items()}
+        result[key] = _normalize_alias_section(section, key)
+    return result
+
+
+def _normalize_alias_section(section: dict[str, Any], alias_key: str) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for alias, target in section.items():
+        if isinstance(target, dict):
+            result[str(alias)] = {str(inner_alias): str(inner_target) for inner_alias, inner_target in target.items()}
+        elif target is None:
+            result[str(alias)] = ""
+        elif isinstance(target, (str, int, float, bool)):
+            result[str(alias)] = str(target)
+        else:
+            raise RuleRegistryError(f"alias_mappings.yaml: {alias_key}.{alias} must be a scalar target or scoped mapping")
+    return result
+
+
+def _iter_alias_scopes(section: dict[str, Any]) -> list[tuple[str, dict[str, str]]]:
+    result: list[tuple[str, dict[str, str]]] = []
+    global_aliases: dict[str, str] = {}
+    for alias, target in section.items():
+        if isinstance(target, dict):
+            result.append((str(alias), {str(k): str(v) for k, v in target.items()}))
+        else:
+            global_aliases[str(alias)] = str(target)
+    if global_aliases:
+        result.insert(0, ("__global__", global_aliases))
     return result
 
 
 def _load_question_types(config_dir: Path) -> list[dict[str, Any]]:
     education_path = config_dir / "education" / "question_types.yaml"
     if education_path.exists():
-        education_items = _load_section(config_dir / "education", "question_types.yaml", "question_types", list)
-        if (config_dir / "question_types.yaml").exists():
-            legacy_items = _load_section(config_dir, "question_types.yaml", "question_types", list)
-            return _merge_legacy_question_types(education_items, legacy_items)
-        return education_items
+        return _load_section(config_dir / "education", "question_types.yaml", "question_types", list)
     return _load_section(config_dir, "question_types.yaml", "question_types", list)
 
 
 def _load_mistake_tags(config_dir: Path) -> list[dict[str, Any]]:
     education_path = config_dir / "education" / "mistake_taxonomy.yaml"
     if education_path.exists():
-        education_items = _load_section(config_dir / "education", "mistake_taxonomy.yaml", "mistake_tags", list)
-        if (config_dir / "mistake_tags.yaml").exists():
-            legacy_items = _load_section(config_dir, "mistake_tags.yaml", "mistake_tags", list)
-            return _merge_by_code(education_items, legacy_items)
-        return education_items
+        return _load_section(config_dir / "education", "mistake_taxonomy.yaml", "mistake_tags", list)
     return _load_section(config_dir, "mistake_tags.yaml", "mistake_tags", list)
 
 
@@ -747,22 +900,6 @@ def _load_students(config_dir: Path) -> list[dict[str, Any]]:
             students.append(data)
     if students:
         return students
-    legacy_path = config_dir / "student_profile.yaml"
-    if legacy_path.exists():
-        legacy = _load_yaml_file(legacy_path, dict)
-        return [{
-            "student_id": legacy.get("student_id", "legacy_student"),
-            "display_name": legacy.get("display_name", "Legacy Student"),
-            "active": True,
-            "current_stage": "primary",
-            "current_grade": 5,
-            "current_term": legacy.get("grade", "小学五年级"),
-            "curriculum_version": "cn_k12_2022",
-            "textbook_version": "generic",
-            "default_subjects": ["math"],
-            "profile": legacy,
-            "compatibility_source": "config/student_profile.yaml",
-        }]
     return []
 
 
@@ -779,37 +916,6 @@ def _load_curriculum(config_dir: Path) -> dict[str, dict[str, Any]]:
             int(data.get("grade", 0)),
         )
         result[key] = data
-    return result
-
-
-def _merge_by_code(primary: list[dict[str, Any]], extras: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    codes = {item.get("code") for item in primary}
-    result = list(primary)
-    for item in extras:
-        if item.get("code") not in codes:
-            result.append(item)
-            codes.add(item.get("code"))
-    return result
-
-
-def _merge_legacy_question_types(primary: list[dict[str, Any]], legacy: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    accepted = {value for item in primary for value in _question_type_accepted_values(item)}
-    result = list(primary)
-    for item in legacy:
-        code = item.get("code")
-        if code in accepted:
-            continue
-        result.append({
-            "code": code,
-            "name": item.get("display_name") or code,
-            "scope": "legacy_compatibility",
-            "subjects": item.get("subjects", []),
-            "active": item.get("active", True),
-            "default_layout": item.get("default_layout", "single_column"),
-            "description": item.get("description", ""),
-            "legacy_names": [code],
-        })
-        accepted.add(code)
     return result
 
 

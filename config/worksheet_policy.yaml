@@ -1,110 +1,118 @@
 policies:
-  balanced_default:
-    description: "通用均衡训练卷，适合无明显单一短板时使用。"
-    max_questions: 14
+  math_g6_default:
+    policy_id: "math_g6_default"
+    subject_id: "math"
+    grade: 6
+    description: "六年级数学默认训练策略。"
+    max_questions: 13
     sections:
-      - question_type: "递等式计算"
+      - name: "一、计算 / 数与运算"
+        question_type_code: "math_calculation"
         min_count: 3
         max_count: 4
         layout: "two_columns"
-      - question_type: "方程"
+      - name: "二、方程 / 代数表达"
+        question_type_code: "math_equation"
         min_count: 2
         max_count: 3
         layout: "two_columns"
-      - question_type: "单位换算"
+      - name: "三、应用题建模"
+        question_type_code: "math_application"
+        min_count: 2
+        max_count: 3
+        layout: "single_column"
+      - name: "四、几何 / 量感"
+        question_type_code: "math_geometry_calculation"
         min_count: 1
         max_count: 2
         layout: "single_column"
-      - question_type: "几何计算"
-        min_count: 2
-        max_count: 3
+      - name: "五、综合表达"
+        question_type_code: "short_answer"
+        min_count: 1
+        max_count: 1
         layout: "single_column"
-      - question_type: "应用题"
-        min_count: 2
-        max_count: 3
-        layout: "single_column"
-  geometry_priority:
-    description: "立体几何、体积、表面积、容积、排水法主攻模式。"
-    max_questions: 14
+
+  chinese_g6_default:
+    policy_id: "chinese_g6_default"
+    subject_id: "chinese"
+    grade: 6
+    description: "六年级语文默认阅读与表达训练策略。"
+    max_questions: 12
     sections:
-      - question_type: "递等式计算"
-        min_count: 2
-        max_count: 3
-        layout: "two_columns"
-      - question_type: "方程"
-        min_count: 1
-        max_count: 2
-        layout: "two_columns"
-      - question_type: "单位换算"
-        min_count: 2
-        max_count: 3
-        layout: "single_column"
-      - question_type: "几何计算"
+      - name: "一、现代文阅读"
+        question_type_code: "chinese_reading"
+        description: "1篇文章，4-6小题。"
         min_count: 4
-        max_count: 5
-        layout: "single_column"
-      - question_type: "应用题"
-        min_count: 2
-        max_count: 3
-        layout: "single_column"
-  application_reading_priority:
-    description: "应用题审题、关键词、数量关系、建模主攻模式。"
-    max_questions: 14
-    sections:
-      - question_type: "递等式计算"
-        min_count: 2
-        max_count: 3
-        layout: "two_columns"
-      - question_type: "方程"
-        min_count: 2
-        max_count: 3
-        layout: "two_columns"
-      - question_type: "单位换算"
-        min_count: 1
-        max_count: 2
-        layout: "single_column"
-      - question_type: "几何计算"
-        min_count: 1
-        max_count: 2
-        layout: "single_column"
-      - question_type: "应用题"
-        min_count: 4
-        max_count: 5
-        layout: "single_column"
-  calculation_remediation:
-    description: "计算稳定性补救模式。"
-    max_questions: 14
-    sections:
-      - question_type: "递等式计算"
-        min_count: 5
         max_count: 6
-        layout: "two_columns"
-      - question_type: "方程"
-        min_count: 2
-        max_count: 3
-        layout: "two_columns"
-      - question_type: "单位换算"
+        layout: "single_column"
+      - name: "二、概括 / 主旨"
+        question_type_code: "chinese_summary"
         min_count: 1
         max_count: 2
         layout: "single_column"
-      - question_type: "几何计算"
+      - name: "三、文本证据题"
+        question_type_code: "chinese_text_evidence"
         min_count: 1
         max_count: 2
         layout: "single_column"
-      - question_type: "应用题"
-        min_count: 2
-        max_count: 3
+      - name: "四、古诗文 / 文言启蒙"
+        question_type_code: "chinese_poetry"
+        min_count: 1
+        max_count: 1
         layout: "single_column"
-difficulty_policy:
-  基础:
-    min: 0
-    max: 14
-  中等:
-    min: 0
-    max: 14
-  提高:
-    min: 0
-    max: 4
-  浅奥:
-    min: 0
-    max: 1
+      - name: "五、作文片段 / 提纲"
+        question_type_code: "chinese_composition_fragment"
+        min_count: 1
+        max_count: 1
+        layout: "single_column"
+
+  english_g6_default:
+    policy_id: "english_g6_default"
+    subject_id: "english"
+    grade: 6
+    description: "六年级英语默认词汇语法阅读写作训练策略。"
+    max_questions: 24
+    sections:
+      - name: "一、词汇 / 词块"
+        question_type_code: "english_vocabulary"
+        min_count: 8
+        max_count: 12
+        layout: "single_column"
+      - name: "二、语法"
+        question_type_code: "english_grammar"
+        min_count: 5
+        max_count: 8
+        layout: "single_column"
+      - name: "三、阅读理解"
+        question_type_code: "english_reading"
+        description: "1篇文章，4-6小题。"
+        min_count: 4
+        max_count: 6
+        layout: "single_column"
+      - name: "四、听写"
+        question_type_code: "english_listening_dictation"
+        min_count: 0
+        max_count: 5
+        layout: "single_column"
+      - name: "五、短写作"
+        question_type_code: "english_writing_short"
+        min_count: 1
+        max_count: 1
+        layout: "single_column"
+
+subject_difficulty_policy:
+  math:
+    basic: 0.35
+    medium: 0.45
+    advanced: 0.15
+    challenge: 0.05
+  chinese:
+    basic: 0.30
+    medium: 0.50
+    advanced: 0.20
+    challenge: 0.00
+  english:
+    basic: 0.30
+    medium: 0.50
+    advanced: 0.20
+    challenge: 0.00

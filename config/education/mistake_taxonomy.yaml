@@ -1,487 +1,441 @@
 mistake_tags:
-  - code: "C1"
-    category: "计算执行错误"
-    name: "基础计算错误"
+  - code: "GEN_R1"
+    category: "通用审题与阅读"
+    name: "读题遗漏"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "简单加减乘除、口算或笔算过程中的基础错误。"
-    typical_symptoms:
-      - "口算或笔算结果错误"
-      - "进位、退位、乘除步骤不稳定"
-    training_hint: "安排短时基础计算与检查训练。"
-    default_question_types:
-      - "math_calculation"
-      - "physics_calculation"
+    subjects: ["math", "chinese", "english"]
+    description: "漏读条件、限制或问题要求。"
+    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
     active: true
-  - code: "C2"
-    category: "计算执行错误"
-    name: "运算顺序错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "括号、先乘除后加减、递等式步骤顺序错误。"
-    typical_symptoms:
-      - "先算了不该先算的部分"
-      - "递等式过程顺序混乱"
-    training_hint: "先圈运算顺序，再进行递等式计算。"
-    default_question_types:
-      - "math_calculation"
-    active: true
-  - code: "C3"
-    category: "计算执行错误"
-    name: "小数点/位数错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "小数点位置、位数对齐、单位位数处理错误。"
-    typical_symptoms:
-      - "小数乘除后小数点位置错误"
-      - "单位换算时进率位数错误"
-    training_hint: "安排小数乘除、单位换算、带小数的递等式计算。"
-    default_question_types:
-      - "math_calculation"
-      - "math_unit_conversion"
-    active: true
-  - code: "C4"
-    category: "计算执行错误"
-    name: "分数处理错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "通分、约分、分数乘除、带分数处理错误。"
-    typical_symptoms:
-      - "通分、约分或化简错误"
-      - "分数乘除步骤错误"
-    training_hint: "拆练通分、约分和分数乘除。"
-    default_question_types:
-      - "math_calculation"
-    active: true
-  - code: "C5"
-    category: "计算执行错误"
-    name: "抄写/转录错误"
+
+  - code: "GEN_R2"
+    category: "通用审题与阅读"
+    name: "题意理解偏差"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "抄错数字、符号、题目条件或答案。"
-    typical_symptoms:
-      - "过程中的数字与题干不一致"
-      - "答案转写时漏写或写错"
-    training_hint: "读题后复核关键数字和符号。"
-    default_question_types:
-      - "math_calculation"
-      - "math_application"
+    subjects: ["math", "chinese", "english"]
+    description: "整体题意、问法或任务目标理解不准确。"
+    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
     active: true
-  - code: "C6"
-    category: "计算执行错误"
-    name: "最后一步失误"
+
+  - code: "GEN_R3"
+    category: "通用审题与阅读"
+    name: "条件提取不完整"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "前面过程正确，最后一步算错或写错答案。"
-    typical_symptoms:
-      - "末尾计算出错"
-      - "答案句或单位漏写"
-    training_hint: "训练最后一步回看与答案检查。"
-    default_question_types:
-      - "math_calculation"
-      - "math_application"
+    subjects: ["math", "chinese", "english"]
+    description: "没有完整提取文本、题干或材料中的关键条件。"
+    default_question_types: ["math_application", "chinese_reading", "english_reading"]
     active: true
-  - code: "K1"
-    category: "概念与知识点错误"
-    name: "概念理解不清"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "概念定义、适用范围或相近概念理解不清。"
-    typical_symptoms:
-      - "概念定义说不清"
-      - "相近概念混用"
-    training_hint: "用实物、图示或反例解释概念。"
-    default_question_types:
-      - "fill_blank"
-      - "math_application"
-    active: true
-  - code: "K2"
-    category: "概念与知识点错误"
-    name: "公式记忆错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "公式记错、漏乘 2、底高混淆。"
-    typical_symptoms:
-      - "套公式时漏项"
-      - "把周长、面积、体积公式混淆"
-    training_hint: "建立公式卡片和对比练习。"
-    default_question_types:
-      - "math_geometry_calculation"
-    active: true
-  - code: "K3"
-    category: "概念与知识点错误"
-    name: "公式不会应用"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "会背公式，但不知道题目应该用哪一个。"
-    typical_symptoms:
-      - "题目条件与公式无法对应"
-      - "看到几何题不知道先求什么"
-    training_hint: "先找条件，再匹配公式。"
-    default_question_types:
-      - "math_geometry_calculation"
-      - "math_application"
-    active: true
-  - code: "K4"
-    category: "概念与知识点错误"
-    name: "知识点混淆"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "相近知识点混淆，无法区分概念、量或情境。"
-    typical_symptoms:
-      - "相近知识点混用"
-      - "把不同量的单位混在一起"
-    training_hint: "做对比表和分类练习。"
-    default_question_types:
-      - "fill_blank"
-      - "math_geometry_calculation"
-    active: true
-  - code: "F1"
-    category: "方程与代数表达错误"
-    name: "等量关系找错"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "不知道怎样根据题意列出正确等量关系。"
-    typical_symptoms:
-      - "未知数和等量关系不清"
-      - "方程左右两边含义不对应"
-    training_hint: "先用一句话写出等量关系。"
-    default_question_types:
-      - "math_equation"
-      - "math_application"
-    active: true
-  - code: "F2"
-    category: "方程与代数表达错误"
-    name: "解方程步骤错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "移项、去括号、除法等解方程步骤错误。"
-    typical_symptoms:
-      - "等式两边操作不一致"
-      - "解方程过程计算错误"
-    training_hint: "分步骤训练等式性质。"
-    default_question_types:
-      - "math_equation"
-    active: true
-  - code: "F3"
-    category: "方程与代数表达错误"
-    name: "方程格式不规范"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "跳步、等号不齐、过程不完整。"
-    typical_symptoms:
-      - "格式缺失导致丢分"
-      - "等号书写位置混乱"
-    training_hint: "训练规范书写模板。"
-    default_question_types:
-      - "math_equation"
-    active: true
-  - code: "R1"
-    category: "审题与阅读理解错误"
-    name: "题意理解错误"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "读完不知道题目说什么或误解整体意思。"
-    typical_symptoms:
-      - "无法复述题意"
-      - "列式方向与题意相反"
-    training_hint: "先让孩子复述题目。"
-    default_question_types:
-      - "math_application"
-      - "short_answer"
-    active: true
-  - code: "R2"
-    category: "审题与阅读理解错误"
-    name: "漏读条件"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "少看一句、漏看限制条件或隐藏条件。"
-    typical_symptoms:
-      - "遗漏关键条件"
-      - "没使用题目中的重要数字"
-    training_hint: "圈画条件和问题。"
-    default_question_types:
-      - "math_application"
-      - "short_answer"
-    active: true
-  - code: "R3"
-    category: "审题与阅读理解错误"
-    name: "看错问题"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "把题目问的对象或方向看错。"
-    typical_symptoms:
-      - "问剩下多少却算用了多少"
-      - "答案方向相反"
-    training_hint: "写出题目真正问什么。"
-    default_question_types:
-      - "math_application"
-      - "short_answer"
-    active: true
-  - code: "R4"
-    category: "审题与阅读理解错误"
+
+  - code: "GEN_R4"
+    category: "通用审题与阅读"
     name: "关键词理解弱"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "对题目关键词、限定条件、问法的理解不足。"
-    typical_symptoms:
-      - "关键词转化错误"
-      - "不能把自然语言转成数量关系"
-    training_hint: "安排关键词解释和变式练习。"
-    default_question_types:
-      - "math_application"
-      - "short_answer"
+    subjects: ["math", "chinese", "english"]
+    description: "对关键词、限定词、转折词或题目术语理解不足。"
+    default_question_types: ["math_application", "chinese_reading", "english_reading", "short_answer"]
     active: true
-  - code: "M1"
-    category: "数量关系与建模错误"
-    name: "数量关系找不到"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "不知道谁和谁比较，无法建立数量关系。"
-    typical_symptoms:
-      - "无法建立比较关系"
-      - "列式缺少依据"
-    training_hint: "用线段图寻找关系。"
-    default_question_types:
-      - "math_application"
+
+  - code: "GEN_M1"
+    category: "通用方法"
+    name: "方法选择不当"
+    scope: "general"
+    subjects: ["math", "chinese", "english"]
+    description: "选择的解题、答题或表达方法与任务不匹配。"
+    default_question_types: ["short_answer", "math_application", "chinese_reading", "english_reading"]
     active: true
-  - code: "M2"
-    category: "数量关系与建模错误"
+
+  - code: "GEN_M2"
+    category: "通用方法"
     name: "多步骤拆解弱"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "一步题能做，多步骤题不知道如何拆解。"
-    typical_symptoms:
-      - "多步骤应用题顺序混乱"
-      - "不知道先求中间量"
-    training_hint: "训练分步问题链。"
-    default_question_types:
-      - "math_application"
-      - "short_answer"
+    subjects: ["math", "chinese", "english"]
+    description: "多步骤任务无法拆成清晰的中间目标。"
+    default_question_types: ["math_application", "chinese_text_evidence", "english_reading", "short_answer"]
     active: true
-  - code: "M3"
-    category: "数量关系与建模错误"
-    name: "倍数/份数关系错误"
-    scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "几倍、几分之几、对应量找错。"
-    typical_symptoms:
-      - "一倍量或对应量错误"
-      - "份数关系与实际数量不匹配"
-    training_hint: "画份数图找对应量。"
-    default_question_types:
-      - "math_application"
-    active: true
-  - code: "M4"
-    category: "数量关系与建模错误"
-    name: "不会画图/列表辅助"
+
+  - code: "GEN_STEP_1"
+    category: "通用规范"
+    name: "步骤不规范"
     scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "不会用线段图、表格、示意图整理信息。"
-    typical_symptoms:
-      - "信息整理困难"
-      - "题目条件多时无从下手"
-    training_hint: "训练线段图和表格。"
-    default_question_types:
-      - "math_application"
-      - "physics_graph_analysis"
+    subjects: ["math", "chinese", "english"]
+    description: "步骤顺序、分点或过程书写不符合当前任务要求。"
+    default_question_types: ["math_calculation", "math_equation", "short_answer"]
     active: true
-  - code: "U1"
-    category: "单位、几何、习惯问题"
+
+  - code: "GEN_EXPR_1"
+    category: "通用表达"
+    name: "表达不完整"
+    scope: "general"
+    subjects: ["math", "chinese", "english"]
+    description: "答案、理由、过程或结论表达不完整。"
+    default_question_types: ["short_answer", "chinese_text_evidence", "english_writing_short"]
+    active: true
+
+  - code: "GEN_CHECK_1"
+    category: "通用检查"
+    name: "缺少检验"
+    scope: "general"
+    subjects: ["math", "chinese", "english"]
+    description: "完成后没有回读、回代、核对或自我检查。"
+    default_question_types: ["math_calculation", "math_equation", "math_application", "short_answer"]
+    active: true
+
+  - code: "MATH_C1"
+    category: "数学计算"
+    name: "计算抄写错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "数字、符号、题干条件或中间结果抄写错误。"
+    default_question_types: ["math_calculation", "math_application"]
+    active: true
+
+  - code: "MATH_C2"
+    category: "数学计算"
+    name: "运算顺序错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "括号、先乘除后加减、递等式顺序处理错误。"
+    default_question_types: ["math_calculation"]
+    active: true
+
+  - code: "MATH_C3"
+    category: "数学计算"
+    name: "小数点 / 位数错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "小数点位置、位数对齐或进率位数处理错误。"
+    default_question_types: ["math_calculation", "math_unit_conversion"]
+    active: true
+
+  - code: "MATH_C4"
+    category: "数学计算"
+    name: "分数处理错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "通分、约分、分数乘除或分数小数百分数转化错误。"
+    default_question_types: ["math_calculation"]
+    active: true
+
+  - code: "MATH_F1"
+    category: "数学方程与建模"
+    name: "等量关系错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "列方程时左右两边含义不对应。"
+    default_question_types: ["math_equation", "math_application"]
+    active: true
+
+  - code: "MATH_F2"
+    category: "数学方程与建模"
+    name: "解方程步骤错误"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "移项、去括号、等式两边同乘除等步骤错误。"
+    default_question_types: ["math_equation"]
+    active: true
+
+  - code: "MATH_F3"
+    category: "数学方程与建模"
+    name: "方程格式不规范"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "等号、格式、过程或检验书写不规范。"
+    default_question_types: ["math_equation"]
+    active: true
+
+  - code: "MATH_U1"
+    category: "数学单位与量感"
     name: "单位换算错误"
     scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "长度、面积、体积、容积等单位进率和换算错误。"
-    typical_symptoms:
-      - "单位进率错误"
-      - "平方单位、立方单位换算位数错误"
-    training_hint: "建立常见单位换算表。"
-    default_question_types:
-      - "math_unit_conversion"
-      - "math_geometry_calculation"
+    subjects: ["math"]
+    description: "长度、面积、体积、容积等单位进率和换算方向错误。"
+    default_question_types: ["math_unit_conversion", "math_geometry_calculation"]
     active: true
-  - code: "G1"
-    category: "单位、几何、习惯问题"
-    name: "几何图形/公式错误"
+
+  - code: "MATH_G1"
+    category: "数学几何"
+    name: "几何图形 / 公式错误"
     scope: "subject_specific"
-    subjects:
-      - "math"
-    legacy_compatible: true
-    description: "图形识别、几何公式、面积/周长/体积关系错误。"
-    typical_symptoms:
-      - "几何图形与公式匹配错误"
-      - "漏用或错用几何条件"
-    training_hint: "先识图，再列公式。"
-    default_question_types:
-      - "math_geometry_calculation"
-      - "math_geometry_drawing"
+    subjects: ["math"]
+    description: "图形识别、几何公式、面积周长体积关系处理错误。"
+    default_question_types: ["math_geometry_calculation"]
     active: true
-  - code: "H1"
-    category: "单位、几何、习惯问题"
-    name: "草稿/书写/检查习惯问题"
-    scope: "general"
-    subjects:
-      - "math"
-      - "physics"
-      - "chemistry"
-    legacy_compatible: true
-    description: "草稿乱、跳步、不检查、答案句不完整。"
-    typical_symptoms:
-      - "过程不清或检查缺失"
-      - "书写影响计算和复盘"
-    training_hint: "固定草稿和检查流程。"
-    default_question_types:
-      - "math_calculation"
-      - "math_equation"
-      - "math_application"
+
+  - code: "MATH_K1"
+    category: "数学概念"
+    name: "概念混淆"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "相近概念、定义或适用条件混淆。"
+    default_question_types: ["fill_blank", "math_application"]
     active: true
+
+  - code: "MATH_K2"
+    category: "数学概念"
+    name: "知识点迁移失败"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "会做单一题型，但换情境后不能迁移使用。"
+    default_question_types: ["math_application", "short_answer"]
+    active: true
+
+  - code: "MATH_K3"
+    category: "数学概念"
+    name: "公式不会应用"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "知道公式，但不能把题目条件对应到公式变量。"
+    default_question_types: ["math_geometry_calculation", "math_application"]
+    active: true
+
+  - code: "MATH_MODEL_1"
+    category: "数学建模"
+    name: "等量关系找不到"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "无法根据题意建立等量关系。"
+    default_question_types: ["math_equation", "math_application"]
+    active: true
+
+  - code: "MATH_CHECK_1"
+    category: "数学检查"
+    name: "未检验答案"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "完成后未回代、估算或检查合理性。"
+    default_question_types: ["math_calculation", "math_application"]
+    active: true
+
+  - code: "MATH_EXPR_1"
+    category: "数学表达"
+    name: "过程表达不完整"
+    scope: "subject_specific"
+    subjects: ["math"]
+    description: "步骤、单位、答句或关键解释缺失。"
+    default_question_types: ["math_equation", "math_application", "short_answer"]
+    active: true
+
+  - code: "CHN_SUM_1"
+    category: "语文阅读"
+    name: "概括空泛"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "只抄句子或抓不住重点。"
+    default_question_types: ["chinese_summary"]
+    active: true
+
+  - code: "CHN_EVD_1"
+    category: "语文阅读"
+    name: "文本证据不足"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "观点缺少文本依据或引用不准确。"
+    default_question_types: ["chinese_text_evidence", "short_answer"]
+    active: true
+
+  - code: "CHN_Q_1"
+    category: "语文审题"
+    name: "审题偏移"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "问什么答什么不稳定。"
+    default_question_types: ["chinese_reading", "short_answer"]
+    active: true
+
+  - code: "CHN_STRUCT_1"
+    category: "语文表达"
+    name: "答题结构不规范"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "不分点、不完整或答题结构混乱。"
+    default_question_types: ["chinese_text_evidence", "short_answer"]
+    active: true
+
+  - code: "CHN_POE_1"
+    category: "语文古诗文"
+    name: "古诗文词义不稳"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "字词、句意或语境理解弱。"
+    default_question_types: ["chinese_poetry"]
+    active: true
+
+  - code: "CHN_COMP_1"
+    category: "语文作文"
+    name: "作文结构松"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "段落、过渡、开头或结尾组织弱。"
+    default_question_types: ["chinese_composition_outline", "chinese_composition_fragment"]
+    active: true
+
+  - code: "CHN_COMP_2"
+    category: "语文作文"
+    name: "作文细节不足"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "内容空泛，缺少动作、心理、环境或细节描写。"
+    default_question_types: ["chinese_composition_fragment"]
+    active: true
+
+  - code: "CHN_LANG_1"
+    category: "语文表达"
+    name: "语言表达不准确"
+    scope: "subject_specific"
+    subjects: ["chinese"]
+    description: "病句、搭配、语序或用词不准确。"
+    default_question_types: ["chinese_language_expression", "chinese_revision"]
+    active: true
+
+  - code: "ENG_VOC_1"
+    category: "英语词汇"
+    name: "词汇回忆不稳"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "认识但写不出或用不准。"
+    default_question_types: ["english_vocabulary"]
+    active: true
+
+  - code: "ENG_CHUNK_1"
+    category: "英语词块"
+    name: "搭配错误"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "介词、动词短语或常用搭配错误。"
+    default_question_types: ["english_vocabulary", "english_sentence_rewrite"]
+    active: true
+
+  - code: "ENG_GRAM_1"
+    category: "英语语法"
+    name: "时态错误"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "时态选择、动词形式或时间线表达错误。"
+    default_question_types: ["english_grammar", "english_sentence_rewrite"]
+    active: true
+
+  - code: "ENG_GRAM_2"
+    category: "英语语法"
+    name: "主谓一致错误"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "主语和谓语在人称或数上不一致。"
+    default_question_types: ["english_grammar", "english_sentence_rewrite"]
+    active: true
+
+  - code: "ENG_GRAM_3"
+    category: "英语语法"
+    name: "介词 / 冠词错误"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "介词、冠词或固定结构使用错误。"
+    default_question_types: ["english_grammar", "fill_blank"]
+    active: true
+
+  - code: "ENG_READ_1"
+    category: "英语阅读"
+    name: "阅读定位不准"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "细节题凭感觉，不能回到文本定位。"
+    default_question_types: ["english_reading"]
+    active: true
+
+  - code: "ENG_READ_2"
+    category: "英语阅读"
+    name: "推断过度"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "推断超出文本证据。"
+    default_question_types: ["english_reading"]
+    active: true
+
+  - code: "ENG_LISTEN_1"
+    category: "英语听写"
+    name: "听写音形不连通"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "听懂但写不出，音形连接弱。"
+    default_question_types: ["english_listening_dictation"]
+    active: true
+
+  - code: "ENG_WRITE_1"
+    category: "英语写作"
+    name: "句式单一"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "写作中句式重复、表达变化少。"
+    default_question_types: ["english_writing_short"]
+    active: true
+
+  - code: "ENG_WRITE_2"
+    category: "英语写作"
+    name: "语法影响写作"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "语法错误影响句子表达与文章质量。"
+    default_question_types: ["english_writing_short"]
+    active: true
+
+  - code: "ENG_SPEAK_1"
+    category: "英语口语"
+    name: "复述不完整"
+    scope: "subject_specific"
+    subjects: ["english"]
+    description: "口头复述漏信息、顺序乱或表达不完整。"
+    default_question_types: ["english_speaking_prompt"]
+    active: true
+
   - code: "PHY_F1"
-    category: "物理公式与建模错误"
+    category: "物理公式与建模"
     name: "物理公式选错"
     scope: "subject_specific"
-    subjects:
-      - "physics"
-    description: "未能根据物理情境选择正确公式。"
-    typical_symptoms:
-      - "物理量关系判断错误"
-      - "把相近公式混用"
-    training_hint: "先明确物理量和单位，再匹配公式。"
-    default_question_types:
-      - "physics_calculation"
+    subjects: ["physics"]
+    description: "不能根据物理情境选择正确公式。"
+    default_question_types: ["physics_calculation"]
     active: true
+
   - code: "PHY_U1"
-    category: "物理单位与量纲错误"
+    category: "物理单位"
     name: "物理单位换算错误"
     scope: "subject_specific"
-    subjects:
-      - "physics"
-    description: "物理量单位换算、国际单位制转换错误。"
-    typical_symptoms:
-      - "速度、密度、压强等单位转换错误"
-      - "代入公式前未统一单位"
-    training_hint: "列出物理量、单位和换算关系后再计算。"
-    default_question_types:
-      - "physics_calculation"
+    subjects: ["physics"]
+    description: "物理量单位换算或代入前单位统一错误。"
+    default_question_types: ["physics_calculation"]
     active: true
+
   - code: "PHY_E1"
-    category: "物理实验探究错误"
+    category: "物理实验"
     name: "实验变量控制错误"
     scope: "subject_specific"
-    subjects:
-      - "physics"
-    description: "控制变量、实验条件、结论归因错误。"
-    typical_symptoms:
-      - "没有区分自变量、因变量和控制量"
-      - "把现象直接当结论"
-    training_hint: "用变量表整理实验设计和结论。"
-    default_question_types:
-      - "physics_experiment"
+    subjects: ["physics"]
+    description: "没有区分自变量、因变量和控制变量。"
+    default_question_types: ["physics_experiment"]
     active: true
+
   - code: "CHEM_F1"
-    category: "化学符号表达错误"
+    category: "化学符号"
     name: "化学式书写错误"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
+    subjects: ["chemistry"]
     description: "元素符号、化合价、角标或物质式书写错误。"
-    typical_symptoms:
-      - "元素符号大小写错误"
-      - "化合价和角标对应错误"
-    training_hint: "先判断元素和化合价，再写化学式。"
-    default_question_types:
-      - "chem_formula_writing"
+    default_question_types: ["chem_formula_writing"]
     active: true
+
   - code: "CHEM_E1"
-    category: "化学方程式错误"
+    category: "化学方程式"
     name: "化学方程式未配平"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
-    description: "化学方程式中反应物、生成物或系数未正确配平。"
-    typical_symptoms:
-      - "左右原子数不守恒"
-      - "漏写条件或状态信息"
-    training_hint: "先写正确物质式，再按元素逐一配平。"
-    default_question_types:
-      - "chem_equation_balancing"
+    subjects: ["chemistry"]
+    description: "反应物、生成物或系数未正确配平。"
+    default_question_types: ["chem_equation_balancing"]
     active: true
+
   - code: "CHEM_EXP1"
-    category: "化学实验探究错误"
+    category: "化学实验"
     name: "实验现象与结论混淆"
     scope: "subject_specific"
-    subjects:
-      - "chemistry"
-    description: "把观察现象、实验结论、原因解释混在一起。"
-    typical_symptoms:
-      - "只写结论不写现象"
-      - "把推断当成直接观察"
-    training_hint: "按现象、结论、原因三栏组织答案。"
-    default_question_types:
-      - "chem_experiment"
+    subjects: ["chemistry"]
+    description: "混淆观察现象、实验结论和原因解释。"
+    default_question_types: ["chem_experiment"]
     active: true

@@ -1,33 +1,54 @@
 student_id: "daughter"
-display_name: "女儿"
+display_name: "陈照雨"
 active: true
-legacy_student_ids:
-  - "daughter_grade5"
 
 current_stage: "primary"
 current_grade: 6
 current_term: "六年级上"
+
+city: "上海"
+district: "闵行区"
+school: "上宝中学"
 
 curriculum_version: "cn_k12_2022"
 textbook_version: "generic"
 
 default_subjects:
   - "math"
+  - "chinese"
+  - "english"
+
+active_subjects:
+  - "math"
+  - "chinese"
+  - "english"
 
 profile:
-  math_level: "70-80"
+  math_level: "约80分左右，稳定提分与预初适应。"
+  chinese_level: "成绩较优秀，优势保持与答题规范升级。"
+  english_level: "成绩较优秀，正式主线与高质量输入。"
   learning_goals:
     - "小升初衔接"
-    - "计算稳定性"
-    - "几何空间观念"
+    - "预初适应"
+    - "数学稳定提分"
+    - "语文答题规范升级"
+    - "英语高质量输入与表达"
   teaching_style:
     - "温柔"
     - "鼓励"
     - "步骤清晰"
   known_weaknesses:
-    - "阅读理解型应用题"
+    - "数学应用题建模"
     - "单位换算"
     - "几何空间想象"
+    - "语文文本证据表达"
+    - "英语词块和语法迁移"
   worksheet_preferences:
     max_questions: 14
     avoid_too_many_challenge_questions: true
+
+status:
+  final_exam_grade5: "待确认"
+  summer_homework: "待确认"
+  school_materials: "待确认"
+  textbook_version_confirmed: false

@@ -1,1 +1,1 @@
-"""edu_tutor_system package, formerly math_tutor_system."""
+"""edu_tutor_system package."""

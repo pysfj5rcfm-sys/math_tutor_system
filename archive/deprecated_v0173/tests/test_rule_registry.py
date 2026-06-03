@@ -87,8 +87,8 @@ def test_alias_target_must_exist(tmp_path: Path):
 
 def test_prompts_use_registry_content(conn):
     registry = load_rule_registry()
-    worksheet_prompt = build_worksheet_prompt({}, {"recent_7_days": [], "recent_30_days": []})
-    marking_prompt = build_marking_prompt({})
+    worksheet_prompt = build_worksheet_prompt({}, {"recent_7_days": [], "recent_30_days": []}, subject_id="math")
+    marking_prompt = build_marking_prompt({}, subject_id="math")
     repair_prompt = build_validation_repair_prompt(
         "worksheet",
         {"readable_items": [], "raw_validation": {}},
@@ -98,7 +98,8 @@ def test_prompts_use_registry_content(conn):
     assert "question_type_code" in worksheet_prompt
     assert "C3" in worksheet_prompt
     assert "基础" in worksheet_prompt
-    assert "balanced_default" in worksheet_prompt
+    assert "math_g6_default" in worksheet_prompt
+    assert "chinese_g6_default" not in worksheet_prompt
     assert "alias 映射提示" in repair_prompt
     assert "合法 question_type_code 枚举" in marking_prompt
     assert "UAT" not in registry.render_worksheet_policies_for_prompt()

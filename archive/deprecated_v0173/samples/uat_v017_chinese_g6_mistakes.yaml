@@ -1,0 +1,33 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "chinese"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "chinese_text_evidence"
+    knowledge_point_id: "chinese_g6_text_evidence"
+    primary_mistake_tag_code: "CHN_EVD_1"
+    difficulty_code: "medium"
+    question_summary: "阅读题回答观点时没有引用文本依据。"
+    wrong_answer_summary: "只写个人判断，没有回到原文。"
+    correct_answer_summary: "先写观点，再引用或概括文本证据。"
+    training_needed: true
+    source: "uat_v017_fixture"
+  - student_id: "daughter"
+    subject_id: "chinese"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "chinese_summary"
+    knowledge_point_id: "chinese_g6_reading_summary"
+    primary_mistake_tag_code: "CHN_SUM_1"
+    difficulty_code: "basic"
+    question_summary: "概括段意时直接抄原句。"
+    wrong_answer_summary: "没有提炼主要事件和人物变化。"
+    correct_answer_summary: "用自己的话概括核心内容。"
+    training_needed: true
+    source: "uat_v017_fixture"

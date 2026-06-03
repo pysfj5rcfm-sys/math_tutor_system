@@ -1,0 +1,62 @@
+curriculum_version: "cn_k12_2022"
+subject_id: "english"
+grade: 6
+stage_id: "primary"
+textbook_version: "generic"
+coverage_note: "代表性六年级英语规则骨架，不是完整教材库；校本材料待确认。"
+units:
+  - unit_id: "english_g6_vocabulary_grammar"
+    name: "词汇、词块与语法"
+    domain: "language_knowledge"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "english_g6_vocabulary_core"
+        name: "核心词汇"
+        status: "active"
+        question_types: ["english_vocabulary", "fill_blank"]
+      - knowledge_point_id: "english_g6_word_chunks"
+        name: "词块搭配"
+        status: "active"
+        question_types: ["english_vocabulary", "english_sentence_rewrite"]
+      - knowledge_point_id: "english_g6_tense_basic"
+        name: "基础时态"
+        status: "active"
+        question_types: ["english_grammar", "english_sentence_rewrite"]
+      - knowledge_point_id: "english_g6_subject_verb_agreement"
+        name: "主谓一致"
+        status: "active"
+        question_types: ["english_grammar", "english_sentence_rewrite"]
+      - knowledge_point_id: "english_g6_preposition_article"
+        name: "介词冠词"
+        status: "active"
+        question_types: ["english_grammar", "fill_blank"]
+
+  - unit_id: "english_g6_input_output"
+    name: "阅读、听写与表达"
+    domain: "input_output"
+    term: "六年级上"
+    knowledge_points:
+      - knowledge_point_id: "english_g6_reading_detail"
+        name: "阅读细节定位"
+        status: "active"
+        question_types: ["english_reading", "multiple_choice"]
+      - knowledge_point_id: "english_g6_reading_inference"
+        name: "阅读推断"
+        status: "active"
+        question_types: ["english_reading", "short_answer"]
+      - knowledge_point_id: "english_g6_listening_dictation"
+        name: "听写"
+        status: "active"
+        question_types: ["english_listening_dictation"]
+      - knowledge_point_id: "english_g6_sentence_writing"
+        name: "句子写作"
+        status: "active"
+        question_types: ["english_writing_short", "english_sentence_rewrite"]
+      - knowledge_point_id: "english_g6_short_composition"
+        name: "短文写作"
+        status: "active"
+        question_types: ["english_writing_short"]
+      - knowledge_point_id: "english_g6_speaking_retell"
+        name: "口头复述"
+        status: "active"
+        question_types: ["english_speaking_prompt"]

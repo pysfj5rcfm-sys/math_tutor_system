@@ -1,0 +1,33 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "math_application"
+    knowledge_point_id: "math_g6_application_modeling"
+    primary_mistake_tag_code: "MATH_MODEL_1"
+    difficulty_code: "medium"
+    question_summary: "应用题中没有先写出等量关系。"
+    wrong_answer_summary: "直接列式，数量对应关系错误。"
+    correct_answer_summary: "先确定总量与部分量之间的等量关系，再列方程。"
+    training_needed: true
+    source: "uat_v0173_fixture"
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "generic"
+    date: "2026-06-03"
+    question_type_code: "math_unit_conversion"
+    knowledge_point_id: "math_g6_unit_conversion"
+    primary_mistake_tag_code: "MATH_U1"
+    difficulty_code: "basic"
+    question_summary: "面积单位换算时进率少乘一次。"
+    wrong_answer_summary: "把平方米到平方分米按 10 进率处理。"
+    correct_answer_summary: "面积单位相邻进率是 100。"
+    training_needed: true
+    source: "uat_v0173_fixture"

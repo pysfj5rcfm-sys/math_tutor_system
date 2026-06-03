@@ -19,8 +19,8 @@
     {% for item in section.questions %}
       <div class="item">
         <div>{{ loop.index }}. {{ item.question }}</div>
-        <div class="answer">答案：{{ item.answer }}</div>
-        <div>解析：{{ item.explanation }}</div>
+        <div class="answer">Answer: {{ item.answer }}</div>
+        <div>Explanation: {{ item.explanation }}</div>
       </div>
     {% endfor %}
   {% endfor %}
