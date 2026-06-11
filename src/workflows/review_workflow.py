@@ -25,11 +25,13 @@ def generate_weekly_review(
 ) -> Path:
     week_end = week_end or date.today()
     week_start = week_end - timedelta(days=6)
+    student_id = str(profile.get("student_id", DEFAULT_STUDENT_ID))
     stats = {
-        "top_tags": top_tags(conn, include_unconfirmed=False),
-        "tag_by_type": cross_stat(conn, "question_type_code", include_unconfirmed=False, days=7, today=week_end),
-        "tag_by_knowledge": cross_stat(conn, "knowledge_point_id", include_unconfirmed=False, days=7, today=week_end),
-        "missing_alerts": missing_data_alerts(conn, include_unconfirmed=False, today=week_end),
+        "student_id": student_id,
+        "top_tags": top_tags(conn, include_unconfirmed=False, student_id=student_id),
+        "tag_by_type": cross_stat(conn, "question_type_code", include_unconfirmed=False, days=7, today=week_end, student_id=student_id),
+        "tag_by_knowledge": cross_stat(conn, "knowledge_point_id", include_unconfirmed=False, days=7, today=week_end, student_id=student_id),
+        "missing_alerts": missing_data_alerts(conn, include_unconfirmed=False, today=week_end, student_id=student_id),
     }
     prompt = build_review_analysis_prompt(profile, stats)
     env = Environment(loader=FileSystemLoader(ROOT / "templates"))
@@ -57,7 +59,7 @@ def generate_weekly_review(
         VALUES (?, ?, ?, ?, '', '[]', 'generated', ?, ?)
         """,
         (
-            profile.get("student_id", DEFAULT_STUDENT_ID),
+            student_id,
             week_start.isoformat(),
             week_end.isoformat(),
             json.dumps(stats, ensure_ascii=False),

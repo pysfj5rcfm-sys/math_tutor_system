@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from src.core.rule_registry import load_rule_registry
+from src.core.current_student import resolve_current_student
 
 
 def load_student_profile() -> dict[str, Any]:
@@ -10,5 +10,4 @@ def load_student_profile() -> dict[str, Any]:
 
 
 def load_active_student_profile() -> dict[str, Any]:
-    registry = load_rule_registry()
-    return registry.get_active_student()
+    return resolve_current_student()

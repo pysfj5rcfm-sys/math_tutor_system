@@ -32,6 +32,12 @@ from src.core.data_governance import (
     scan_mistake_duplicates,
     scan_worksheet_duplicates,
 )
+from src.core.current_student import (
+    get_current_student_id,
+    list_selectable_students,
+    resolve_current_student,
+    set_current_student,
+)
 from src.core.display_contract import format_mistake_row_for_display, make_filter_option
 from src.core.import_preview import (
     confirm_mistakes_dry_run,
@@ -46,6 +52,8 @@ from src.core.rule_registry import RuleRegistryError, load_rule_registry
 from src.core.sample_guard import detect_sample_data_warning
 from src.core.stats import stats_summary
 from src.core.student_profile import load_active_student_profile
+from src.core.target_matrix import build_target_matrix_from_confirmed_mistakes
+from src.core.target_priority_light import build_target_priority_light
 from src.core.validation_report import format_validation_report, save_validation_report
 from src.core.worksheets import get_worksheet_bundle
 from src.core.yaml_utils import YamlParseResult
@@ -63,6 +71,34 @@ ROOT = Path(__file__).resolve().parents[1]
 def _conn():
     init_db()
     return get_connection()
+
+
+def _sidebar_current_student_selector() -> None:
+    registry = load_rule_registry()
+    show_uat = st.sidebar.checkbox("show_uat_students", value=False)
+    students = list_selectable_students(show_uat_students=show_uat, registry=registry)
+    if not students:
+        st.sidebar.warning("No selectable students configured.")
+        return
+    student_ids = [str(item["student_id"]) for item in students]
+    current_id = get_current_student_id(registry=registry)
+    if current_id not in student_ids:
+        current_id = student_ids[0]
+    selected_id = st.sidebar.selectbox(
+        "current_student_id",
+        student_ids,
+        index=student_ids.index(current_id),
+        key="current_student_selector",
+    )
+    if selected_id != get_current_student_id(registry=registry):
+        set_current_student(selected_id, allow_uat=show_uat, registry=registry)
+        st.rerun()
+    student = resolve_current_student(registry=registry)
+    context = registry.resolve_learning_context(str(student["student_id"]))
+    st.sidebar.caption(
+        f"{student.get('display_name', student['student_id'])} | "
+        f"g{context['grade_at_time']} | {context['term_at_time']} | {context['subject_id']}"
+    )
 
 
 def _show_report(report: dict) -> None:
@@ -136,7 +172,11 @@ def _mistake_filter_controls(conn, key_prefix: str) -> dict:
     source_rows = conn.execute("SELECT DISTINCT source FROM mistakes WHERE source IS NOT NULL AND source != '' ORDER BY source").fetchall()
     sources = [row["source"] for row in source_rows]
     default_context = registry.resolve_learning_context()
-    student_values = ["全部"] + _distinct_filter_values(conn, "mistakes", "student_id", existing_columns)
+    current_student_id = str(default_context["student_id"])
+    student_values = ["全部"] + _unique_strings([
+        current_student_id,
+        *_distinct_filter_values(conn, "mistakes", "student_id", existing_columns),
+    ])
     subject_values = ["全部"] + _unique_strings([
         *_distinct_filter_values(conn, "mistakes", "subject_id", existing_columns),
         default_context["subject_id"],
@@ -148,9 +188,13 @@ def _mistake_filter_controls(conn, key_prefix: str) -> dict:
     ])
 
     cols = st.columns(4)
-    student_id = cols[0].selectbox("student_id", student_values, key=f"{key_prefix}_student")
-    subject_id = cols[1].selectbox("subject_id", subject_values, key=f"{key_prefix}_subject")
-    grade_at_time = cols[2].selectbox("grade_at_time", grade_values, key=f"{key_prefix}_grade")
+    student_default_index = student_values.index(current_student_id) if current_student_id in student_values else 0
+    subject_default_index = subject_values.index(default_context["subject_id"]) if default_context["subject_id"] in subject_values else 0
+    grade_default = str(default_context["grade_at_time"])
+    grade_default_index = grade_values.index(grade_default) if grade_default in grade_values else 0
+    student_id = cols[0].selectbox("student_id", student_values, index=student_default_index, key=f"{key_prefix}_student")
+    subject_id = cols[1].selectbox("subject_id", subject_values, index=subject_default_index, key=f"{key_prefix}_subject")
+    grade_at_time = cols[2].selectbox("grade_at_time", grade_values, index=grade_default_index, key=f"{key_prefix}_grade")
     status = cols[3].selectbox("status", ["全部", "needs_confirmation", "confirmed"], key=f"{key_prefix}_status")
     cols = st.columns(4)
     source = cols[0].selectbox("source", ["全部"] + sources, key=f"{key_prefix}_source")
@@ -542,7 +586,7 @@ def page_stats() -> None:
     st.header("错因统计")
     include = st.checkbox("include_unconfirmed 调试选项", value=False)
     with _conn() as conn:
-        summary = stats_summary(conn, include_unconfirmed=include, today=date.today())
+        summary = stats_summary(conn, include_unconfirmed=include, today=date.today(), student_id=get_current_student_id())
         if not include and not summary["recent_7_days"] and not summary["recent_30_days"]:
             st.info("暂无 confirmed 错题记录。请先导入 mistakes.yaml，并在“错题记录列表”中确认记录。")
         st.json(summary)
@@ -552,15 +596,31 @@ def page_marking_prompt() -> None:
     st.header("生成批改用 Prompt")
     registry = load_rule_registry()
     active_student = registry.get_active_student()
-    students = registry.get_students(active_only=False)
+    students = list_selectable_students(registry=registry)
     student_ids = [str(item["student_id"]) for item in students]
     student_id = st.selectbox("student_id", student_ids, index=student_ids.index(active_student["student_id"]) if active_student["student_id"] in student_ids else 0)
+    if student_id != get_current_student_id(registry=registry):
+        set_current_student(student_id, registry=registry)
     student = registry.get_student(student_id)
     active_subjects = student.get("active_subjects") or student.get("default_subjects") or [registry.get_default_subject_for_student(student_id)]
     subject_id = st.selectbox("subject_id", active_subjects, index=0)
     context = registry.resolve_learning_context(student_id, subject_id)
     with _conn() as conn:
-        stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
+        stats = stats_summary(conn, include_unconfirmed=False, today=date.today(), student_id=student_id)
+        stats["target_matrix"] = build_target_matrix_from_confirmed_mistakes(
+            conn,
+            student_id,
+            subject_id,
+            context["grade_at_time"],
+            today=date.today(),
+        )
+        stats["target_priority_light"] = build_target_priority_light(
+            conn,
+            student_id,
+            subject_id,
+            context["grade_at_time"],
+            today=date.today(),
+        )
     st.write({"Prompt Scope": context})
     st.caption(f"规则来源：config/curriculum/{context['curriculum_version_at_time']}/{subject_id}/grade_{context['grade_at_time']}.yaml；config/education/question_types.yaml；config/education/mistake_taxonomy.yaml")
     prompt = build_marking_prompt(student, subject_id=subject_id, confirmed_stats=stats)
@@ -576,15 +636,31 @@ def page_worksheet_prompt() -> None:
     st.header("生成出题用 Prompt")
     registry = load_rule_registry()
     active_student = registry.get_active_student()
-    students = registry.get_students(active_only=False)
+    students = list_selectable_students(registry=registry)
     student_ids = [str(item["student_id"]) for item in students]
     student_id = st.selectbox("student_id", student_ids, index=student_ids.index(active_student["student_id"]) if active_student["student_id"] in student_ids else 0, key="worksheet_prompt_student")
+    if student_id != get_current_student_id(registry=registry):
+        set_current_student(student_id, registry=registry)
     student = registry.get_student(student_id)
     active_subjects = student.get("active_subjects") or student.get("default_subjects") or [registry.get_default_subject_for_student(student_id)]
     subject_id = st.selectbox("subject_id", active_subjects, index=0, key="worksheet_prompt_subject")
     context = registry.resolve_learning_context(student_id, subject_id)
     with _conn() as conn:
-        stats = stats_summary(conn, include_unconfirmed=False, today=date.today())
+        stats = stats_summary(conn, include_unconfirmed=False, today=date.today(), student_id=student_id)
+        stats["target_matrix"] = build_target_matrix_from_confirmed_mistakes(
+            conn,
+            student_id,
+            subject_id,
+            context["grade_at_time"],
+            today=date.today(),
+        )
+        stats["target_priority_light"] = build_target_priority_light(
+            conn,
+            student_id,
+            subject_id,
+            context["grade_at_time"],
+            today=date.today(),
+        )
     st.write({"Prompt Scope": context})
     st.caption(f"规则来源：config/curriculum/{context['curriculum_version_at_time']}/{subject_id}/grade_{context['grade_at_time']}.yaml；config/education/question_types.yaml；config/education/mistake_taxonomy.yaml；config/worksheet_policy.yaml")
     prompt = build_worksheet_prompt(student, stats, subject_id=subject_id)
@@ -653,14 +729,22 @@ def page_import_worksheet() -> None:
         st.session_state.pop("worksheet_import_preview", None)
 
 
-def _worksheet_ids(conn) -> list[int]:
+def _worksheet_ids(conn, student_id: str | None = None) -> list[int]:
+    if student_id:
+        return [
+            row["id"]
+            for row in conn.execute(
+                "SELECT id FROM worksheets WHERE student_id = ? ORDER BY id DESC",
+                (student_id,),
+            ).fetchall()
+        ]
     return [row["id"] for row in conn.execute("SELECT id FROM worksheets ORDER BY id DESC").fetchall()]
 
 
 def page_export_student() -> None:
     st.header("学生卷 HTML 导出")
     with _conn() as conn:
-        ids = _worksheet_ids(conn)
+        ids = _worksheet_ids(conn, get_current_student_id())
         if not ids:
             st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 v0.1.7.3 UAT worksheet。")
             return
@@ -673,7 +757,7 @@ def page_export_student() -> None:
 def page_export_answer() -> None:
     st.header("答案页 HTML 导出")
     with _conn() as conn:
-        ids = _worksheet_ids(conn)
+        ids = _worksheet_ids(conn, get_current_student_id())
         if not ids:
             st.info("暂无 worksheet，请先在“worksheet.yaml 导入与校验”页面导入 v0.1.7.3 UAT worksheet。")
             return
@@ -856,6 +940,7 @@ PAGES = {
 
 def main() -> None:
     st.set_page_config(page_title="edu_tutor_system v0.1.7", layout="wide")
+    _sidebar_current_student_selector()
     choice = st.sidebar.radio("页面", list(PAGES))
     PAGES[choice]()
 

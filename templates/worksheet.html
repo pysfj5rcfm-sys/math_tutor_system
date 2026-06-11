@@ -19,7 +19,12 @@
 </head>
 <body>
   <h1>{{ worksheet.title }}</h1>
-  <div class="meta">Name: ________ Date: {{ worksheet.date }}</div>
+  <div class="meta">
+    Student: {{ worksheet.student_display_name or worksheet.student_id }}
+    ({{ worksheet.student_id }}) |
+    Grade: {{ worksheet.grade_at_time }} |
+    Date: {{ worksheet.date }}
+  </div>
   {% for section in sections %}
     <h2>{{ section.name }}</h2>
     <div class="section {{ section.layout }}">

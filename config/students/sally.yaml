@@ -1,0 +1,36 @@
+student_id: "sally"
+student_type: "real"
+display_name: "Sally"
+active: false
+
+current_stage: "primary"
+current_grade: 5
+current_term: "五年级下"
+
+city: "Shanghai"
+district: ""
+school: ""
+
+curriculum_version: "cn_k12_2022"
+textbook_version: "generic"
+
+default_subjects:
+  - "math"
+
+active_subjects:
+  - "math"
+
+profile:
+  math_level: "Grade 5B math practice and remediation."
+  learning_goals:
+    - "五年级下数学巩固"
+  teaching_style:
+    - "clear"
+    - "encouraging"
+  known_weaknesses: []
+  worksheet_preferences:
+    max_questions: 12
+    avoid_too_many_challenge_questions: true
+
+status:
+  textbook_version_confirmed: false

@@ -88,13 +88,14 @@ class RuleRegistry:
         return _filter_active(self.students, active_only)
 
     def get_active_student(self) -> dict[str, Any]:
-        active = self.get_students(active_only=True)
-        if not active:
-            raise RuleRegistryError("No active student configured in config/students/*.yaml")
-        return active[0]
+        from src.core.current_student import resolve_current_student
+
+        return resolve_current_student(registry=self)
 
     def get_active_student_id(self) -> str:
-        return str(self.get_active_student()["student_id"])
+        from src.core.current_student import get_current_student_id
+
+        return get_current_student_id(registry=self)
 
     def get_student(self, student_id: str) -> dict[str, Any]:
         for student in self.students:

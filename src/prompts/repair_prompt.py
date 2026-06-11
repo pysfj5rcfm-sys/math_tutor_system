@@ -6,6 +6,7 @@ from typing import Any
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.core.current_student import resolve_task_scope
 from src.core.rule_registry import load_rule_registry
 
 
@@ -13,14 +14,14 @@ ROOT = Path(__file__).resolve().parents[2]
 
 MISTAKES_SKELETON = """mistakes:
   - date: "2026-06-03"
-    student_id: "daughter"
+    student_id: "__CURRENT_STUDENT_ID__"
     subject_id: "math"
-    grade_at_time: 6
-    term_at_time: "grade_6_term_1"
-    curriculum_version_at_time: "cn_k12_2022"
+    grade_at_time: 0
+    term_at_time: "__CURRENT_TERM__"
+    curriculum_version_at_time: "__CURRENT_CURRICULUM_VERSION__"
     textbook_version_at_time: "沪教版"
     question_type_code: "math_application"
-    knowledge_point_id: "math_g6a_percentage_word_problem_model"
+    knowledge_point_id: "__CURRENT_SCOPE_KNOWLEDGE_POINT_ID__"
     primary_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
     difficulty_code: "medium"
     question_summary: "..."
@@ -37,23 +38,23 @@ MISTAKES_SKELETON = """mistakes:
 """
 
 WORKSHEET_SKELETON = """worksheet:
-  title: "Grade 6 math practice"
+  title: "Current student math practice"
   date: "2026-06-03"
-  student_id: "daughter"
+  student_id: "__CURRENT_STUDENT_ID__"
   subject_id: "math"
-  grade_at_time: 6
-  term_at_time: "grade_6_term_1"
-  curriculum_version_at_time: "cn_k12_2022"
+  grade_at_time: 0
+  term_at_time: "__CURRENT_TERM__"
+  curriculum_version_at_time: "__CURRENT_CURRICULUM_VERSION__"
   textbook_version_at_time: "沪教版"
   sections:
     - name: "Application modeling"
       layout: "single_column"
       questions:
         - question_type_code: "math_application"
-          knowledge_point_id: "math_g6a_percentage_word_problem_model"
+          knowledge_point_id: "__CURRENT_SCOPE_KNOWLEDGE_POINT_ID__"
           target_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
           difficulty_code: "medium"
-          primary_target_id: "math_g6a_percentage_word_problem_model::MATH_QUANTITATIVE_RELATION_ERROR"
+          primary_target_id: "__CURRENT_SCOPE_KNOWLEDGE_POINT_ID__::MATH_QUANTITATIVE_RELATION_ERROR"
           question_role: "repair"
           teaching_purpose: "..."
           expected_error_mechanism: "..."
@@ -68,7 +69,7 @@ def _env() -> Environment:
 
 
 def build_yaml_parse_repair_prompt(source_type: str, parse_report: dict[str, Any], original_text: str) -> str:
-    skeleton = MISTAKES_SKELETON if source_type == "mistakes" else WORKSHEET_SKELETON
+    skeleton = _default_skeleton(source_type)
     return _env().get_template("gpt_yaml_parse_repair_prompt.md.j2").render(
         source_type=source_type,
         source_type_root=source_type if source_type == "mistakes" else "worksheet",
@@ -123,6 +124,55 @@ def _extract_repair_context(source_type: str, original_text: str) -> dict[str, A
         context.update(rows[0])
         return context
     return dict(payload)
+
+
+def _default_skeleton(source_type: str) -> str:
+    registry = load_rule_registry()
+    context = resolve_task_scope({"subject_id": "math"}, registry=registry)
+    student_id = context["student_id"]
+    grade = context["grade_at_time"]
+    term = context["term_at_time"]
+    curriculum_version = context["curriculum_version_at_time"]
+    textbook_version = context["textbook_version_at_time"]
+    points = registry.get_knowledge_points_for_context(
+        context["subject_id"],
+        context["grade_at_time"],
+        context["curriculum_version_at_time"],
+    )
+    knowledge_point_id = str(points[0]["knowledge_point_id"]) if points else ""
+    if source_type == "mistakes":
+        return MISTAKES_SKELETON.replace("__CURRENT_STUDENT_ID__", str(student_id)).replace(
+            "grade_at_time: 0",
+            f"grade_at_time: {grade}",
+        ).replace(
+            "__CURRENT_TERM__",
+            str(term),
+        ).replace(
+            "__CURRENT_CURRICULUM_VERSION__",
+            str(curriculum_version),
+        ).replace(
+            "__CURRENT_TEXTBOOK_VERSION__",
+            str(textbook_version),
+        ).replace(
+            "__CURRENT_SCOPE_KNOWLEDGE_POINT_ID__",
+            knowledge_point_id,
+        )
+    return WORKSHEET_SKELETON.replace("__CURRENT_STUDENT_ID__", str(student_id)).replace(
+        "grade_at_time: 0",
+        f"grade_at_time: {grade}",
+    ).replace(
+        "__CURRENT_TERM__",
+        str(term),
+    ).replace(
+        "__CURRENT_CURRICULUM_VERSION__",
+        str(curriculum_version),
+    ).replace(
+        "__CURRENT_TEXTBOOK_VERSION__",
+        str(textbook_version),
+    ).replace(
+        "__CURRENT_SCOPE_KNOWLEDGE_POINT_ID__",
+        knowledge_point_id,
+    )
 
 
 def _render_repair_knowledge_points(registry: Any, context: dict[str, Any]) -> str:

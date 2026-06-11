@@ -6,6 +6,7 @@ import sqlite3
 from collections import defaultdict
 from typing import Any
 
+from src.core.current_student import get_current_student_id
 from src.core.display_contract import format_duplicate_row_for_display
 from src.core.rule_registry import load_rule_registry
 
@@ -52,15 +53,17 @@ def stable_hash(value: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
-def mistake_hash(row: dict[str, Any] | sqlite3.Row, default_student_id: str = "daughter") -> str:
+def mistake_hash(row: dict[str, Any] | sqlite3.Row, default_student_id: str | None = None) -> str:
     return stable_hash(canonical_mistake(row, default_student_id=default_student_id))
 
 
-def canonical_mistake(row: dict[str, Any] | sqlite3.Row, default_student_id: str = "daughter") -> dict[str, Any]:
+def canonical_mistake(row: dict[str, Any] | sqlite3.Row, default_student_id: str | None = None) -> dict[str, Any]:
     registry = load_rule_registry()
-    context = registry.resolve_learning_context(_get(row, "student_id", default_student_id) or default_student_id, _get(row, "subject_id", None) or None)
+    resolved_default_student_id = default_student_id or get_current_student_id(registry=registry)
+    row_student_id = _get(row, "student_id", resolved_default_student_id) or resolved_default_student_id
+    context = registry.resolve_learning_context(row_student_id, _get(row, "subject_id", None) or None)
     return {
-        "student_id": normalize_value(_get(row, "student_id", default_student_id)),
+        "student_id": normalize_value(_get(row, "student_id", resolved_default_student_id)),
         "subject_id": normalize_value(_get(row, "subject_id", context.get("subject_id", ""))),
         "grade_at_time": normalize_value(_get(row, "grade_at_time", context.get("grade_at_time", ""))),
         "date": normalize_value(_get(row, "date", "")),
@@ -77,8 +80,9 @@ def canonical_mistake(row: dict[str, Any] | sqlite3.Row, default_student_id: str
 def detect_duplicate_mistakes(
     conn: sqlite3.Connection,
     rows: list[dict[str, Any]],
-    default_student_id: str = "daughter",
+    default_student_id: str | None = None,
 ) -> dict[str, Any]:
+    default_student_id = default_student_id or get_current_student_id()
     existing_by_hash: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for existing in _existing_mistake_rows(conn):
         existing_by_hash[mistake_hash(existing, default_student_id)].append(existing)
@@ -153,7 +157,8 @@ def canonical_worksheet(payload_or_worksheet: dict[str, Any]) -> dict[str, Any]:
     worksheet = payload_or_worksheet.get("worksheet", payload_or_worksheet)
     if not isinstance(worksheet, dict):
         worksheet = {}
-    context = registry.resolve_learning_context(worksheet.get("student_id") or "daughter", worksheet.get("subject_id") or None)
+    default_student_id = get_current_student_id(registry=registry)
+    context = registry.resolve_learning_context(worksheet.get("student_id") or default_student_id, worksheet.get("subject_id") or None)
     sections = []
     for section in worksheet.get("sections") or []:
         if not isinstance(section, dict):
@@ -179,7 +184,7 @@ def canonical_worksheet(payload_or_worksheet: dict[str, Any]) -> dict[str, Any]:
     return {
         "title": normalize_value(worksheet.get("title", "")),
         "date": normalize_value(worksheet.get("date", "")),
-        "student_id": normalize_value(worksheet.get("student_id") or "daughter"),
+        "student_id": normalize_value(worksheet.get("student_id") or default_student_id),
         "subject_id": normalize_value(worksheet.get("subject_id") or context.get("subject_id", "")),
         "grade_at_time": normalize_value(worksheet.get("grade_at_time") or context.get("grade_at_time", "")),
         "sections": sections,
@@ -332,4 +337,3 @@ def _get(row: dict[str, Any] | sqlite3.Row, key: str, default: Any = "") -> Any:
     if isinstance(row, sqlite3.Row):
         return row[key] if key in row.keys() else default
     return row.get(key, default)
-

@@ -7,6 +7,7 @@ from typing import Any
 
 import yaml
 
+from src.core.current_student import get_current_student_id
 from src.core.duplicate_guard import detect_duplicate_mistakes, mistake_hash
 from src.core.normalization import normalize_mistake_row
 from src.core.rule_registry import RuleRegistry, load_rule_registry
@@ -71,10 +72,11 @@ def import_mistakes_file(conn: sqlite3.Connection, path: str | Path) -> dict[str
 def preview_mistakes_payload(
     conn: sqlite3.Connection,
     payload: dict[str, Any],
-    student_id: str = "daughter",
+    student_id: str | None = None,
 ) -> dict[str, Any]:
     report, valid_rows = validate_mistakes_payload(payload)
-    duplicate_scan = detect_duplicate_mistakes(conn, valid_rows, default_student_id=student_id) if not report.errors else {
+    default_student_id = student_id or get_current_student_id()
+    duplicate_scan = detect_duplicate_mistakes(conn, valid_rows, default_student_id=default_student_id) if not report.errors else {
         "total_count": len(valid_rows),
         "new_count": 0,
         "duplicate_count": 0,

@@ -1,4 +1,5 @@
 student_id: "uat_math_g7"
+student_type: "uat"
 display_name: "UAT Math G7"
 active: false
 current_stage: "junior_high"

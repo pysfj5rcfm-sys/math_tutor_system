@@ -7,6 +7,7 @@ from datetime import datetime
 import yaml
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.core.current_student import get_current_student_id, resolve_task_scope
 from src.core.rule_registry import load_rule_registry
 from src.schemas.worksheet_schema import WORKSHEET_SCHEMA_EXAMPLE
 
@@ -23,11 +24,18 @@ def build_worksheet_prompt(
     stats: dict[str, Any],
     mistake_tags: list[dict[str, Any]] | None = None,
     subject_id: str | None = None,
+    task_scope: dict[str, Any] | None = None,
 ) -> str:
     registry = load_rule_registry()
     student_id = _resolve_student_id(registry, student_profile)
     resolved_subject_id = _resolve_subject_id(registry, student_id, subject_id, student_profile)
-    context = registry.resolve_learning_context(student_id, resolved_subject_id)
+    context = (
+        resolve_task_scope({**task_scope, "student_id": task_scope.get("student_id") or student_id}, subject_id=resolved_subject_id, registry=registry)
+        if task_scope
+        else registry.resolve_learning_context(student_id, resolved_subject_id)
+    )
+    student_id = str(context["student_id"])
+    resolved_subject_id = str(context["subject_id"])
     template = _env().get_template("gpt_worksheet_prompt.md.j2")
     active_student = registry.get_student(student_id)
     constraints = (
@@ -38,7 +46,13 @@ def build_worksheet_prompt(
         student_profile_yaml=registry.render_student_profile_for_prompt(student_id),
         student_profile_snapshot_yaml=yaml.safe_dump(_prompt_profile_snapshot(student_profile), allow_unicode=True, sort_keys=False),
         learning_context_yaml=yaml.safe_dump(context, allow_unicode=True, sort_keys=False),
-        curriculum_scope_yaml=registry.render_curriculum_scope_for_prompt(student_id, resolved_subject_id),
+        curriculum_scope_yaml=registry.render_curriculum_scope_for_context(
+            resolved_subject_id,
+            context["grade_at_time"],
+            context["curriculum_version_at_time"],
+            student_id=student_id,
+            term=context["term_at_time"],
+        ),
         mistake_tags_yaml=yaml.safe_dump(mistake_tags, allow_unicode=True, sort_keys=False)
         if mistake_tags is not None
         else registry.render_mistake_tags_for_prompt(resolved_subject_id),
@@ -54,7 +68,13 @@ def build_worksheet_prompt(
         ),
         constraints_yaml=yaml.safe_dump(constraints, allow_unicode=True, sort_keys=False),
         question_types_yaml=registry.render_question_types_for_prompt(resolved_subject_id),
-        knowledge_points_yaml=registry.render_curriculum_scope_for_prompt(student_id, resolved_subject_id),
+        knowledge_points_yaml=registry.render_curriculum_scope_for_context(
+            resolved_subject_id,
+            context["grade_at_time"],
+            context["curriculum_version_at_time"],
+            student_id=student_id,
+            term=context["term_at_time"],
+        ),
         mistake_tag_codes_yaml=yaml.safe_dump(
             [item["code"] for item in registry.get_mistake_tags_for_subject(resolved_subject_id)],
             allow_unicode=True,
@@ -94,7 +114,7 @@ def _resolve_student_id(registry: Any, student_profile: dict[str, Any]) -> str:
             return str(student_id)
         except Exception:
             pass
-    return registry.get_active_student_id()
+    return get_current_student_id(registry=registry)
 
 
 def _resolve_subject_id(registry: Any, student_id: str, subject_id: str | None, student_profile: dict[str, Any]) -> str:

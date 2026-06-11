@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.core.current_student import get_current_student_id
 from src.core.rule_registry import RuleRegistry, RuleRegistryError, load_rule_registry
 
 QUESTION_ROLES = {"repair", "variant", "transfer", "mixed_review"}
@@ -13,7 +14,7 @@ def resolve_context(
     registry: RuleRegistry | None = None,
 ) -> dict[str, Any]:
     registry = registry or load_rule_registry()
-    student_id = row.get("student_id") or payload.get("student_id")
+    student_id = row.get("student_id") or payload.get("student_id") or get_current_student_id(registry=registry)
     subject_id = row.get("subject_id") or payload.get("subject_id")
     if not subject_id:
         subject_id = _infer_subject_from_ambiguous_fields(payload, row, registry)
@@ -53,6 +54,7 @@ def normalize_mistake_row(
         context = resolve_context(payload, row, registry)
     except (RuleRegistryError, ValueError, TypeError) as exc:
         return None, [_item("invalid_learning_context", str(exc), index)], warnings
+    _add_current_student_warnings(payload, row, context, registry, warnings, index)
 
     normalized = _base_row(row, context)
     _normalize_question_type(normalized, row, context, registry, errors, warnings, index)
@@ -84,6 +86,7 @@ def normalize_worksheet_payload(
         context = resolve_context(payload, worksheet, registry)
     except (RuleRegistryError, ValueError, TypeError) as exc:
         return None, [_item("invalid_learning_context", str(exc))], warnings
+    _add_current_student_warnings(payload, worksheet, context, registry, warnings, None)
 
     normalized = _base_row(worksheet, context)
     normalized["title"] = worksheet.get("title", "")
@@ -163,6 +166,33 @@ def _base_row(row: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         "training_needed": row.get("training_needed", True),
         "source": row.get("source", ""),
     }
+
+
+def _add_current_student_warnings(
+    payload: dict[str, Any],
+    row: dict[str, Any],
+    context: dict[str, Any],
+    registry: RuleRegistry,
+    warnings: list[dict[str, Any]],
+    index: int | None,
+) -> None:
+    current_student_id = get_current_student_id(registry=registry)
+    explicit_student_id = row.get("student_id") or payload.get("student_id")
+    if explicit_student_id and str(explicit_student_id) != current_student_id:
+        warnings.append(_item(
+            "yaml_student_id_differs_from_current_student",
+            (
+                f"YAML student_id={explicit_student_id} differs from current_student_id={current_student_id}; "
+                "preview and confirm will keep the YAML student_id."
+            ),
+            index,
+        ))
+    if not explicit_student_id:
+        warnings.append(_item(
+            "missing_student_id_defaulted_to_current_student",
+            f"YAML student_id is missing; defaulted to current_student_id={context['student_id']}.",
+            index,
+        ))
 
 
 def _normalize_question_type(

@@ -196,6 +196,13 @@ def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[st
     worksheet = conn.execute("SELECT * FROM worksheets WHERE id = ?", (worksheet_id,)).fetchone()
     if worksheet is None:
         raise ValueError(f"worksheet not found: {worksheet_id}")
+    worksheet_dict = dict(worksheet)
+    registry = load_rule_registry()
+    try:
+        student = registry.get_student(str(worksheet_dict.get("student_id")))
+        worksheet_dict["student_display_name"] = student.get("display_name", worksheet_dict.get("student_id"))
+    except Exception:
+        worksheet_dict["student_display_name"] = worksheet_dict.get("student_id")
     items = [dict(row) for row in conn.execute(
         "SELECT * FROM worksheet_items WHERE worksheet_id = ? ORDER BY id",
         (worksheet_id,),
@@ -211,7 +218,7 @@ def get_worksheet_bundle(conn: sqlite3.Connection, worksheet_id: int) -> dict[st
         }
         sections.setdefault(section_name, {"name": section_name, "layout": layout, "questions": []})
         sections[section_name]["questions"].append(rendered_item)
-    return {"worksheet": dict(worksheet), "sections": list(sections.values())}
+    return {"worksheet": worksheet_dict, "sections": list(sections.values())}
 
 
 def _question_count(worksheet: dict[str, Any] | None) -> int:

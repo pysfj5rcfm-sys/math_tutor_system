@@ -1,4 +1,5 @@
 student_id: "uat_chemistry_g9"
+student_type: "uat"
 display_name: "UAT Chemistry G9"
 active: false
 current_stage: "junior_high"

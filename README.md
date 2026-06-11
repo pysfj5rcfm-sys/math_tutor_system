@@ -6,7 +6,14 @@ Positioning: G5B Math Knowledge Registry Backfill on top of the v0.1.9-pretrial 
 
 `edu_tutor_system` is a local-first tutoring data system for plain-text K12 mistake records, worksheet YAML validation, prompt generation, duplicate checks, backup, export, and schema integrity checks.
 
-## Active Scope
+## Current Student Scope
+
+Runtime current student is resolved by `src/core/current_student.py`; the selector key is `student_id` only. Real students are `daughter` and `sally`. Config `active: true` is only the startup default; Streamlit runtime switches through `session_state.current_student_id`.
+
+- `daughter`: grade 6 / 六年级上, active subjects `math`, `chinese`, `english`.
+- `sally`: grade 5 / 五年级下, active subject `math`.
+
+Legacy startup-default snapshot:
 
 - Active student: `daughter` / 陈照雨
 - Current grade: 6
