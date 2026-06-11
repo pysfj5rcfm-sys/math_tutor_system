@@ -27,11 +27,12 @@ def build_marking_prompt(
     registry = load_rule_registry()
     student_id = _resolve_student_id(registry, student_profile)
     resolved_subject_id = _resolve_subject_id(registry, student_id, subject_id, student_profile)
+    context = registry.resolve_learning_context(student_id, resolved_subject_id)
     template = _env().get_template("gpt_marking_prompt.md.j2")
     return template.render(
         student_profile_yaml=registry.render_student_profile_for_prompt(student_id),
         student_profile_snapshot_yaml=yaml.safe_dump(_prompt_profile_snapshot(student_profile), allow_unicode=True, sort_keys=False),
-        learning_context_yaml=yaml.safe_dump(registry.resolve_learning_context(student_id, resolved_subject_id), allow_unicode=True, sort_keys=False),
+        learning_context_yaml=yaml.safe_dump(context, allow_unicode=True, sort_keys=False),
         curriculum_scope_yaml=registry.render_curriculum_scope_for_prompt(student_id, resolved_subject_id),
         mistake_tags_yaml=yaml.safe_dump(mistake_tags, allow_unicode=True, sort_keys=False)
         if mistake_tags is not None
@@ -41,7 +42,7 @@ def build_marking_prompt(
         difficulties_yaml=registry.render_difficulty_levels_for_prompt(),
         expression_capabilities_yaml=registry.render_expression_capabilities_for_prompt(resolved_subject_id),
         confirmed_stats_yaml=yaml.safe_dump(confirmed_stats or {}, allow_unicode=True, sort_keys=False),
-        alias_mappings_yaml=registry.render_alias_mappings_for_prompt(resolved_subject_id),
+        alias_mappings_yaml=registry.render_alias_mappings_for_prompt(resolved_subject_id, context["grade_at_time"]),
         mistake_schema_yaml=yaml.safe_dump(MISTAKES_SCHEMA_EXAMPLE, allow_unicode=True, sort_keys=False),
     )
 

@@ -90,7 +90,7 @@ def build_validation_repair_prompt(source_type: str, validation_report: dict[str
         knowledge_points_yaml=_render_repair_knowledge_points(registry, context),
         mistake_tags_yaml=_render_repair_mistake_tags(registry, subject_id),
         difficulties_yaml=registry.render_difficulty_levels_for_prompt(),
-        alias_mappings_yaml=_render_repair_alias_mappings(registry, subject_id),
+        alias_mappings_yaml=_render_repair_alias_mappings(registry, subject_id, context.get("grade_at_time") or context.get("grade")),
         original_text=original_text,
     )
 
@@ -185,7 +185,7 @@ def _render_repair_mistake_tags(registry: Any, subject_id: str) -> str:
     return registry.render_mistake_tags_for_prompt(subject_id)
 
 
-def _render_repair_alias_mappings(registry: Any, subject_id: str) -> str:
+def _render_repair_alias_mappings(registry: Any, subject_id: str, grade: Any = None) -> str:
     if not subject_id:
         return yaml.safe_dump(
             {
@@ -195,4 +195,4 @@ def _render_repair_alias_mappings(registry: Any, subject_id: str) -> str:
             allow_unicode=True,
             sort_keys=False,
         )
-    return registry.render_alias_mappings_for_prompt(subject_id)
+    return registry.render_alias_mappings_for_prompt(subject_id, grade)

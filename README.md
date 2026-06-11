@@ -1,8 +1,8 @@
 # edu_tutor_system
 
-Current version: v0.1.9-pretrial
+Current version: v0.1.9.1-pretrial
 
-Positioning: Prompt Protocol Upgrade + Minimal Evidence Persistence.
+Positioning: G5B Math Knowledge Registry Backfill on top of the v0.1.9-pretrial prompt/evidence protocol.
 
 `edu_tutor_system` is a local-first tutoring data system for plain-text K12 mistake records, worksheet YAML validation, prompt generation, duplicate checks, backup, export, and schema integrity checks.
 
@@ -16,7 +16,9 @@ Positioning: Prompt Protocol Upgrade + Minimal Evidence Persistence.
 - Textbook version: math Grade 6A uses `沪教版`; other subject textbook versions remain as configured
 - School context: 上海市闵行区，上宝中学
 
-The current registry keeps the existing three-subject runtime. v0.1.9-pretrial adds trial-readiness prompt protocol upgrades and minimal persistence for diagnosis evidence, secondary mistake tags, and worksheet question roles. It does not change the math X/Y registry and does not claim any unpublished school-specific content.
+The current registry keeps the existing three-subject runtime. v0.1.9-pretrial adds trial-readiness prompt protocol upgrades and minimal persistence for diagnosis evidence, secondary mistake tags, and worksheet question roles. v0.1.9.1-pretrial additionally registers five-grade-B math X-axis `math_g5b_*` knowledge points for historical grade 5B mistakes, grade 5B paper review, and old-foundation remediation.
+
+The current mainline remains grade 6A for daughter. Default grade 6 math prompts do not mix in the grade 5B allowed list. X/Y targeting is still controlled by MVP prompt allowed lists; Z-axis school samples are not schema axes.
 
 ## No-Legacy Cutover
 
@@ -54,8 +56,16 @@ Active registry:
 - `config/alias_mappings.yaml`
 - `config/worksheet_policy.yaml`
 - `config/curriculum/cn_k12_2022/math/grade_6.yaml`
+- `config/curriculum/cn_k12_2022/math/grade_5.yaml`
 - `config/curriculum/cn_k12_2022/chinese/grade_6.yaml`
 - `config/curriculum/cn_k12_2022/english/grade_6.yaml`
+
+G5B math registry:
+
+- `config/curriculum/cn_k12_2022/math/grade_5.yaml` includes `math_g5b_*` rows for 沪教版五年级下数学.
+- `docs/research/source/五年级下数学_knowledge_point_id候选命名.md`
+- `docs/research/math_g5b_knowledge_registry_audit_v0.1.9.1.md`
+- `docs/HANDOFF_v0.1.9.1-pretrial.md`
 
 Archived historical files:
 

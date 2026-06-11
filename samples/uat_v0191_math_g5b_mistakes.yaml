@@ -1,0 +1,98 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 5
+    term_at_time: "五年级下"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "沪教版"
+    date: "2026-06-11"
+    question_type_code: "math_application"
+    knowledge_point_id: "math_g5b_speed_time_distance_relation"
+    primary_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
+    difficulty_code: "medium"
+    question_summary: "行程题中把速度、时间、路程的对应关系弄反。"
+    wrong_answer_summary: "用路程除以速度后又乘时间，重复使用条件。"
+    correct_answer_summary: "先明确路程 = 速度 x 时间，再根据未知量选择等价关系。"
+    training_needed: true
+    diagnosis_confidence: 0.82
+    needs_human_review: false
+    secondary_mistake_tags:
+      - "MATH_MODEL_CONSTRUCTION_ERROR"
+    diagnosis_evidence:
+      observed_steps:
+        - "120 / 60 x 2 = 4"
+      error_step_index: 0
+      inferred_reasoning: "学生没有先固定速度、时间、路程三者的对应关系。"
+      why_primary: "主要错误是数量关系提取，不是计算执行。"
+      original_text_evidence:
+        - "速度 60 千米/时，行 2 小时"
+    alternative_diagnoses:
+      - code: "MATH_UNIT_MEANING_ERROR"
+        reason: "也可能没有理解速度单位中的每小时含义。"
+        confidence: 0.38
+    source: "uat_v0191_math_g5b_fixture"
+
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 5
+    term_at_time: "五年级下"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "沪教版"
+    date: "2026-06-11"
+    question_type_code: "math_geometry_calculation"
+    knowledge_point_id: "math_g5b_rectangular_prism_volume_formula"
+    primary_mistake_tag_code: "MATH_FORMULA_APPLICATION_ERROR"
+    difficulty_code: "basic"
+    question_summary: "长方体体积计算时只乘了长和宽。"
+    wrong_answer_summary: "把 8 x 5 x 3 写成 8 x 5 = 40。"
+    correct_answer_summary: "长方体体积 = 长 x 宽 x 高，应为 8 x 5 x 3 = 120。"
+    training_needed: true
+    diagnosis_confidence: 0.88
+    needs_human_review: false
+    secondary_mistake_tags:
+      - "MATH_GEOMETRIC_PROPERTY_ERROR"
+    diagnosis_evidence:
+      observed_answer: "40"
+      observed_steps:
+        - "8 x 5 = 40"
+      error_step_index: 0
+      inferred_reasoning: "学生把底面积当成体积，遗漏高。"
+      why_primary: "错误发生在体积公式应用。"
+      original_text_evidence:
+        - "长 8 cm，宽 5 cm，高 3 cm"
+    alternative_diagnoses: []
+    source: "uat_v0191_math_g5b_fixture"
+
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 5
+    term_at_time: "五年级下"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "沪教版"
+    date: "2026-06-11"
+    question_type_code: "fill_blank"
+    knowledge_point_id: "math_g5b_data_table_reading_review"
+    primary_mistake_tag_code: "MATH_DATA_GRAPH_READING_ERROR"
+    difficulty_code: "medium"
+    question_summary: "统计表读取时把行标题和列标题对应错。"
+    wrong_answer_summary: "把周三人数读成周二人数。"
+    correct_answer_summary: "应先确认列标题，再读取对应行列交叉处的数据。"
+    training_needed: true
+    diagnosis_confidence: 0.76
+    needs_human_review: false
+    secondary_mistake_tags:
+      - "GEN_CONDITION_OMISSION"
+    diagnosis_evidence:
+      observed_answer: "18"
+      observed_steps:
+        - "读取第二列数据"
+      error_step_index: 0
+      inferred_reasoning: "学生没有按题目指定日期定位表格列。"
+      why_primary: "主要错因是图表数据读取定位错误。"
+      original_text_evidence:
+        - "题目问周三参加人数"
+    alternative_diagnoses:
+      - code: "GEN_CONDITION_OMISSION"
+        reason: "也可能漏看了题目中的日期条件。"
+        confidence: 0.44
+    source: "uat_v0191_math_g5b_fixture"

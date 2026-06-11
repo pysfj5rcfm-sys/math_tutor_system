@@ -62,7 +62,7 @@ def build_worksheet_prompt(
         ),
         difficulties_yaml=registry.render_difficulty_levels_for_prompt(),
         expression_capabilities_yaml=registry.render_expression_capabilities_for_prompt(resolved_subject_id),
-        alias_mappings_yaml=registry.render_alias_mappings_for_prompt(resolved_subject_id),
+        alias_mappings_yaml=registry.render_alias_mappings_for_prompt(resolved_subject_id, context["grade_at_time"]),
         worksheet_policies_yaml=registry.render_worksheet_policies_for_prompt(
             resolved_subject_id,
             context["grade_at_time"],

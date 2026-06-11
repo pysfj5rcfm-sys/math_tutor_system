@@ -4,6 +4,16 @@ grade: 5
 stage_id: "primary"
 textbook_version: "generic"
 coverage_note: "v0.1.5 仅提供代表性课程骨架，不是全量教材目录。"
+metadata:
+  registry_name: "math_g5b_knowledge_registry"
+  subject_id: "math"
+  grade: 5
+  term: "五年级下"
+  textbook_version: "沪教版"
+  curriculum_version: "cn_k12_2022"
+  registry_version: "v0.1.9.1-pretrial"
+  source: "五年级下数学_knowledge_point_id候选命名.md"
+  status: "registered_from_candidate_naming"
 units:
   - unit_id: "math_g5_decimal_fraction"
     name: "小数与分数运算"
@@ -58,3 +68,584 @@ units:
           - "calculation_accuracy"
         question_types:
           - "math_unit_conversion"
+  - unit_id: "math_g5b_unit_review_improvement"
+    unit_name: "复习与提高"
+    name: "复习与提高"
+    domain: "number_algebra"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_decimal_operations_review"
+        lesson_name: "小数四则混合运算"
+      - lesson_id: "math_g5b_lesson_equation_review"
+        lesson_name: "方程复习"
+      - lesson_id: "math_g5b_lesson_number_measure_review"
+        lesson_name: "数与量复习"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_decimal_mixed_operation_order"
+        name: "小数四则混合运算顺序"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "复习与提高"
+        lesson: "小数四则混合运算"
+        micro_skill: "在含括号和多级运算的小数算式中稳定判断运算顺序。"
+        description: "复习小数加减乘除混合运算，重点区分先乘除后加减、括号优先和递等式表达。"
+        prerequisite: []
+        related_later: ["math_g6a_rational_mixed_operations"]
+        typical_question_forms: ["递等式计算", "运算顺序判断", "过程纠错"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_ALGORITHM_PROCEDURE_ERROR", "MATH_CALCULATION_EXECUTION_ERROR", "MATH_PROCESS_EXPRESSION_ERROR"]
+        diagnostic_value: "适合定位运算顺序、过程书写和小数计算执行问题。"
+        training_value: "适合作为五下旧错回收和六上有理数混合运算前的计算稳定性训练。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["math_calculation", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_decimal_simplified_calculation"
+        name: "小数简便计算"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "复习与提高"
+        lesson: "小数四则混合运算"
+        micro_skill: "识别可交换、结合或分配的结构，选择合理的简便算法。"
+        description: "复习小数计算中的凑整、分配律和等值变形，避免为了简便而改变原式含义。"
+        prerequisite: ["math_g5b_decimal_mixed_operation_order"]
+        related_later: ["math_g6a_rational_mixed_operations"]
+        typical_question_forms: ["简便计算", "方法选择", "等式变形纠错"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_METHOD_SELECTION_ERROR", "MATH_RULE_APPLICATION_ERROR", "MATH_CALCULATION_EXECUTION_ERROR"]
+        diagnostic_value: "能区分不会算、不会选方法和错误套用运算律。"
+        training_value: "适合提高五下计算效率，并为六上符号化计算保留方法边界。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["math_calculation", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_equation_concept_review"
+        name: "方程概念复习"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "复习与提高"
+        lesson: "方程复习"
+        micro_skill: "判断等式、未知数和方程的基本含义。"
+        description: "回顾方程是含有未知数的等式，强调等号两边数量意义一致。"
+        prerequisite: []
+        related_later: ["math_g5b_equal_relation_from_text", "math_g6a_equation_concept"]
+        typical_question_forms: ["概念判断", "等式补全", "方程识别"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_EQUALITY_RELATION_ERROR", "MATH_SYMBOL_NOTATION_ERROR"]
+        diagnostic_value: "用于区分方程概念不清与等量关系提取失败。"
+        training_value: "为五下简易方程（二）和六上方程概念衔接提供复习底座。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["math_equation", "fill_blank", "judgement"]
+
+      - knowledge_point_id: "math_g5b_area_estimation_review"
+        name: "面积估测复习"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "复习与提高"
+        lesson: "数与量复习"
+        micro_skill: "根据图形或生活情境选择合理面积单位并估计面积大小。"
+        description: "复习面积单位、单位意义和估测策略，不扩展到六上系统几何证明。"
+        prerequisite: []
+        related_later: ["math_g5b_surface_area_concept", "math_g6a_unit_conversion_measurement"]
+        typical_question_forms: ["面积单位选择", "估测判断", "合理性说明"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_UNIT_MEANING_ERROR", "MATH_ESTIMATION_NUMBER_SENSE_ERROR", "MATH_GEOMETRIC_PROPERTY_ERROR"]
+        diagnostic_value: "能定位面积单位意义、量感和估测合理性问题。"
+        training_value: "适合与表面积、容积、应用题结果检查联动复习。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["math_geometry_calculation", "math_unit_conversion", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_natural_number_property_review"
+        name: "自然数性质复习"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "复习与提高"
+        lesson: "数与量复习"
+        micro_skill: "识别自然数的顺序、倍数、因数和整除语境中的基本信息。"
+        description: "复习自然数相关基础概念，用于旧错归因，不扩展成六上完整数系。"
+        prerequisite: []
+        related_later: ["math_g6a_rational_number_concept"]
+        typical_question_forms: ["概念判断", "倍数因数填空", "条件筛选"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_CONDITION_JUDGEMENT_ERROR", "GEN_CONDITION_OMISSION"]
+        diagnostic_value: "适合暴露基础数概念和条件读取问题。"
+        training_value: "作为五下复习与六上有理数概念前的旧基础回溯。"
+        usage_status: "review_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
+
+  - unit_id: "math_g5b_unit_positive_negative_numbers"
+    unit_name: "正数和负数的初步认识"
+    name: "正数和负数的初步认识"
+    domain: "number_algebra"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_positive_negative_context"
+        lesson_name: "正负数的情境意义"
+      - lesson_id: "math_g5b_lesson_number_line_basic"
+        lesson_name: "数轴初步"
+      - lesson_id: "math_g5b_lesson_temperature_change"
+        lesson_name: "温度变化"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_positive_negative_context_meaning"
+        name: "正负数的情境意义"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "正数和负数的初步认识"
+        lesson: "正负数的情境意义"
+        micro_skill: "用正负数表示相反意义的量，如收入支出、上升下降和海拔高低。"
+        description: "建立正数、负数和 0 在生活情境中的初步意义，暂不进入六上有理数系统化分类。"
+        prerequisite: ["math_g5b_natural_number_property_review"]
+        related_later: ["math_g5b_positive_negative_number_line_basic", "math_g6a_rational_number_concept"]
+        typical_question_forms: ["情境填数", "意义解释", "正负号判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_SIGN_RULE_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能区分情境方向误读和正负号概念不清。"
+        training_value: "为六上有理数意义提供生活情境底座。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_positive_negative_number_line_basic"
+        name: "正负数数轴初步表示"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "正数和负数的初步认识"
+        lesson: "数轴初步"
+        micro_skill: "在有原点、方向和单位长度的数轴上定位简单正负数。"
+        description: "理解原点、正方向和单位长度的初步作用，重点是表示和方向，不扩展到相反数、绝对值和中点。"
+        prerequisite: ["math_g5b_positive_negative_context_meaning"]
+        related_later: ["math_g5b_positive_negative_size_comparison", "math_g6a_number_line_representation"]
+        typical_question_forms: ["数轴标点", "读点写数", "方向判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_SIGN_RULE_ERROR", "MATH_CONCEPT_DEFINITION_ERROR"]
+        diagnostic_value: "适合定位正负数从情境到数轴表示的转换问题。"
+        training_value: "作为六上数轴系统化学习前的表示训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_positive_negative_size_comparison"
+        name: "正负数大小比较初步"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "正数和负数的初步认识"
+        lesson: "数轴初步"
+        micro_skill: "借助数轴方向比较简单正数、负数和 0 的大小。"
+        description: "用数轴右大左小的直观规则比较大小，避免把负号后的数字越大误认为数越大。"
+        prerequisite: ["math_g5b_positive_negative_number_line_basic"]
+        related_later: ["math_g6a_number_line_representation", "math_g6a_opposite_absolute_value"]
+        typical_question_forms: ["大小比较", "排序", "数轴判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_SIGN_RULE_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR", "MATH_CONDITION_JUDGEMENT_ERROR"]
+        diagnostic_value: "能定位负数大小直觉和数轴方向混淆。"
+        training_value: "为六上有理数大小比较和绝对值边界做准备。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "judgement", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_temperature_change_context"
+        name: "温度变化中的正负数"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "正数和负数的初步认识"
+        lesson: "温度变化"
+        micro_skill: "把升高、降低和零上零下转化为简单正负数变化。"
+        description: "在温度情境中理解正负方向和变化结果，保持五下情境直观层级。"
+        prerequisite: ["math_g5b_positive_negative_context_meaning", "math_g5b_positive_negative_number_line_basic"]
+        related_later: ["math_g6a_rational_add_different_sign"]
+        typical_question_forms: ["温度变化填空", "情境应用", "结果合理性判断"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_SIGN_RULE_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING", "MATH_MODEL_CONSTRUCTION_ERROR"]
+        diagnostic_value: "能定位方向词理解和正负变化建模问题。"
+        training_value: "适合把五下正负数迁移到六上有理数加减前的情境桥接。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "fill_blank", "short_answer"]
+
+  - unit_id: "math_g5b_unit_equation_two"
+    unit_name: "简易方程（二）"
+    name: "简易方程（二）"
+    domain: "number_algebra"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_equal_relation"
+        lesson_name: "等量关系"
+      - lesson_id: "math_g5b_lesson_equation_application"
+        lesson_name: "列方程解决问题"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_equal_relation_from_text"
+        name: "从文字中找等量关系"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "简易方程（二）"
+        lesson: "等量关系"
+        micro_skill: "从题目文字中提取左右两边含义一致的等量关系。"
+        description: "强调先找等量关系再列式，避免把关键词机械翻译成运算。"
+        prerequisite: ["math_g5b_equation_concept_review"]
+        related_later: ["math_g5b_equation_model_from_word_problem", "math_g6a_equation_concept"]
+        typical_question_forms: ["等量关系填空", "关系式选择", "文字条件改写"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_EQUALITY_RELATION_ERROR", "MATH_QUANTITATIVE_RELATION_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "高价值定位方程应用题的关系提取错误。"
+        training_value: "适合作为列方程解应用题前的结构化训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["fill_blank", "math_equation", "math_reading_application"]
+
+      - knowledge_point_id: "math_g5b_equation_model_from_word_problem"
+        name: "列方程解应用题"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "简易方程（二）"
+        lesson: "列方程解决问题"
+        micro_skill: "设未知数、列方程并按题意解释结果。"
+        description: "把文字条件转化为简易方程模型，重点在设元、等量关系和结果回到问题。"
+        prerequisite: ["math_g5b_equal_relation_from_text"]
+        related_later: ["math_g6a_equation_word_problem", "math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["列方程应用题", "方案解释", "过程纠错"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_MODEL_CONSTRUCTION_ERROR", "MATH_EQUALITY_RELATION_ERROR", "MATH_QUANTITATIVE_RELATION_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能定位建模、设元和等量关系之间的主要错因。"
+        training_value: "作为五下问题解决与六上方程/百分数应用建模的桥接。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "math_equation", "math_reading_application"]
+
+      - knowledge_point_id: "math_g5b_equation_solution_check"
+        name: "方程解的检验"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "简易方程（二）"
+        lesson: "列方程解决问题"
+        micro_skill: "把求得的解代回方程和原题情境检查是否合理。"
+        description: "训练解后检验和结果解释，避免只得到数字不判断单位、范围和题意。"
+        prerequisite: ["math_g5b_equation_model_from_word_problem"]
+        related_later: ["math_g6a_one_step_equation_solving"]
+        typical_question_forms: ["回代检验", "错解判断", "合理性说明"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["GEN_CHECKING_OMISSION", "MATH_PROCESS_EXPRESSION_ERROR", "MATH_UNIT_LABEL_ERROR"]
+        diagnostic_value: "能定位缺少检验、过程表达和答案回到情境的问题。"
+        training_value: "适合提升应用题完整答题质量。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_equation", "math_application", "short_answer"]
+
+  - unit_id: "math_g5b_unit_geometry_practice"
+    unit_name: "几何小实践"
+    name: "几何小实践"
+    domain: "geometry_statistics"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_cubic_units"
+        lesson_name: "体积单位"
+      - lesson_id: "math_g5b_lesson_prism_cube_volume"
+        lesson_name: "长方体和正方体体积"
+      - lesson_id: "math_g5b_lesson_surface_capacity"
+        lesson_name: "表面积与容积"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_cubic_unit_recognition"
+        name: "体积单位识别"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "体积单位"
+        micro_skill: "区分长度单位、面积单位和体积单位，并选择合适的体积单位。"
+        description: "建立立方厘米、立方分米、立方米等体积单位的量感。"
+        prerequisite: ["math_g5b_area_estimation_review"]
+        related_later: ["math_g5b_rectangular_prism_volume_formula", "math_g6a_unit_conversion_measurement"]
+        typical_question_forms: ["单位选择", "单位意义判断", "估测填空"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_UNIT_MEANING_ERROR", "MATH_UNIT_CONVERSION_ERROR", "MATH_ESTIMATION_NUMBER_SENSE_ERROR"]
+        diagnostic_value: "能定位几何量纲混淆和体积单位量感不足。"
+        training_value: "为体积公式和容积题提供单位底座。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_unit_conversion", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_rectangular_prism_volume_formula"
+        name: "长方体体积公式"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "长方体和正方体体积"
+        micro_skill: "用长、宽、高计算长方体体积，并正确处理单位。"
+        description: "理解长方体体积等于长乘宽乘高，关注公式适用条件和单位标注。"
+        prerequisite: ["math_g5b_cubic_unit_recognition"]
+        related_later: ["math_g5b_cube_volume_formula", "math_g5b_composite_solid_volume_decomposition"]
+        typical_question_forms: ["体积计算", "缺一维求量", "单位换算"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_FORMULA_APPLICATION_ERROR", "MATH_UNIT_CONVERSION_ERROR", "MATH_CALCULATION_EXECUTION_ERROR"]
+        diagnostic_value: "适合定位公式套用、单位换算和计算执行问题。"
+        training_value: "作为组合体体积和容积应用的核心基础。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_geometry_calculation", "math_unit_conversion", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_cube_volume_formula"
+        name: "正方体体积公式"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "长方体和正方体体积"
+        micro_skill: "用棱长的三次乘积计算正方体体积。"
+        description: "理解正方体体积公式是长方体体积公式的特殊情形。"
+        prerequisite: ["math_g5b_rectangular_prism_volume_formula"]
+        related_later: ["math_g5b_composite_solid_volume_decomposition"]
+        typical_question_forms: ["体积计算", "棱长求体积", "公式选择"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_FORMULA_SELECTION_ERROR", "MATH_FORMULA_APPLICATION_ERROR", "MATH_CALCULATION_EXECUTION_ERROR"]
+        diagnostic_value: "能区分公式选择错误和乘方意义理解问题。"
+        training_value: "适合与长方体公式对比训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_geometry_calculation", "fill_blank", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_composite_solid_volume_decomposition"
+        name: "组合体体积分解"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "长方体和正方体体积"
+        micro_skill: "把组合立体图形分解或补成长方体、正方体后计算体积。"
+        description: "用分割、补全和差量思路处理简单组合体，保持五下实践层级。"
+        prerequisite: ["math_g5b_rectangular_prism_volume_formula", "math_g5b_cube_volume_formula"]
+        related_later: ["math_g6a_line_angle_basic"]
+        typical_question_forms: ["组合体体积", "补形求体积", "步骤说明"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_SPATIAL_VISUALIZATION_ERROR", "MATH_MODEL_CONSTRUCTION_ERROR", "MATH_FORMULA_APPLICATION_ERROR"]
+        diagnostic_value: "高价值定位空间分解、图形转模型和公式应用问题。"
+        training_value: "用于五下几何旧错回溯和后续空间想象训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_geometry_calculation", "math_application", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_surface_area_concept"
+        name: "表面积概念"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "表面积与容积"
+        micro_skill: "判断立体图形需要计算哪些面的面积之和。"
+        description: "理解表面积是外表各面的面积总和，关注开放面、贴合面和单位。"
+        prerequisite: ["math_g5b_area_estimation_review", "math_g5b_rectangular_prism_volume_formula"]
+        related_later: ["math_g6a_unit_conversion_measurement"]
+        typical_question_forms: ["表面积计算", "涂色面积", "开放盒判断"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_GEOMETRIC_PROPERTY_ERROR", "MATH_FORMULA_SELECTION_ERROR", "MATH_UNIT_MEANING_ERROR"]
+        diagnostic_value: "能定位表面积与体积混淆、面数遗漏和公式选择问题。"
+        training_value: "适合与容积、包装材料和实际应用题连接。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_geometry_calculation", "math_application", "short_answer"]
+
+      - knowledge_point_id: "math_g5b_volume_capacity_distinction"
+        name: "体积与容积区分"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "几何小实践"
+        lesson: "表面积与容积"
+        micro_skill: "区分物体所占空间大小和容器所能容纳物体的多少。"
+        description: "理解体积和容积的意义边界，并能在生活情境中选择相应单位和算法。"
+        prerequisite: ["math_g5b_cubic_unit_recognition", "math_g5b_rectangular_prism_volume_formula"]
+        related_later: ["math_g6a_unit_conversion_measurement"]
+        typical_question_forms: ["概念辨析", "容积应用", "单位换算"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_UNIT_MEANING_ERROR", "MATH_CONCEPT_DEFINITION_ERROR", "MATH_MODEL_CONSTRUCTION_ERROR"]
+        diagnostic_value: "能定位体积、容积和单位意义混淆。"
+        training_value: "适合与实际容器应用题和单位换算联动训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_geometry_calculation", "math_unit_conversion", "math_application"]
+
+  - unit_id: "math_g5b_unit_problem_solving"
+    unit_name: "问题解决"
+    name: "问题解决"
+    domain: "integrated_practice"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_speed_time_distance"
+        lesson_name: "行程问题"
+      - lesson_id: "math_g5b_lesson_multi_step_strategy"
+        lesson_name: "多步问题策略"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_speed_time_distance_relation"
+        name: "行程问题数量关系"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "问题解决"
+        lesson: "行程问题"
+        micro_skill: "识别速度、时间和路程三者关系，并根据未知量选择式子或方程。"
+        description: "在行程情境中建立速度、时间、路程关系，重点是量的对应和单位一致。"
+        prerequisite: ["math_g5b_equal_relation_from_text"]
+        related_later: ["math_g6a_percentage_word_problem_model", "math_g6a_unit_conversion_measurement"]
+        typical_question_forms: ["行程应用题", "关系式填空", "单位一致性检查"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_QUANTITATIVE_RELATION_ERROR", "MATH_UNIT_MEANING_ERROR", "MATH_MODEL_CONSTRUCTION_ERROR"]
+        diagnostic_value: "高价值定位应用题关系提取和单位对应问题。"
+        training_value: "适合作为六上应用建模和百分数应用前的数量关系训练。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "math_reading_application", "math_equation"]
+
+      - knowledge_point_id: "math_g5b_multi_step_problem_strategy"
+        name: "多步问题解决策略"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "问题解决"
+        lesson: "多步问题策略"
+        micro_skill: "把多条件应用题拆成有顺序的中间量，再选择算式或方程。"
+        description: "强调条件整理、步骤计划和中间量命名，不把学校台阶训练注册为知识点。"
+        prerequisite: ["math_g5b_equal_relation_from_text", "math_g5b_equation_model_from_word_problem"]
+        related_later: ["math_g6a_percentage_word_problem_model"]
+        typical_question_forms: ["多步应用题", "条件整理", "解题方案说明"]
+        suitable_difficulty: ["medium", "advanced", "challenge"]
+        suitable_mistake_tags: ["MATH_MULTI_STEP_PLANNING_ERROR", "GEN_CONDITION_OMISSION", "MATH_PROCESS_EXPRESSION_ERROR"]
+        diagnostic_value: "适合定位多步计划、条件遗漏和过程表达问题。"
+        training_value: "作为 target matrix 中高频应用题错因的 X 轴定位点。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["math_application", "math_reading_application", "short_answer"]
+
+  - unit_id: "math_g5b_unit_probability_statistics_review"
+    unit_name: "可能性与统计复习"
+    name: "可能性与统计复习"
+    domain: "geometry_statistics"
+    term: "五年级下"
+    lessons:
+      - lesson_id: "math_g5b_lesson_probability"
+        lesson_name: "可能性"
+      - lesson_id: "math_g5b_lesson_statistics_fraction_review"
+        lesson_name: "统计与分数复习"
+    knowledge_points:
+      - knowledge_point_id: "math_g5b_probability_likelihood_comparison"
+        name: "可能性大小比较"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "可能性与统计复习"
+        lesson: "可能性"
+        micro_skill: "根据数量、条件或规则判断事件发生可能性的相对大小。"
+        description: "在简单随机情境中比较可能性大小，不进入形式化概率计算。"
+        prerequisite: ["math_g5b_natural_number_property_review"]
+        related_later: ["math_g6a_data_table_graph_reading"]
+        typical_question_forms: ["可能性判断", "摸球情境", "规则公平性说明"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_CONDITION_JUDGEMENT_ERROR", "MATH_QUANTITATIVE_RELATION_ERROR", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能定位条件读取和可能性比较中的数量关系问题。"
+        training_value: "适合连接后续数据读取、比例和应用题判断。"
+        usage_status: "core_active"
+        active: true
+        question_types: ["judgement", "short_answer", "math_application"]
+
+      - knowledge_point_id: "math_g5b_data_table_reading_review"
+        name: "统计图表读取复习"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "可能性与统计复习"
+        lesson: "统计与分数复习"
+        micro_skill: "从统计表或简单统计图中读取数据、比较数量并回答问题。"
+        description: "作为沪教五下统计复习内容保留，用于旧错回溯，不作为五下新授主线。"
+        prerequisite: []
+        related_later: ["math_g6a_data_table_graph_reading"]
+        typical_question_forms: ["表格读数", "数据比较", "信息匹配"]
+        suitable_difficulty: ["basic", "medium", "advanced"]
+        suitable_mistake_tags: ["MATH_DATA_GRAPH_READING_ERROR", "GEN_CONDITION_OMISSION", "GEN_READING_KEYWORD_MISUNDERSTANDING"]
+        diagnostic_value: "能定位读表、读图和条件对应错误。"
+        training_value: "适合五下试卷回收后的数据读取旧错归因。"
+        usage_status: "review_active"
+        active: true
+        metadata:
+          scope_note: "review_only_for_hujiao_g5b"
+        question_types: ["fill_blank", "short_answer", "math_reading_application"]
+
+      - knowledge_point_id: "math_g5b_fraction_concept_calculation_review"
+        name: "分数概念与计算复习"
+        subject_id: "math"
+        grade: 5
+        term: "五年级下"
+        textbook_version: "沪教版"
+        curriculum_version: "cn_k12_2022"
+        unit: "可能性与统计复习"
+        lesson: "统计与分数复习"
+        micro_skill: "复习分数意义、简单分数计算和分数在数据情境中的表示。"
+        description: "作为沪教五下分数复习内容保留，用于旧错回溯，不扩展为六上分数系统主线。"
+        prerequisite: []
+        related_later: ["math_g6a_ratio_meaning", "math_g6a_percentage_meaning"]
+        typical_question_forms: ["分数意义判断", "简单计算", "数据中的分数表示"]
+        suitable_difficulty: ["basic", "medium"]
+        suitable_mistake_tags: ["MATH_CONCEPT_DEFINITION_ERROR", "MATH_CALCULATION_EXECUTION_ERROR", "MATH_REPRESENTATION_TRANSFER_ERROR"]
+        diagnostic_value: "能定位分数意义、基础计算和表征转换问题。"
+        training_value: "适合为六上比、百分数和数据读取做旧基础回溯。"
+        usage_status: "review_active"
+        active: true
+        metadata:
+          scope_note: "review_only_for_hujiao_g5b"
+        question_types: ["math_calculation", "fill_blank", "short_answer"]

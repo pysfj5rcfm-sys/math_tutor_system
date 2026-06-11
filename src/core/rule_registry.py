@@ -415,7 +415,7 @@ class RuleRegistry:
             "textbook_version": curriculum.get("textbook_version", "generic"),
             "coverage_note": curriculum.get("coverage_note", ""),
             "source_of_truth": f"config/curriculum/{curriculum_version}/{subject_id}/grade_{grade_int}.yaml",
-            "units": curriculum.get("units", []),
+            "units": _filter_units_by_term(curriculum.get("units", []), term),
         }
         return yaml.safe_dump(scope, allow_unicode=True, sort_keys=False)
 
@@ -443,7 +443,7 @@ class RuleRegistry:
         items = self.get_expression_capabilities_for_subject(subject_id) if subject_id else _filter_active(self.expression_capabilities, True)
         return yaml.safe_dump(items, allow_unicode=True, sort_keys=False)
 
-    def render_alias_mappings_for_prompt(self, subject_id: str | None = None) -> str:
+    def render_alias_mappings_for_prompt(self, subject_id: str | None = None, grade: int | str | None = None) -> str:
         if subject_id is None:
             return yaml.safe_dump(self.alias_mappings, allow_unicode=True, sort_keys=False)
         scoped: dict[str, Any] = {}
@@ -455,8 +455,13 @@ class RuleRegistry:
             for alias, target in section.items():
                 if isinstance(target, dict):
                     if alias == subject_id:
-                        filtered[alias] = target
-                elif _alias_target_applies_to_subject(self, alias_key, str(target), subject_id):
+                        filtered_aliases = {
+                            inner_alias: inner_target
+                            for inner_alias, inner_target in target.items()
+                            if _alias_target_applies_to_context(self, alias_key, str(inner_target), subject_id, grade)
+                        }
+                        filtered[alias] = filtered_aliases
+                elif _alias_target_applies_to_context(self, alias_key, str(target), subject_id, grade):
                     filtered[alias] = target
             scoped[alias_key] = filtered
         return yaml.safe_dump(scoped, allow_unicode=True, sort_keys=False)
@@ -779,6 +784,12 @@ def _unique_matches(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return result
 
 
+def _filter_units_by_term(units: list[dict[str, Any]], term: str | None) -> list[dict[str, Any]]:
+    if not term:
+        return units
+    return [unit for unit in units if str(unit.get("term", "")) in {"", str(term)}]
+
+
 def _question_type_accepted_values(item: dict[str, Any]) -> list[str]:
     values = [item.get("code", ""), item.get("name", ""), item.get("display_name", "")]
     return _unique([value for value in values if value])
@@ -798,14 +809,28 @@ def _policy_for_prompt(policy: dict[str, Any]) -> dict[str, Any]:
 
 
 def _alias_target_applies_to_subject(registry: RuleRegistry, alias_key: str, target: str, subject_id: str) -> bool:
+    return _alias_target_applies_to_context(registry, alias_key, target, subject_id, None)
+
+
+def _alias_target_applies_to_context(
+    registry: RuleRegistry,
+    alias_key: str,
+    target: str,
+    subject_id: str,
+    grade: int | str | None,
+) -> bool:
     if alias_key == "question_type_aliases":
         return target in {item.get("code") for item in registry.get_question_types_for_subject(subject_id)}
     if alias_key == "knowledge_point_aliases":
-        return target in {
-            item.get("knowledge_point_id")
-            for item in registry.get_curriculum_knowledge_points()
-            if item.get("subject_id") == subject_id
-        }
+        try:
+            points = (
+                registry.get_knowledge_points_for_context(subject_id, int(grade))
+                if grade is not None
+                else registry.get_curriculum_knowledge_points()
+            )
+        except (TypeError, ValueError, RuleRegistryError):
+            points = registry.get_curriculum_knowledge_points()
+        return target in {item.get("knowledge_point_id") for item in points if item.get("subject_id") == subject_id}
     if alias_key == "mistake_tag_aliases":
         return target in {item.get("code") for item in registry.get_mistake_tags_for_subject(subject_id)}
     return True

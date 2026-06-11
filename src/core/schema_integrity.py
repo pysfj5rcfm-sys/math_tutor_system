@@ -52,6 +52,8 @@ REQUIRED_COLUMNS = {
     },
 }
 MATH_G6A_USAGE_STATUS = {"core_active", "review_active", "intro_active", "reserved_inactive"}
+MATH_G5B_EXPECTED_POINT_COUNT = 23
+MATH_G5B_REVIEW_ONLY_SCOPE_NOTE = "review_only_for_hujiao_g5b"
 MATH_V018_CATEGORIES = {
     "concept_definition",
     "rule_application",
@@ -324,6 +326,7 @@ def _check_alias_ambiguity(registry: Any, report: dict[str, list[dict[str, Any]]
 
 def _check_v018_registry_contract(registry: Any, report: dict[str, list[dict[str, Any]]]) -> None:
     _check_math_g6a_curriculum(registry, report)
+    _check_math_g5b_curriculum(registry, report)
     _check_math_v018_taxonomy(registry, report)
     _check_no_legacy_runtime_config(registry, report)
 
@@ -395,6 +398,81 @@ def _check_math_g6a_curriculum(registry: Any, report: dict[str, list[dict[str, A
         for tag_code in point.get("suitable_mistake_tags") or []:
             if tag_code not in active_tags:
                 _add(report, "warnings", "math_g6a_unknown_suitable_mistake_tag", f"{label}.{tag_code}")
+
+
+def _check_math_g5b_curriculum(registry: Any, report: dict[str, list[dict[str, Any]]]) -> None:
+    try:
+        curriculum = registry.get_curriculum_for("math", 5, "cn_k12_2022")
+    except RuleRegistryError as exc:
+        _add(report, "errors", "math_g5b_curriculum_missing", str(exc))
+        return
+
+    metadata = curriculum.get("metadata") or {}
+    expected = {
+        "registry_name": "math_g5b_knowledge_registry",
+        "subject_id": "math",
+        "grade": 5,
+        "term": "五年级下",
+        "textbook_version": "沪教版",
+        "curriculum_version": "cn_k12_2022",
+        "registry_version": "v0.1.9.1-pretrial",
+    }
+    for field, value in expected.items():
+        if metadata.get(field) != value:
+            _add(report, "errors", "math_g5b_curriculum_metadata_invalid", f"{field}={metadata.get(field)!r}")
+
+    all_points = registry.get_knowledge_points_for_context("math", 5, "cn_k12_2022")
+    points = [point for point in all_points if str(point.get("knowledge_point_id", "")).startswith("math_g5b_")]
+    if len(points) != MATH_G5B_EXPECTED_POINT_COUNT:
+        _add(report, "errors", "math_g5b_point_count_invalid", len(points))
+    point_ids = [str(point.get("knowledge_point_id", "")) for point in points]
+    duplicates = sorted({value for value in point_ids if point_ids.count(value) > 1})
+    for duplicate in duplicates:
+        _add(report, "errors", "math_g5b_duplicate_knowledge_point_id", duplicate)
+
+    active_tags = {tag["code"] for tag in registry.get_mistake_tags_for_subject("math") if tag.get("active", True) is True}
+    difficulties = set(registry.get_difficulty_codes(active_only=True))
+    point_id_set = set(point_ids)
+    review_only_count = 0
+    for point in points:
+        point_id = str(point.get("knowledge_point_id", ""))
+        label = f"knowledge_points[{point_id}]"
+        if point.get("subject_id") != "math":
+            _add(report, "errors", "math_g5b_invalid_subject_id", f"{label}.subject_id={point.get('subject_id')!r}")
+        if int(point.get("grade", 0)) != 5:
+            _add(report, "errors", "math_g5b_invalid_grade", f"{label}.grade={point.get('grade')!r}")
+        if point.get("term") != "五年级下":
+            _add(report, "errors", "math_g5b_invalid_term", f"{label}.term={point.get('term')!r}")
+        if point.get("textbook_version") != "沪教版":
+            _add(report, "errors", "math_g5b_invalid_textbook_version", f"{label}.textbook_version={point.get('textbook_version')!r}")
+        if point.get("curriculum_version") != "cn_k12_2022":
+            _add(report, "errors", "math_g5b_invalid_curriculum_version", f"{label}.curriculum_version={point.get('curriculum_version')!r}")
+        if not isinstance(point.get("active"), bool):
+            _add(report, "errors", "math_g5b_active_not_boolean", label)
+        usage_status = point.get("usage_status")
+        if usage_status not in MATH_G6A_USAGE_STATUS:
+            _add(report, "errors", "math_g5b_invalid_usage_status", f"{label}.usage_status={usage_status!r}")
+        for field in sorted(MATH_KP_METADATA_FIELDS):
+            if field not in point:
+                _add(report, "errors", "math_g5b_missing_metadata_field", f"{label}.{field}")
+        for difficulty in point.get("suitable_difficulty") or []:
+            if difficulty not in difficulties:
+                _add(report, "errors", "math_g5b_invalid_suitable_difficulty", f"{label}.{difficulty}")
+        for ref_field in ("prerequisite", "related_later"):
+            for ref in point.get(ref_field) or []:
+                if ref.startswith("math_g5b_") and ref not in point_id_set:
+                    _add(report, "warnings", "math_g5b_unknown_knowledge_point_reference", f"{label}.{ref_field}.{ref}")
+        for tag_code in point.get("suitable_mistake_tags") or []:
+            if tag_code not in active_tags:
+                _add(report, "warnings", "math_g5b_unknown_suitable_mistake_tag", f"{label}.{tag_code}")
+        if (point.get("metadata") or {}).get("scope_note") == MATH_G5B_REVIEW_ONLY_SCOPE_NOTE:
+            review_only_count += 1
+            if usage_status != "review_active":
+                _add(report, "errors", "math_g5b_review_only_not_review_active", label)
+            if point.get("active") is not True:
+                _add(report, "errors", "math_g5b_review_only_not_active", label)
+    if review_only_count != 2:
+        _add(report, "errors", "math_g5b_review_only_count_invalid", review_only_count)
 
 
 def _check_math_v018_taxonomy(registry: Any, report: dict[str, list[dict[str, Any]]]) -> None:
