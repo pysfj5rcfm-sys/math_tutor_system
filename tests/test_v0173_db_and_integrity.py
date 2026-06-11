@@ -33,7 +33,7 @@ def test_init_db_sets_registry_meta_without_changing_schema(tmp_path: Path):
     finally:
         conn.close()
 
-    assert meta["schema_version"] == "0.1.6"
+    assert meta["schema_version"] == "0.1.7"
     assert meta["project_name"] == "edu_tutor_system"
     assert meta["db_name"] == "edu_tutor.db"
     assert meta["registry_version"] == "0.1.8.1"

@@ -1,0 +1,73 @@
+mistakes:
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "沪教版"
+    date: "2026-06-05"
+    question_type_code: "math_calculation"
+    knowledge_point_id: "math_g6a_rational_add_different_sign"
+    primary_mistake_tag_code: "MATH_SIGN_RULE_ERROR"
+    difficulty_code: "basic"
+    question_summary: "异号有理数相加时没有先判断结果符号。"
+    wrong_answer_summary: "把 -8 + 3 写成 5。"
+    correct_answer_summary: "绝对值较大的数是 -8，结果为负，-8 + 3 = -5。"
+    training_needed: true
+    diagnosis_confidence: 0.86
+    needs_human_review: false
+    secondary_mistake_tags:
+      - "MATH_CALCULATION_EXECUTION_ERROR"
+    diagnosis_evidence:
+      observed_answer: "5"
+      observed_steps:
+        - "-8 + 3 = 5"
+      error_step_index: 0
+      inferred_reasoning: "可见步骤显示学生把异号相加直接按绝对值相减后取正。"
+      missing_reasoning:
+        - "没有先比较绝对值并确定结果符号。"
+      why_primary: "错误发生在符号规则判断，早于具体数值执行。"
+      why_not_calculation_only: "如果符号判断正确，数值部分 8 - 3 = 5 本身没有暴露错误。"
+      original_text_evidence:
+        - "-8 + 3 = 5"
+    alternative_diagnoses:
+      - code: "MATH_CONDITION_JUDGEMENT_ERROR"
+        reason: "也可能是没有先判断绝对值大小。"
+        confidence: 0.42
+    source: "uat_v019_pretrial_fixture"
+  - student_id: "daughter"
+    subject_id: "math"
+    grade_at_time: 6
+    term_at_time: "六年级上"
+    curriculum_version_at_time: "cn_k12_2022"
+    textbook_version_at_time: "沪教版"
+    date: "2026-06-05"
+    question_type_code: "math_application"
+    knowledge_point_id: "math_g6a_percentage_word_problem_model"
+    primary_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
+    difficulty_code: "medium"
+    question_summary: "百分数应用题中把比较量和单位 1 对应关系弄反。"
+    wrong_answer_summary: "用 60 * 30% 求全班人数。"
+    correct_answer_summary: "18 人占全班 30%，全班人数应为 18 / 30% = 60。"
+    training_needed: true
+    diagnosis_confidence: 0.78
+    needs_human_review: false
+    secondary_mistake_tags:
+      - "MATH_MODEL_CONSTRUCTION_ERROR"
+    diagnosis_evidence:
+      observed_answer: "18"
+      observed_steps:
+        - "60 * 30% = 18"
+      error_step_index: 0
+      inferred_reasoning: "可见步骤显示学生知道百分率关系，但没有把未知总量作为单位 1。"
+      missing_reasoning:
+        - "没有明确比较量、百分率和单位 1 的对应关系。"
+      why_primary: "主要问题是数量关系提取，而不是单纯算式执行。"
+      why_not_calculation_only: "乘法计算结果正确，错误在关系选择。"
+      original_text_evidence:
+        - "参加社团的学生有 18 人，占全班人数的 30%"
+    alternative_diagnoses:
+      - code: "MATH_MODEL_CONSTRUCTION_ERROR"
+        reason: "关系识别后也存在从关系到式子的构造偏差。"
+        confidence: 0.5
+    source: "uat_v019_pretrial_fixture"

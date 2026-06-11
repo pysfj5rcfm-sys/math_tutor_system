@@ -1,4 +1,4 @@
-YAML parsed, but it failed edu_tutor_system v0.1.8 validation.
+YAML parsed, but it failed edu_tutor_system v0.1.9-pretrial validation.
 
 source_type: {{ source_type }}
 
@@ -40,15 +40,19 @@ subject_scoped_alias_mappings:
 Repair rules:
 - Only repair fields, enum values, missing required fields, and unsupported fields.
 - Do not rewrite the core question content.
-- Use canonical fields only: question_type_code, knowledge_point_id, primary_mistake_tag_code, target_mistake_tag_code, difficulty_code.
+- Use canonical fields: question_type_code, knowledge_point_id, primary_mistake_tag_code, target_mistake_tag_code, difficulty_code.
+- Keep allowed v0.1.9-pretrial optional fields when valid: diagnosis_confidence, needs_human_review, secondary_mistake_tags, diagnosis_evidence, alternative_diagnoses, primary_target_id, question_role, teaching_purpose, expected_error_mechanism.
 - Do not output old free-text fields as the recommended schema.
 - Do not invent code/id values outside the registry.
-- v0.1.8 supports plain text only; do not output visuals, render_blocks, diagram, formula_block, chemical_equation_block, or physics_diagram.
+- v0.1.9-pretrial supports plain text only; do not output visuals, render_blocks, diagram, formula_block, chemical_equation_block, or physics_diagram.
+- question_role must be repair, variant, transfer, or mixed_review.
+- secondary_mistake_tags must contain at most 3 allowed current mistake tags.
+- diagnosis_confidence and alternative_diagnoses.confidence must be between 0.0 and 1.0.
 - Output YAML only. No Markdown fences.
 - mistakes output must start with `mistakes:`.
 - worksheet output must start with `worksheet:`.
 
-Current v0.1.8 mistakes.yaml canonical structure:
+Current v0.1.9-pretrial mistakes.yaml canonical structure:
 ```yaml
 mistakes:
   - date: "2026-06-03"
@@ -66,10 +70,15 @@ mistakes:
     wrong_answer_summary: "..."
     correct_answer_summary: "..."
     training_needed: true
+    diagnosis_confidence: 0.82
+    needs_human_review: false
+    secondary_mistake_tags: []
+    diagnosis_evidence: {}
+    alternative_diagnoses: []
     source: "GPT marking"
 ```
 
-Current v0.1.8 worksheet.yaml canonical structure:
+Current v0.1.9-pretrial worksheet.yaml canonical structure:
 ```yaml
 worksheet:
   title: "六年级数学专项训练"
@@ -88,6 +97,10 @@ worksheet:
           knowledge_point_id: "math_g6a_percentage_word_problem_model"
           target_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
           difficulty_code: "medium"
+          primary_target_id: "math_g6a_percentage_word_problem_model::MATH_QUANTITATIVE_RELATION_ERROR"
+          question_role: "repair"
+          teaching_purpose: "..."
+          expected_error_mechanism: "..."
           question: "..."
           answer: "..."
           explanation: "..."

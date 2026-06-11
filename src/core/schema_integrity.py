@@ -29,8 +29,27 @@ FORBIDDEN_COLUMNS = {
 }
 
 REQUIRED_COLUMNS = {
-    "mistakes": {"question_type_code", "knowledge_point_id", "primary_mistake_tag_code", "difficulty_code"},
-    "worksheet_items": {"question_type_code", "knowledge_point_id", "target_mistake_tag_code", "difficulty_code"},
+    "mistakes": {
+        "question_type_code",
+        "knowledge_point_id",
+        "primary_mistake_tag_code",
+        "difficulty_code",
+        "diagnosis_confidence",
+        "needs_human_review",
+        "secondary_mistake_tags_json",
+        "diagnosis_evidence_json",
+        "alternative_diagnoses_json",
+    },
+    "worksheet_items": {
+        "question_type_code",
+        "knowledge_point_id",
+        "target_mistake_tag_code",
+        "difficulty_code",
+        "primary_target_id",
+        "question_role",
+        "teaching_purpose",
+        "expected_error_mechanism",
+    },
 }
 MATH_G6A_USAGE_STATUS = {"core_active", "review_active", "intro_active", "reserved_inactive"}
 MATH_V018_CATEGORIES = {

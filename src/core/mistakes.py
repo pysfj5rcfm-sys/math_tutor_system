@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import json
 from pathlib import Path
 from typing import Any
 
@@ -173,10 +174,13 @@ def _insert_mistake_rows(
                 curriculum_version_at_time, textbook_version_at_time, date,
                 question_type_code, knowledge_point_id, primary_mistake_tag_code,
                 difficulty_code, question_summary, wrong_answer_summary,
-                correct_answer_summary, training_needed, source, status,
+                correct_answer_summary, training_needed, diagnosis_confidence,
+                needs_human_review, secondary_mistake_tags_json,
+                diagnosis_evidence_json, alternative_diagnoses_json,
+                source, status,
                 import_batch_id, record_hash, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_confirmation', ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'needs_confirmation', ?, ?, ?, ?)
             """,
             (
                 row["student_id"],
@@ -194,6 +198,11 @@ def _insert_mistake_rows(
                 row.get("wrong_answer_summary", ""),
                 row.get("correct_answer_summary", ""),
                 1 if row.get("training_needed", True) else 0,
+                row.get("diagnosis_confidence"),
+                1 if row.get("needs_human_review", False) else 0,
+                _json_or_none(row.get("secondary_mistake_tags")),
+                _json_or_none(row.get("diagnosis_evidence")),
+                _json_or_none(row.get("alternative_diagnoses")),
                 row.get("source", "manual"),
                 import_batch_id,
                 row_hash,
@@ -204,6 +213,12 @@ def _insert_mistake_rows(
         imported_count += 1
     conn.commit()
     return imported_count
+
+
+def _json_or_none(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    return json.dumps(value, ensure_ascii=False, sort_keys=True)
 
 
 def _create_import_batch(

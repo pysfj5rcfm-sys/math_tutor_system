@@ -9,7 +9,7 @@ from src.core.paths import DEFAULT_DB_PATH, OUTPUT_DIRS
 from src.core.rule_registry import RuleRegistry, load_rule_registry
 
 
-SCHEMA_VERSION = "0.1.6"
+SCHEMA_VERSION = "0.1.7"
 PROJECT_NAME = "edu_tutor_system"
 DB_NAME = "edu_tutor.db"
 REGISTRY_VERSION = "0.1.8.1"
@@ -97,6 +97,11 @@ def create_tables(conn: sqlite3.Connection) -> None:
             wrong_answer_summary TEXT,
             correct_answer_summary TEXT,
             training_needed INTEGER,
+            diagnosis_confidence REAL,
+            needs_human_review INTEGER DEFAULT 0,
+            secondary_mistake_tags_json TEXT,
+            diagnosis_evidence_json TEXT,
+            alternative_diagnoses_json TEXT,
             source TEXT,
             status TEXT,
             import_batch_id INTEGER,
@@ -136,6 +141,10 @@ def create_tables(conn: sqlite3.Connection) -> None:
             knowledge_point_id TEXT,
             target_mistake_tag_code TEXT,
             difficulty_code TEXT NOT NULL,
+            primary_target_id TEXT,
+            question_role TEXT,
+            teaching_purpose TEXT,
+            expected_error_mechanism TEXT,
             question TEXT NOT NULL,
             answer TEXT NOT NULL,
             explanation TEXT,
@@ -191,6 +200,32 @@ def create_tables(conn: sqlite3.Connection) -> None:
         );
         """
     )
+    migrate_schema(conn)
+
+
+def migrate_schema(conn: sqlite3.Connection) -> None:
+    """Apply small additive migrations for existing v0.1.x databases."""
+    _ensure_columns(conn, "mistakes", {
+        "diagnosis_confidence": "REAL",
+        "needs_human_review": "INTEGER DEFAULT 0",
+        "secondary_mistake_tags_json": "TEXT",
+        "diagnosis_evidence_json": "TEXT",
+        "alternative_diagnoses_json": "TEXT",
+    })
+    _ensure_columns(conn, "worksheet_items", {
+        "primary_target_id": "TEXT",
+        "question_role": "TEXT",
+        "teaching_purpose": "TEXT",
+        "expected_error_mechanism": "TEXT",
+    })
+    conn.commit()
+
+
+def _ensure_columns(conn: sqlite3.Connection, table: str, columns: dict[str, str]) -> None:
+    existing = {row["name"] if isinstance(row, sqlite3.Row) else row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    for name, definition in columns.items():
+        if name not in existing:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
 
 
 def seed_schema_meta(conn: sqlite3.Connection) -> None:

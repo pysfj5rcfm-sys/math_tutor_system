@@ -10,6 +10,7 @@
     h2 { font-size: 17px; margin: 8mm 0 4mm; }
     .item { break-inside: avoid; page-break-inside: avoid; margin-bottom: 6mm; font-size: 14px; line-height: 1.7; }
     .answer { font-weight: 700; }
+    .teacher-note { color: #555; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -21,6 +22,12 @@
         <div>{{ loop.index }}. {{ item.question }}</div>
         <div class="answer">Answer: {{ item.answer }}</div>
         <div>Explanation: {{ item.explanation }}</div>
+        {% if item.question_role or item.teaching_purpose %}
+          <div class="teacher-note">
+            {% if item.question_role %}Role: {{ item.question_role }}{% endif %}
+            {% if item.teaching_purpose %}Purpose: {{ item.teaching_purpose }}{% endif %}
+          </div>
+        {% endif %}
       </div>
     {% endfor %}
   {% endfor %}

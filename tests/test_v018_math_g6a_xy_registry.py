@@ -168,7 +168,7 @@ def test_v018_schema_integrity_and_version_contract(tmp_path: Path, monkeypatch)
     report = check_schema_integrity(db_path)
 
     assert report["errors"] == []
-    assert SCHEMA_VERSION == "0.1.6"
+    assert SCHEMA_VERSION == "0.1.7"
     assert REGISTRY_VERSION == "0.1.8.1"
     assert REGISTRY_MODE == "no_legacy"
 

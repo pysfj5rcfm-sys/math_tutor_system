@@ -4,6 +4,8 @@ from typing import Any
 
 from src.core.rule_registry import RuleRegistry, RuleRegistryError, load_rule_registry
 
+QUESTION_ROLES = {"repair", "variant", "transfer", "mixed_review"}
+
 
 def resolve_context(
     payload: dict[str, Any],
@@ -57,6 +59,7 @@ def normalize_mistake_row(
     _normalize_knowledge_point(normalized, row, context, registry, warnings, index)
     _normalize_mistake_tag(normalized, row, context, registry, errors, warnings, index, "primary_mistake_tag_code")
     _normalize_difficulty(normalized, row, registry, errors, warnings, index)
+    _normalize_diagnosis_fields(normalized, row, context, registry, errors, warnings, index)
 
     if not normalized.get("date"):
         errors.append(_item("missing_date", "date is required", index))
@@ -125,6 +128,7 @@ def normalize_worksheet_payload(
             _normalize_knowledge_point(item, question, context, registry, warnings, item_index)
             _normalize_mistake_tag(item, question, context, registry, item_errors, warnings, item_index, "target_mistake_tag_code")
             _normalize_difficulty(item, question, registry, item_errors, warnings, item_index)
+            _normalize_worksheet_optional_fields(item, question, item_errors, item_index)
             if not item.get("question"):
                 item_errors.append(_item("empty_question", "question must not be empty", item_index))
             if not item.get("answer"):
@@ -260,6 +264,133 @@ def _normalize_difficulty(
         errors.append(_item("invalid_difficulty", "difficulty_code is not supported", index))
     else:
         target["difficulty_code"] = code
+
+
+def _normalize_diagnosis_fields(
+    target: dict[str, Any],
+    source: dict[str, Any],
+    context: dict[str, Any],
+    registry: RuleRegistry,
+    errors: list[dict[str, Any]],
+    warnings: list[dict[str, Any]],
+    index: int | None,
+) -> None:
+    confidence = _optional_number(source.get("diagnosis_confidence"), "diagnosis_confidence", errors, index)
+    if confidence is not None:
+        target["diagnosis_confidence"] = confidence
+
+    review = _optional_bool(source.get("needs_human_review"), "needs_human_review", errors, index)
+    if review is not None:
+        target["needs_human_review"] = review
+
+    secondary = source.get("secondary_mistake_tags")
+    if secondary not in (None, ""):
+        if not isinstance(secondary, list):
+            errors.append(_item("invalid_secondary_mistake_tags", "secondary_mistake_tags must be a list", index))
+        elif len(secondary) > 3:
+            errors.append(_item("too_many_secondary_mistake_tags", "secondary_mistake_tags supports at most 3 items", index))
+        else:
+            normalized_tags: list[str] = []
+            for raw in secondary:
+                code, ambiguous = _match_mistake_tag(raw, context["subject_id"], registry)
+                if ambiguous or not code:
+                    errors.append(_item("invalid_secondary_mistake_tag", "secondary_mistake_tags must use current allowed mistake tags", index))
+                    continue
+                normalized_tags.append(code)
+            target["secondary_mistake_tags"] = normalized_tags
+
+    evidence = source.get("diagnosis_evidence")
+    if evidence not in (None, ""):
+        if not isinstance(evidence, dict):
+            errors.append(_item("invalid_diagnosis_evidence", "diagnosis_evidence must be a mapping", index))
+        else:
+            target["diagnosis_evidence"] = evidence
+
+    alternatives = source.get("alternative_diagnoses")
+    if alternatives not in (None, ""):
+        if not isinstance(alternatives, list):
+            errors.append(_item("invalid_alternative_diagnoses", "alternative_diagnoses must be a list", index))
+        else:
+            normalized_alternatives: list[dict[str, Any]] = []
+            for item in alternatives:
+                if not isinstance(item, dict):
+                    errors.append(_item("invalid_alternative_diagnosis", "each alternative_diagnoses item must be a mapping", index))
+                    continue
+                code, ambiguous = _match_mistake_tag(item.get("code"), context["subject_id"], registry)
+                if ambiguous or not code:
+                    errors.append(_item("invalid_alternative_diagnosis_code", "alternative_diagnoses.code must use current allowed mistake tags", index))
+                    continue
+                alt_confidence = _optional_number(item.get("confidence"), "alternative_diagnoses.confidence", errors, index)
+                normalized = dict(item)
+                normalized["code"] = code
+                if alt_confidence is not None:
+                    normalized["confidence"] = alt_confidence
+                normalized_alternatives.append(normalized)
+            target["alternative_diagnoses"] = normalized_alternatives
+
+
+def _normalize_worksheet_optional_fields(
+    target: dict[str, Any],
+    source: dict[str, Any],
+    errors: list[dict[str, Any]],
+    index: int | None,
+) -> None:
+    for field in ("primary_target_id", "teaching_purpose", "expected_error_mechanism"):
+        value = source.get(field)
+        if value in (None, ""):
+            target[field] = ""
+        elif isinstance(value, str):
+            target[field] = value
+        else:
+            errors.append(_item(f"invalid_{field}", f"{field} must be a string", index))
+
+    role = source.get("question_role")
+    if role in (None, ""):
+        target["question_role"] = ""
+    elif str(role) in QUESTION_ROLES:
+        target["question_role"] = str(role)
+    else:
+        errors.append(_item("invalid_question_role", "question_role must be repair, variant, transfer, or mixed_review", index))
+
+
+def _optional_number(
+    value: Any,
+    field_name: str,
+    errors: list[dict[str, Any]],
+    index: int | None,
+) -> float | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, bool):
+        errors.append(_item(f"invalid_{field_name}", f"{field_name} must be a number from 0.0 to 1.0", index))
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        errors.append(_item(f"invalid_{field_name}", f"{field_name} must be a number from 0.0 to 1.0", index))
+        return None
+    if number < 0.0 or number > 1.0:
+        errors.append(_item(f"{field_name}_out_of_range", f"{field_name} must be between 0.0 and 1.0", index))
+        return None
+    return number
+
+
+def _optional_bool(
+    value: Any,
+    field_name: str,
+    errors: list[dict[str, Any]],
+    index: int | None,
+) -> bool | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int) and value in {0, 1}:
+        return bool(value)
+    if isinstance(value, str) and value.strip().lower() in {"true", "false"}:
+        return value.strip().lower() == "true"
+    errors.append(_item(f"invalid_{field_name}", f"{field_name} must be boolean", index))
+    return None
 
 
 def _match_question_type(value: Any, subject_id: str, registry: RuleRegistry) -> tuple[str | None, bool]:

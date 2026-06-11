@@ -152,9 +152,11 @@ def _insert_valid_worksheet(
                 INSERT INTO worksheet_items (
                     worksheet_id, question_no, section_name, section_layout,
                     question_type_code, knowledge_point_id, target_mistake_tag_code,
-                    difficulty_code, question, answer, explanation, created_at, updated_at
+                    difficulty_code, primary_target_id, question_role,
+                    teaching_purpose, expected_error_mechanism,
+                    question, answer, explanation, created_at, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     worksheet_id,
@@ -165,6 +167,10 @@ def _insert_valid_worksheet(
                     question.get("knowledge_point_id"),
                     question.get("target_mistake_tag_code"),
                     question["difficulty_code"],
+                    question.get("primary_target_id", ""),
+                    question.get("question_role", ""),
+                    question.get("teaching_purpose", ""),
+                    question.get("expected_error_mechanism", ""),
                     question["question"],
                     question["answer"],
                     question.get("explanation", ""),

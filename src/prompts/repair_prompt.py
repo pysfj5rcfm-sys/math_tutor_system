@@ -27,6 +27,11 @@ MISTAKES_SKELETON = """mistakes:
     wrong_answer_summary: "..."
     correct_answer_summary: "..."
     training_needed: true
+    diagnosis_confidence: 0.82
+    needs_human_review: false
+    secondary_mistake_tags: []
+    diagnosis_evidence: {}
+    alternative_diagnoses: []
     source: "GPT marking"
     note: "..."
 """
@@ -48,6 +53,10 @@ WORKSHEET_SKELETON = """worksheet:
           knowledge_point_id: "math_g6a_percentage_word_problem_model"
           target_mistake_tag_code: "MATH_QUANTITATIVE_RELATION_ERROR"
           difficulty_code: "medium"
+          primary_target_id: "math_g6a_percentage_word_problem_model::MATH_QUANTITATIVE_RELATION_ERROR"
+          question_role: "repair"
+          teaching_purpose: "..."
+          expected_error_mechanism: "..."
           question: "..."
           answer: "..."
           explanation: "..."

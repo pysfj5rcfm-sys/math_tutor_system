@@ -1,6 +1,6 @@
 [project]
 name = "edu-tutor-system"
-version = "0.1.5.3"
+version = "0.1.9"
 description = "Local-first K12 multi-subject tutoring system"
 requires-python = ">=3.11"
 dependencies = [

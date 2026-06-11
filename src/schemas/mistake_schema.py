@@ -65,6 +65,22 @@ MISTAKES_SCHEMA_EXAMPLE = {
             "wrong_answer_summary": "错误答案摘要",
             "correct_answer_summary": "正确答案摘要",
             "training_needed": True,
+            "diagnosis_confidence": 0.82,
+            "needs_human_review": False,
+            "secondary_mistake_tags": ["MATH_CALCULATION_EXECUTION_ERROR"],
+            "diagnosis_evidence": {
+                "observed_answer": "学生实际答案或式子",
+                "observed_steps": ["可见步骤"],
+                "error_step_index": 1,
+                "why_primary": "选择 primary 的可复核理由",
+            },
+            "alternative_diagnoses": [
+                {
+                    "code": "MATH_RULE_APPLICATION_ERROR",
+                    "reason": "也可能存在规则应用问题",
+                    "confidence": 0.35,
+                }
+            ],
             "source": "manual",
         }
     ]
